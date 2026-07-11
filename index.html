@@ -3,388 +3,1123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#070b16" />
-  <title>NEON BINGO DUEL</title>
+  <meta name="theme-color" content="#0b7a4b" />
+  <title>Bingo Duel</title>
 
-  <!-- Supabase JS pentru multiplayer realtime -->
+  <!-- Multiplayer realtime. Configurația Supabase este deja introdusă în cod. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
-      --bg:#060916;
-      --panel:rgba(17,24,45,.78);
-      --panel2:rgba(10,15,31,.88);
-      --stroke:rgba(255,255,255,.10);
-      --text:#f8fbff;
-      --muted:#8f9bb8;
-      --cyan:#4de8ff;
-      --violet:#8d6bff;
-      --green:#2ee6a6;
-      --red:#ff4d67;
-      --yellow:#ffd166;
-      --shadow:0 22px 70px rgba(0,0,0,.48);
-      --radius:24px;
+      --green-950:#063c29;
+      --green-900:#07583a;
+      --green-800:#08784c;
+      --green-700:#0a985e;
+      --green-600:#10b970;
+      --green-500:#20d98a;
+      --green-200:#b9f3d7;
+      --green-100:#dcf9eb;
+      --green-50:#f0fff7;
+      --white:#ffffff;
+      --surface:#f7faf8;
+      --surface-2:#eef5f1;
+      --text:#10251b;
+      --muted:#6c7e74;
+      --line:#dbe8e0;
+      --red:#ff385c;
+      --red-soft:#fff0f3;
+      --amber:#ffb020;
+      --shadow:0 24px 70px rgba(5,64,39,.14);
+      --shadow-soft:0 10px 30px rgba(7,88,58,.09);
+      --radius-xl:30px;
+      --radius-lg:22px;
+      --radius-md:16px;
     }
 
     *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 7% 8%,rgba(32,217,138,.20),transparent 25%),
+        radial-gradient(circle at 93% 92%,rgba(10,152,94,.16),transparent 28%),
+        #edf5f0;
+    }
     button,input{font:inherit}
-    button{border:0;cursor:pointer;color:inherit}
+    button{border:0;cursor:pointer}
+    button:disabled{cursor:not-allowed}
     .hidden{display:none!important}
 
-    body::before,
-    body::after{
+    #app{
+      position:relative;
+      width:100%;
+      height:100%;
+      isolation:isolate;
+    }
+    #app::before{
       content:"";
       position:fixed;
-      width:42vw;height:42vw;
-      border-radius:50%;
-      filter:blur(110px);
-      opacity:.23;
+      inset:0;
       pointer-events:none;
-      z-index:0;
+      background-image:
+        linear-gradient(rgba(8,120,76,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(8,120,76,.035) 1px,transparent 1px);
+      background-size:36px 36px;
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.5),transparent 84%);
+      z-index:-1;
     }
-    body::before{background:#5e3bff;left:-12vw;top:-18vw}
-    body::after{background:#00d9ff;right:-14vw;bottom:-20vw}
 
-    #app{position:relative;z-index:1;width:100%;height:100%}
-    .screen{width:100%;height:100%;padding:18px;display:flex;align-items:center;justify-content:center}
-    .shell{width:min(1180px,100%);height:min(720px,100%);border:1px solid var(--stroke);border-radius:30px;background:linear-gradient(145deg,rgba(16,23,44,.94),rgba(6,10,23,.92));box-shadow:var(--shadow);overflow:hidden;position:relative}
-    .shell::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.05),transparent 28%,transparent 70%,rgba(77,232,255,.04));pointer-events:none}
+    .screen{
+      width:100%;
+      height:100%;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
-    .topbar{height:74px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--stroke);background:rgba(5,9,20,.46);backdrop-filter:blur(18px)}
-    .brand{display:flex;align-items:center;gap:13px;font-weight:900;letter-spacing:.14em}
-    .brand-orb{width:38px;height:38px;border-radius:14px;background:linear-gradient(145deg,var(--cyan),var(--violet));box-shadow:0 0 28px rgba(77,232,255,.35);position:relative}
-    .brand-orb::after{content:"B";position:absolute;inset:0;display:grid;place-items:center;color:#06101a;font-weight:1000}
-    .status-pill{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--stroke);border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-size:13px}
-    .dot{width:9px;height:9px;border-radius:50%;background:#66708c}
-    .dot.online{background:var(--green);box-shadow:0 0 14px var(--green)}
+    .app-frame{
+      width:min(1240px,100%);
+      height:min(740px,100%);
+      border:1px solid rgba(255,255,255,.95);
+      border-radius:var(--radius-xl);
+      background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(24px);
+      overflow:hidden;
+      position:relative;
+    }
 
-    .home-content{height:calc(100% - 74px);display:grid;grid-template-columns:1.1fr .9fr;gap:24px;padding:28px}
-    .hero{border:1px solid var(--stroke);border-radius:26px;padding:34px;background:radial-gradient(circle at 30% 20%,rgba(141,107,255,.22),transparent 35%),rgba(255,255,255,.025);display:flex;flex-direction:column;justify-content:center}
-    .eyebrow{color:var(--cyan);font-weight:800;letter-spacing:.16em;font-size:12px}
-    h1{font-size:clamp(42px,6vw,78px);line-height:.92;margin:14px 0 18px;letter-spacing:-.055em}
-    .grad{background:linear-gradient(90deg,#fff,var(--cyan) 48%,#a98fff);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .lead{color:var(--muted);font-size:16px;max-width:590px;line-height:1.65}
-    .letters-preview{display:flex;gap:10px;margin-top:28px}
-    .letter-chip{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;font-weight:1000;font-size:22px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);box-shadow:inset 0 1px rgba(255,255,255,.07)}
-    .letter-chip:nth-child(1){color:var(--cyan)}
-    .letter-chip:nth-child(2){color:#73ffdc}
-    .letter-chip:nth-child(3){color:#ffd166}
-    .letter-chip:nth-child(4){color:#ff8bb1}
-    .letter-chip:nth-child(5){color:#b59cff}
+    .topbar{
+      height:70px;
+      padding:0 22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.84);
+      backdrop-filter:blur(18px);
+    }
 
-    .menu-card{border:1px solid var(--stroke);border-radius:26px;padding:24px;background:rgba(255,255,255,.035);display:flex;flex-direction:column;justify-content:center;gap:14px}
-    .menu-title{font-size:13px;letter-spacing:.15em;color:var(--muted);font-weight:800;margin-bottom:4px}
-    .btn{min-height:54px;border-radius:17px;padding:0 18px;font-weight:850;letter-spacing:.02em;transition:.2s transform,.2s filter,.2s border-color;display:flex;align-items:center;justify-content:center;gap:10px}
-    .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:14px;
+      font-weight:950;
+      letter-spacing:.11em;
+      color:var(--green-950);
+    }
+
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-weight:1000;
+      font-size:20px;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      box-shadow:0 10px 26px rgba(10,152,94,.28);
+    }
+
+    .connection{
+      min-height:38px;
+      padding:0 13px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      background:var(--white);
+      font-size:12px;
+      font-weight:800;
+    }
+    .connection-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#b4c1ba;
+    }
+    .connection-dot.online{
+      background:var(--green-600);
+      box-shadow:0 0 0 5px rgba(16,185,112,.12);
+    }
+
+    .home-layout{
+      height:calc(100% - 70px);
+      padding:24px;
+      display:grid;
+      grid-template-columns:1.12fr .88fr;
+      gap:22px;
+    }
+
+    .hero{
+      border-radius:26px;
+      padding:38px;
+      color:#fff;
+      background:
+        radial-gradient(circle at 75% 20%,rgba(255,255,255,.16),transparent 24%),
+        radial-gradient(circle at 16% 88%,rgba(32,217,138,.42),transparent 30%),
+        linear-gradient(145deg,var(--green-950),var(--green-800));
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      box-shadow:0 24px 50px rgba(6,60,41,.22);
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:320px;
+      height:320px;
+      right:-90px;
+      bottom:-130px;
+      border-radius:50%;
+      border:50px solid rgba(255,255,255,.06);
+    }
+
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.17em;
+      font-weight:950;
+      text-transform:uppercase;
+      color:#bfffe1;
+    }
+
+    h1{
+      max-width:720px;
+      margin:14px 0 18px;
+      font-size:clamp(42px,5.8vw,76px);
+      line-height:.94;
+      letter-spacing:-.055em;
+    }
+    .hero p{
+      max-width:590px;
+      margin:0;
+      color:rgba(255,255,255,.72);
+      line-height:1.65;
+      font-size:15px;
+    }
+
+    .hero-bingo{
+      display:flex;
+      gap:9px;
+      margin-top:28px;
+    }
+    .hero-letter{
+      width:52px;
+      height:52px;
+      border:1px solid rgba(255,255,255,.20);
+      border-radius:17px;
+      display:grid;
+      place-items:center;
+      font-size:21px;
+      font-weight:1000;
+      background:rgba(255,255,255,.10);
+      backdrop-filter:blur(10px);
+    }
+
+    .menu-card{
+      border:1px solid var(--line);
+      border-radius:26px;
+      padding:24px;
+      background:rgba(255,255,255,.95);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:12px;
+      box-shadow:var(--shadow-soft);
+    }
+    .menu-title{
+      margin-bottom:3px;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:.15em;
+      color:var(--green-800);
+    }
+
+    .btn{
+      min-height:54px;
+      border-radius:17px;
+      padding:0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      font-weight:950;
+      color:var(--text);
+      transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,border-color .18s ease;
+    }
+    .btn:hover{transform:translateY(-2px)}
     .btn:active{transform:scale(.985)}
-    .btn-primary{background:linear-gradient(135deg,var(--cyan),#6f7dff 58%,var(--violet));color:#06101a;box-shadow:0 14px 36px rgba(77,232,255,.18)}
-    .btn-secondary{background:rgba(255,255,255,.05);border:1px solid var(--stroke)}
-    .btn-danger{background:rgba(255,77,103,.12);border:1px solid rgba(255,77,103,.28);color:#ff9aad}
-    .btn-small{min-height:42px;border-radius:14px;padding:0 14px;font-size:13px}
-    .divider{display:flex;align-items:center;gap:12px;color:#66708c;font-size:12px}
-    .divider::before,.divider::after{content:"";height:1px;flex:1;background:var(--stroke)}
-
-    .setup-grid{height:calc(100% - 74px);display:grid;grid-template-columns:.88fr 1.12fr;gap:22px;padding:24px}
-    .panel{border:1px solid var(--stroke);border-radius:24px;background:rgba(255,255,255,.035);padding:22px;min-height:0}
-    .panel h2{margin:0 0 6px;font-size:26px}
-    .sub{color:var(--muted);font-size:14px;line-height:1.5}
-    .mode-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
-    .mode-btn{height:58px;border-radius:17px;background:rgba(255,255,255,.045);border:1px solid var(--stroke);font-weight:900}
-    .mode-btn.active{background:linear-gradient(135deg,rgba(77,232,255,.22),rgba(141,107,255,.2));border-color:rgba(77,232,255,.48);box-shadow:0 0 0 3px rgba(77,232,255,.07) inset}
-    .code-box{padding:16px;border-radius:18px;border:1px dashed rgba(77,232,255,.35);background:rgba(77,232,255,.055);margin:14px 0}
-    .code-label{font-size:11px;color:var(--muted);letter-spacing:.14em;font-weight:800}
-    .room-code{font-size:32px;font-weight:1000;letter-spacing:.18em;margin-top:4px;color:var(--cyan)}
-    .input{width:100%;height:52px;padding:0 16px;border-radius:16px;border:1px solid var(--stroke);background:rgba(0,0,0,.22);color:var(--text);outline:none;text-transform:uppercase;font-weight:850;letter-spacing:.12em}
-    .input:focus{border-color:rgba(77,232,255,.52);box-shadow:0 0 0 4px rgba(77,232,255,.08)}
-
-    .preview-wrap{height:100%;display:flex;flex-direction:column;min-height:0}
-    .preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .mini-board{flex:1;display:grid;gap:6px;min-height:0;aspect-ratio:1/1;max-height:480px;margin:auto}
-    .mini-cell{border-radius:10px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;font-weight:900;color:#dbe7ff;font-size:clamp(12px,2vw,19px)}
-    .ready-line{display:flex;gap:10px;margin-top:14px}
-    .ready-line .btn{flex:1}
-
-    .game-shell{width:100%;height:100%;padding:14px;display:grid;grid-template-columns:250px 1fr 250px;gap:14px}
-    .side{border:1px solid var(--stroke);border-radius:24px;background:rgba(11,16,33,.78);padding:18px;display:flex;flex-direction:column;min-height:0}
-    .player-card{padding:15px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--stroke)}
-    .avatar{width:44px;height:44px;border-radius:16px;background:linear-gradient(145deg,var(--cyan),var(--violet));display:grid;place-items:center;color:#07111b;font-weight:1000}
-    .player-row{display:flex;align-items:center;gap:12px}
-    .player-name{font-weight:900}
-    .tiny{font-size:12px;color:var(--muted)}
-    .turn-box{margin-top:14px;padding:16px;border-radius:18px;border:1px solid var(--stroke);background:rgba(255,255,255,.035)}
-    .turn-title{font-size:11px;color:var(--muted);letter-spacing:.14em;font-weight:850}
-    .turn-value{font-size:20px;font-weight:950;margin-top:6px}
-    .history{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-    .history-num{width:34px;height:34px;border-radius:11px;background:rgba(255,77,103,.12);border:1px solid rgba(255,77,103,.24);display:grid;place-items:center;color:#ff9aac;font-weight:900;font-size:12px}
-    .side-spacer{flex:1}
-    .center-game{border:1px solid var(--stroke);border-radius:26px;background:rgba(7,11,25,.78);padding:14px;display:flex;flex-direction:column;min-width:0;min-height:0}
-    .game-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:4px 4px 12px}
-    .game-title{font-size:12px;color:var(--muted);letter-spacing:.14em;font-weight:850}
-    .round-badge{padding:9px 14px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.04);font-weight:900;font-size:12px}
-    .bingo-word{display:flex;gap:8px;justify-content:center}
-    .bingo-letter{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;border:1px solid var(--stroke);background:rgba(255,255,255,.04);font-weight:1000;font-size:20px;position:relative;overflow:hidden}
-    .bingo-letter.done{color:#ff9aac;background:rgba(255,77,103,.11);border-color:rgba(255,77,103,.32)}
-    .bingo-letter.done::after{content:"";position:absolute;width:140%;height:3px;background:var(--red);transform:rotate(-18deg);box-shadow:0 0 12px var(--red)}
-    .board-wrap{flex:1;display:grid;place-items:center;min-height:0}
-    .board{height:min(100%,540px);aspect-ratio:1/1;display:grid;gap:7px;padding:4px}
-    .cell{position:relative;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.09);display:grid;place-items:center;font-weight:1000;color:#eef5ff;user-select:none;transition:.18s transform,.18s background,.18s border-color,.18s box-shadow;overflow:hidden;font-size:clamp(13px,2.3vw,24px)}
-    .cell:hover{transform:translateY(-2px);border-color:rgba(77,232,255,.42)}
-    .cell.pending{background:linear-gradient(145deg,rgba(46,230,166,.36),rgba(46,230,166,.12));border-color:rgba(46,230,166,.78);box-shadow:0 0 22px rgba(46,230,166,.18)}
-    .cell.marked{background:linear-gradient(145deg,rgba(255,77,103,.18),rgba(255,77,103,.06));border-color:rgba(255,77,103,.38)}
-    .cell.marked::before,.cell.marked::after{content:"";position:absolute;width:72%;height:4px;border-radius:3px;background:var(--red);box-shadow:0 0 12px rgba(255,77,103,.85);z-index:2}
-    .cell.marked::before{transform:rotate(45deg)}
-    .cell.marked::after{transform:rotate(-45deg)}
-    .cell .num{position:relative;z-index:3}
-    .line-overlay{position:absolute;inset:0;pointer-events:none}
-    .board-holder{position:relative;height:min(100%,540px);aspect-ratio:1/1}
-    .strike-line{position:absolute;height:4px;background:linear-gradient(90deg,transparent,var(--cyan) 8%,#fff 50%,var(--violet) 92%,transparent);border-radius:999px;box-shadow:0 0 18px rgba(77,232,255,.75);transform-origin:left center;animation:strikeIn .45s ease both}
-    @keyframes strikeIn{from{opacity:0;scale:.1 1}to{opacity:1;scale:1 1}}
-
-    .opponent-progress{display:flex;gap:6px;margin-top:12px}
-    .op-dot{height:8px;flex:1;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-    .op-dot.fill{background:linear-gradient(90deg,var(--cyan),var(--violet))}
-    .pause-btn{margin-top:12px}
-
-    .overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(2,5,12,.82);backdrop-filter:blur(18px);padding:18px}
-    .modal{width:min(560px,100%);border-radius:28px;border:1px solid var(--stroke);background:linear-gradient(150deg,rgba(20,28,52,.98),rgba(7,11,25,.98));box-shadow:var(--shadow);padding:28px;text-align:center;position:relative;overflow:hidden}
-    .modal h2{font-size:38px;margin:0 0 10px;letter-spacing:-.03em}
-    .modal p{color:var(--muted);line-height:1.55}
-    .countdown{font-size:84px;font-weight:1000;line-height:1;margin:18px 0;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .modal-actions{display:flex;gap:10px;margin-top:18px}
-    .modal-actions .btn{flex:1}
-
-    #confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
-    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);padding:13px 18px;border-radius:16px;background:rgba(15,22,41,.95);border:1px solid var(--stroke);box-shadow:var(--shadow);z-index:100;opacity:0;transition:.25s;color:#f8fbff;font-weight:750}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-    .config-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
-    .config-note code{color:var(--cyan)}
-
-    @media (orientation:portrait){
-      body::after{content:"Rotește telefonul pentru modul landscape";position:fixed;inset:0;width:auto;height:auto;border-radius:0;filter:none;background:#050814;opacity:1;z-index:9999;display:grid;place-items:center;text-align:center;padding:30px;color:white;font-size:20px;font-weight:900}
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--green-500),var(--green-800));
+      box-shadow:0 14px 30px rgba(10,152,94,.25);
+    }
+    .btn-primary:hover{filter:brightness(1.04);box-shadow:0 18px 38px rgba(10,152,94,.31)}
+    .btn-secondary{
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--green-950);
+    }
+    .btn-secondary:hover{border-color:var(--green-500);box-shadow:0 10px 24px rgba(10,152,94,.10)}
+    .btn-ghost{
+      min-height:42px;
+      border-radius:14px;
+      background:var(--surface-2);
+      color:var(--green-900);
+      padding:0 14px;
+      font-size:12px;
+    }
+    .btn-danger{
+      background:var(--red-soft);
+      color:var(--red);
+      border:1px solid #ffd2db;
     }
 
-    @media (max-width:900px){
-      .screen{padding:8px}
-      .shell{border-radius:20px}
-      .topbar{height:58px;padding:0 14px}
-      .home-content{height:calc(100% - 58px);grid-template-columns:1fr 330px;padding:14px;gap:14px}
-      .hero{padding:22px}
-      .menu-card{padding:16px}
-      .setup-grid{height:calc(100% - 58px);padding:14px;gap:14px}
-      .game-shell{grid-template-columns:185px 1fr 185px;padding:8px;gap:8px}
-      .side{padding:10px;border-radius:18px}
-      .center-game{padding:8px;border-radius:18px}
-      .bingo-letter{width:36px;height:36px;border-radius:11px;font-size:16px}
-      .cell{border-radius:10px}
-      .player-card{padding:10px}
-      .turn-box{padding:10px}
-      .btn{min-height:45px}
+    .separator{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      color:#94a39b;
+      font-size:11px;
+      font-weight:850;
+    }
+    .separator::before,.separator::after{
+      content:"";
+      height:1px;
+      flex:1;
+      background:var(--line);
+    }
+
+    .room-input{
+      width:100%;
+      height:53px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:0 15px;
+      outline:none;
+      background:var(--surface);
+      color:var(--green-950);
+      text-align:center;
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      font-weight:950;
+    }
+    .room-input:focus{
+      background:#fff;
+      border-color:var(--green-500);
+      box-shadow:0 0 0 5px rgba(32,217,138,.12);
+    }
+
+    /* Lobby */
+    .setup-layout{
+      height:calc(100% - 70px);
+      padding:22px;
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:20px;
+    }
+    .panel{
+      min-height:0;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:#fff;
+      padding:22px;
+      box-shadow:var(--shadow-soft);
+    }
+    .panel h2{
+      margin:0 0 6px;
+      font-size:27px;
+      letter-spacing:-.03em;
+      color:var(--green-950);
+    }
+    .muted{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .mode-picker{
+      margin:18px 0 14px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:9px;
+    }
+    .mode-btn{
+      height:58px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:var(--surface);
+      color:var(--green-950);
+      font-weight:1000;
+      font-size:16px;
+    }
+    .mode-btn.active{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      box-shadow:0 12px 28px rgba(10,152,94,.23);
+    }
+    .mode-btn:disabled{opacity:.75}
+
+    .room-code-box{
+      margin-top:14px;
+      padding:15px;
+      border-radius:18px;
+      background:var(--green-50);
+      border:1px dashed var(--green-500);
+    }
+    .room-code-label{
+      font-size:10px;
+      color:var(--green-800);
+      letter-spacing:.15em;
+      font-weight:950;
+    }
+    .room-code{
+      margin-top:3px;
+      font-size:30px;
+      color:var(--green-950);
+      letter-spacing:.18em;
+      font-weight:1000;
+    }
+
+    .lobby-status{
+      margin-top:13px;
+      padding:14px 15px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:var(--surface);
+    }
+    .status-label{
+      font-size:10px;
+      letter-spacing:.14em;
+      font-weight:950;
+      color:var(--muted);
+    }
+    .status-value{
+      margin-top:5px;
+      font-size:15px;
+      font-weight:950;
+      color:var(--green-950);
+    }
+    .lobby-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+      margin-top:14px;
+    }
+
+    .preview-panel{
+      display:flex;
+      flex-direction:column;
+    }
+    .preview-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:15px;
+      margin-bottom:14px;
+    }
+    .badge{
+      flex:0 0 auto;
+      min-height:38px;
+      padding:0 13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:var(--green-100);
+      color:var(--green-900);
+      font-size:12px;
+      font-weight:1000;
+    }
+    .preview-board{
+      flex:1;
+      min-height:0;
+      width:min(100%,500px);
+      aspect-ratio:1;
+      margin:auto;
+      display:grid;
+      gap:7px;
+    }
+    .preview-cell{
+      border:1px solid var(--line);
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#fff,var(--surface));
+      color:var(--green-950);
+      font-weight:1000;
+      box-shadow:0 5px 12px rgba(6,60,41,.05);
+    }
+
+    /* Game */
+    #gameScreen{width:100%;height:100%;padding:12px}
+    .game-layout{
+      width:100%;
+      height:100%;
+      display:grid;
+      grid-template-columns:230px 1fr 230px;
+      gap:12px;
+    }
+    .game-side,.game-center{
+      min-height:0;
+      border:1px solid rgba(255,255,255,.92);
+      border-radius:24px;
+      background:rgba(255,255,255,.94);
+      box-shadow:var(--shadow-soft);
+    }
+    .game-side{
+      padding:15px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .profile-card{
+      padding:13px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      display:flex;
+      align-items:center;
+      gap:11px;
+    }
+    .avatar{
+      width:43px;
+      height:43px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-weight:1000;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      box-shadow:0 9px 22px rgba(10,152,94,.22);
+    }
+    .avatar.opponent{
+      background:linear-gradient(145deg,#78d8a8,var(--green-950));
+    }
+    .profile-name{font-weight:1000;color:var(--green-950)}
+    .profile-sub{margin-top:2px;color:var(--muted);font-size:11px;font-weight:750}
+
+    .info-card{
+      margin-top:10px;
+      padding:13px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:#fff;
+    }
+    .info-title{
+      font-size:9px;
+      color:var(--muted);
+      letter-spacing:.14em;
+      font-weight:1000;
+    }
+    .info-value{
+      margin-top:5px;
+      font-size:18px;
+      font-weight:1000;
+      color:var(--green-950);
+    }
+    .info-copy{
+      margin-top:5px;
+      font-size:11px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+    .side-spacer{flex:1}
+    .side-actions{display:grid;gap:8px}
+
+    .progress-bars{
+      display:flex;
+      gap:5px;
+      margin-top:10px;
+    }
+    .progress-bar{
+      flex:1;
+      height:7px;
+      border-radius:999px;
+      background:var(--surface-2);
+      overflow:hidden;
+    }
+    .progress-bar.done{
+      background:linear-gradient(90deg,var(--green-500),var(--green-800));
+    }
+
+    .game-center{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+    }
+    .game-header{
+      min-height:56px;
+      padding:2px 4px 10px;
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      gap:10px;
+    }
+    .game-label{
+      color:var(--green-800);
+      font-weight:1000;
+      letter-spacing:.13em;
+      font-size:10px;
+    }
+    .bingo-word{
+      display:flex;
+      justify-content:center;
+      gap:7px;
+    }
+    .bingo-letter{
+      position:relative;
+      width:43px;
+      height:43px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      display:grid;
+      place-items:center;
+      color:var(--green-950);
+      font-weight:1000;
+      font-size:19px;
+      overflow:hidden;
+    }
+    .bingo-letter.done{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+    }
+    .bingo-letter.done::after{
+      content:"";
+      position:absolute;
+      width:145%;
+      height:3px;
+      border-radius:999px;
+      background:#fff;
+      transform:rotate(-17deg);
+      box-shadow:0 0 10px rgba(255,255,255,.8);
+    }
+
+    .turn-banner{
+      margin:0 3px 9px;
+      min-height:47px;
+      padding:8px 13px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:var(--green-950);
+      font-weight:950;
+      font-size:13px;
+    }
+    .turn-banner.my-turn{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(135deg,var(--green-600),var(--green-800));
+      box-shadow:0 10px 24px rgba(10,152,94,.20);
+    }
+    .turn-banner.incoming{
+      color:var(--green-950);
+      border-color:var(--green-500);
+      background:var(--green-100);
+    }
+    .called-number{
+      display:inline-grid;
+      place-items:center;
+      min-width:38px;
+      height:31px;
+      margin:0 5px;
+      padding:0 9px;
+      border-radius:11px;
+      color:#fff;
+      background:var(--green-800);
+      font-size:16px;
+      font-weight:1000;
+    }
+
+    .board-zone{
+      flex:1;
+      min-height:0;
+      display:grid;
+      place-items:center;
+    }
+    .board-holder{
+      position:relative;
+      height:min(100%,540px);
+      aspect-ratio:1;
+      max-width:100%;
+    }
+    .game-board{
+      position:absolute;
+      inset:0;
+      display:grid;
+      gap:7px;
+      padding:3px;
+    }
+    .game-cell{
+      position:relative;
+      min-width:0;
+      min-height:0;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:linear-gradient(145deg,#fff,var(--surface));
+      color:var(--green-950);
+      display:grid;
+      place-items:center;
+      font-size:clamp(12px,2.2vw,23px);
+      font-weight:1000;
+      box-shadow:0 5px 13px rgba(6,60,41,.055);
+      transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease;
+      overflow:hidden;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .game-cell:not(:disabled):hover{
+      transform:translateY(-2px);
+      border-color:var(--green-500);
+      box-shadow:0 10px 20px rgba(10,152,94,.12);
+    }
+    .game-cell:disabled{opacity:1}
+    .game-cell .number{
+      position:relative;
+      z-index:4;
+    }
+
+    /* Numărul ales de tine, încă neconfirmat de adversar */
+    .game-cell.pending{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      box-shadow:0 0 0 5px rgba(32,217,138,.14),0 14px 28px rgba(10,152,94,.23);
+      animation:pendingPulse 1.3s ease-in-out infinite;
+    }
+    @keyframes pendingPulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(.965)}
+    }
+
+    /* Numărul trimis de adversar, înainte să îl apeși */
+    .game-cell.target{
+      border:2px solid var(--green-600);
+      background:var(--green-100);
+      box-shadow:0 0 0 6px rgba(32,217,138,.13),0 12px 26px rgba(10,152,94,.16);
+      animation:targetPulse .9s ease-in-out infinite alternate;
+    }
+    @keyframes targetPulse{
+      from{transform:scale(.965)}
+      to{transform:scale(1.025)}
+    }
+
+    /* Număr tăiat */
+    .game-cell.marked{
+      color:#3a4f43;
+      border-color:#ffd0d9;
+      background:var(--red-soft);
+    }
+    .game-cell.marked::before,
+    .game-cell.marked::after{
+      content:"";
+      position:absolute;
+      width:72%;
+      height:4px;
+      z-index:3;
+      border-radius:999px;
+      background:var(--red);
+      box-shadow:0 0 10px rgba(255,56,92,.42);
+    }
+    .game-cell.marked::before{transform:rotate(45deg)}
+    .game-cell.marked::after{transform:rotate(-45deg)}
+
+    .line-svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:8;
+      pointer-events:none;
+      overflow:visible;
+    }
+    .strike{
+      stroke:var(--green-800);
+      stroke-width:1.1;
+      stroke-linecap:round;
+      filter:drop-shadow(0 0 3px rgba(10,152,94,.5));
+      stroke-dasharray:150;
+      stroke-dashoffset:150;
+      animation:drawLine .46s ease forwards;
+    }
+    @keyframes drawLine{to{stroke-dashoffset:0}}
+
+    .selected-number-big{
+      margin-top:5px;
+      font-size:31px;
+      font-weight:1000;
+      color:var(--green-800);
+    }
+
+    /* Modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:80;
+      padding:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(4,35,23,.58);
+      backdrop-filter:blur(15px);
+    }
+    .modal{
+      width:min(540px,100%);
+      padding:28px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,.95);
+      border-radius:28px;
+      background:rgba(255,255,255,.97);
+      box-shadow:0 35px 90px rgba(3,45,28,.25);
+    }
+    .modal-icon{
+      width:64px;
+      height:64px;
+      margin:0 auto 14px;
+      border-radius:22px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-size:28px;
+      background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      box-shadow:0 15px 34px rgba(10,152,94,.25);
+    }
+    .modal h2{
+      margin:0;
+      color:var(--green-950);
+      font-size:38px;
+      letter-spacing:-.04em;
+    }
+    .modal p{
+      margin:9px auto 0;
+      max-width:430px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+    }
+    .modal-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+      margin-top:20px;
+    }
+    .pause-count{
+      margin:15px 0 5px;
+      font-size:78px;
+      line-height:1;
+      font-weight:1000;
+      color:var(--green-800);
+      letter-spacing:-.06em;
+    }
+
+    #confetti{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:100;
+      pointer-events:none;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      z-index:130;
+      min-width:240px;
+      max-width:calc(100% - 30px);
+      padding:13px 18px;
+      border-radius:16px;
+      color:#fff;
+      background:var(--green-950);
+      box-shadow:0 16px 38px rgba(3,45,28,.24);
+      text-align:center;
+      font-weight:850;
+      font-size:13px;
+      opacity:0;
+      transform:translate(-50%,25px);
+      transition:.22s ease;
+      pointer-events:none;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translate(-50%,0);
+    }
+
+    .rotate-message{display:none}
+
+    @media(max-width:940px){
+      .screen{padding:7px}
+      .app-frame{border-radius:21px}
+      .topbar{height:56px;padding:0 13px}
+      .logo{width:36px;height:36px;border-radius:12px}
+      .home-layout{height:calc(100% - 56px);padding:12px;gap:12px;grid-template-columns:1fr 320px}
+      .hero{padding:22px;border-radius:19px}
+      .hero-letter{width:42px;height:42px;border-radius:13px}
+      .menu-card{padding:15px;border-radius:19px;gap:8px}
+      .btn{min-height:45px;border-radius:14px;font-size:12px}
+      .room-input{height:44px}
+      .setup-layout{height:calc(100% - 56px);padding:12px;gap:12px;grid-template-columns:320px 1fr}
+      .panel{padding:15px;border-radius:19px}
+      .panel h2{font-size:21px}
+      .mode-btn{height:48px}
+      .game-layout{grid-template-columns:175px 1fr 175px;gap:7px}
+      .game-side{padding:8px;border-radius:17px}
+      .game-center{padding:7px;border-radius:17px}
+      .profile-card{padding:8px;border-radius:13px}
+      .avatar{width:35px;height:35px;border-radius:12px}
+      .info-card{padding:9px;border-radius:13px;margin-top:6px}
+      .info-value{font-size:15px}
+      .game-header{min-height:44px;padding-bottom:6px}
+      .bingo-letter{width:34px;height:34px;border-radius:10px;font-size:15px}
+      .turn-banner{min-height:39px;margin-bottom:5px;font-size:11px}
+      .game-board{gap:4px}
+      .game-cell{border-radius:9px}
+    }
+
+    @media(orientation:portrait){
+      .rotate-message{
+        position:fixed;
+        inset:0;
+        z-index:999;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+        padding:30px;
+        color:var(--green-950);
+        background:#edf5f0;
+        text-align:center;
+        font-size:19px;
+        font-weight:1000;
+      }
+      .rotate-icon{
+        width:72px;
+        height:72px;
+        border-radius:25px;
+        display:grid;
+        place-items:center;
+        color:#fff;
+        font-size:31px;
+        background:linear-gradient(145deg,var(--green-500),var(--green-800));
+      }
     }
   </style>
 </head>
 
 <body>
-<div id="app">
-  <!-- MENIU PRINCIPAL -->
-  <section id="homeScreen" class="screen">
-    <div class="shell">
-      <div class="topbar">
-        <div class="brand"><div class="brand-orb"></div> NEON BINGO DUEL</div>
-        <div class="status-pill"><span id="netDot" class="dot"></span><span id="netText">Mod local</span></div>
-      </div>
+<div class="rotate-message">
+  <div class="rotate-icon">↻</div>
+  Rotește telefonul în modul landscape.
+</div>
 
-      <div class="home-content">
+<div id="app">
+  <!-- PAGINA PRINCIPALĂ -->
+  <section id="homeScreen" class="screen">
+    <div class="app-frame">
+      <header class="topbar">
+        <div class="brand"><div class="logo">B</div>BINGO DUEL</div>
+        <div class="connection"><span id="connectionDot" class="connection-dot"></span><span id="connectionText">Se conectează...</span></div>
+      </header>
+
+      <div class="home-layout">
         <div class="hero">
-          <div class="eyebrow">BINGO REIMAGINAT • 1V1</div>
-          <h1>TAIE LINII.<br><span class="grad">CÂȘTIGĂ DUELUL.</span></h1>
-          <div class="lead">
-            Alege numere pe rând, marchează-le cu X și completează cinci linii pentru a tăia toate literele din BINGO.
-          </div>
-          <div class="letters-preview">
-            <div class="letter-chip">B</div><div class="letter-chip">I</div><div class="letter-chip">N</div><div class="letter-chip">G</div><div class="letter-chip">O</div>
+          <div class="eyebrow">JOC ONLINE 1 CONTRA 1</div>
+          <h1>BINGO.<br>ALTFEL.</h1>
+          <p>
+            Fiecare are propria tablă secretă. Trimite un număr adversarului, taie numărul primit și completează primul cinci linii.
+          </p>
+          <div class="hero-bingo">
+            <div class="hero-letter">B</div>
+            <div class="hero-letter">I</div>
+            <div class="hero-letter">N</div>
+            <div class="hero-letter">G</div>
+            <div class="hero-letter">O</div>
           </div>
         </div>
 
         <div class="menu-card">
           <div class="menu-title">ALEGE MODUL</div>
-          <button class="btn btn-primary" onclick="openSetup('solo')">⚡ JOACĂ SINGUR</button>
-          <button class="btn btn-secondary" onclick="openSetup('host')">✦ CREEAZĂ INVITAȚIE</button>
-          <div class="divider">SAU</div>
-          <input id="joinCodeInput" class="input" maxlength="6" placeholder="COD INVITAȚIE" />
-          <button class="btn btn-secondary" onclick="joinByCode()">INTRĂ ÎN CAMERĂ</button>
-          <button class="btn btn-small btn-secondary" onclick="openConfig()">⚙ CONFIGURARE SUPABASE</button>
+          <button class="btn btn-primary" onclick="openSoloLobby()">JOACĂ SINGUR</button>
+          <button class="btn btn-secondary" onclick="createInvitation()">INVITĂ UN JUCĂTOR</button>
+          <div class="separator">SAU INTRĂ CU COD</div>
+          <input id="joinCode" class="room-input" maxlength="6" placeholder="CODUL CAMEREI" autocomplete="off" />
+          <button class="btn btn-secondary" onclick="joinInvitation()">CONECTEAZĂ-TE</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CONFIGURARE / LOBBY -->
+  <!-- LOBBY / SELECTARE MOD -->
   <section id="setupScreen" class="screen hidden">
-    <div class="shell">
-      <div class="topbar">
-        <div class="brand"><div class="brand-orb"></div> CONFIGURARE MECI</div>
-        <button class="btn btn-small btn-secondary" onclick="goHome()">ÎNAPOI</button>
-      </div>
+    <div class="app-frame">
+      <header class="topbar">
+        <div class="brand"><div class="logo">B</div>PREGĂTIRE MECI</div>
+        <button class="btn btn-ghost" onclick="leaveToHome()">ÎNAPOI</button>
+      </header>
 
-      <div class="setup-grid">
+      <div class="setup-layout">
         <div class="panel">
           <h2 id="setupTitle">Joacă singur</h2>
-          <div class="sub" id="setupSub">Alege dimensiunea și generează tabla.</div>
+          <div id="setupDescription" class="muted">Alege tabla și generează numerele.</div>
 
-          <div class="mode-row">
-            <button class="mode-btn active" data-size="4" onclick="setBoardSize(4)">4×4</button>
-            <button class="mode-btn" data-size="5" onclick="setBoardSize(5)">5×5</button>
-            <button class="mode-btn" data-size="7" onclick="setBoardSize(7)">7×7</button>
+          <div class="mode-picker">
+            <button class="mode-btn active" data-size="4" onclick="chooseSize(4)">4×4</button>
+            <button class="mode-btn" data-size="5" onclick="chooseSize(5)">5×5</button>
+            <button class="mode-btn" data-size="7" onclick="chooseSize(7)">7×7</button>
           </div>
 
-          <button class="btn btn-secondary" style="width:100%" onclick="generateBoard()">⟳ GENEREAZĂ NUMERE</button>
+          <button class="btn btn-secondary" style="width:100%" onclick="generateMyBoard()">GENEREAZĂ NUMERE</button>
 
-          <div id="roomBox" class="code-box hidden">
-            <div class="code-label">CODUL CAMEREI</div>
-            <div id="roomCode" class="room-code">------</div>
-            <div class="sub">Trimite codul adversarului.</div>
+          <div id="roomCodeBox" class="room-code-box hidden">
+            <div class="room-code-label">COD INVITAȚIE</div>
+            <div id="roomCodeText" class="room-code">------</div>
+            <div class="muted">Trimite acest cod celuilalt jucător.</div>
           </div>
 
-          <div id="lobbyStatus" class="turn-box">
-            <div class="turn-title">STATUS</div>
-            <div id="lobbyStatusText" class="turn-value">Tabla este pregătită.</div>
+          <div class="lobby-status">
+            <div class="status-label">STATUS</div>
+            <div id="lobbyStatusText" class="status-value">Tabla este pregătită.</div>
           </div>
 
-          <div class="ready-line">
-            <button id="readyBtn" class="btn btn-secondary" onclick="toggleReady()">SUNT GATA</button>
-            <button id="startBtn" class="btn btn-primary" onclick="startMatch()">START</button>
+          <div class="lobby-actions">
+            <button id="readyButton" class="btn btn-secondary" onclick="toggleReady()">SUNT GATA</button>
+            <button id="startButton" class="btn btn-primary" onclick="hostStartGame()">START</button>
           </div>
         </div>
 
-        <div class="panel preview-wrap">
-          <div class="preview-head">
+        <div class="panel preview-panel">
+          <div class="preview-header">
             <div>
-              <h2 style="font-size:20px;margin:0">Tabla ta</h2>
-              <div class="sub">Poți amesteca numerele de câte ori dorești înainte de start.</div>
+              <h2 style="font-size:21px">Tabla ta secretă</h2>
+              <div class="muted">Adversarul nu vede ordinea numerelor tale.</div>
             </div>
-            <div id="previewMode" class="round-badge">4×4</div>
+            <div id="previewBadge" class="badge">4×4</div>
           </div>
-          <div id="previewBoard" class="mini-board"></div>
+          <div id="previewBoard" class="preview-board"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- JOC -->
-  <section id="gameScreen" class="hidden" style="width:100%;height:100%">
-    <div class="game-shell">
-      <aside class="side">
-        <div class="player-card">
-          <div class="player-row">
-            <div class="avatar">TU</div>
-            <div>
-              <div class="player-name">Jucătorul tău</div>
-              <div class="tiny" id="myRoleLabel">Gazdă</div>
-            </div>
+  <section id="gameScreen" class="hidden">
+    <div class="game-layout">
+      <aside class="game-side">
+        <div class="profile-card">
+          <div class="avatar">TU</div>
+          <div>
+            <div class="profile-name">Tabla ta</div>
+            <div id="myRoleText" class="profile-sub">Jucător</div>
           </div>
         </div>
 
-        <div class="turn-box">
-          <div class="turn-title">RUNDA CURENTĂ</div>
-          <div id="roundNumber" class="turn-value">1</div>
-          <div class="tiny" id="selectionHint">Alege un număr.</div>
+        <div class="info-card">
+          <div class="info-title">PROGRESUL TĂU</div>
+          <div id="myProgressText" class="info-value">0 / 5 linii</div>
+          <div id="myProgressBars" class="progress-bars"></div>
         </div>
 
-        <div class="turn-box">
-          <div class="turn-title">NUMERE MARCATE</div>
-          <div id="calledHistory" class="history"></div>
+        <div class="info-card">
+          <div class="info-title">RUNDA</div>
+          <div id="roundText" class="info-value">1</div>
+          <div id="roundHelp" class="info-copy">Așteaptă începerea rundei.</div>
         </div>
 
         <div class="side-spacer"></div>
-        <button class="btn btn-secondary pause-btn" onclick="requestPause()">Ⅱ PAUZĂ</button>
-        <button class="btn btn-small btn-danger" style="margin-top:8px" onclick="leaveMatch()">IEȘIRE</button>
+
+        <div class="side-actions">
+          <button class="btn btn-secondary" onclick="pauseGame()">PAUZĂ</button>
+          <button class="btn btn-danger" onclick="leaveGame()">IEȘIRE</button>
+        </div>
       </aside>
 
-      <main class="center-game">
-        <div class="game-top">
-          <div class="game-title">NEON BINGO DUEL</div>
+      <main class="game-center">
+        <div class="game-header">
+          <div class="game-label">TABLA TA SECRETĂ</div>
           <div id="bingoWord" class="bingo-word"></div>
-          <div style="display:flex;justify-content:flex-end"><div id="gameModeBadge" class="round-badge">4×4</div></div>
+          <div style="display:flex;justify-content:flex-end"><div id="gameSizeBadge" class="badge">4×4</div></div>
         </div>
 
-        <div class="board-wrap">
+        <div id="turnBanner" class="turn-banner">Se pregătește jocul...</div>
+
+        <div class="board-zone">
           <div id="boardHolder" class="board-holder">
-            <div id="gameBoard" class="board"></div>
-            <div id="lineOverlay" class="line-overlay"></div>
+            <div id="gameBoard" class="game-board"></div>
+            <svg id="lineSvg" class="line-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
           </div>
         </div>
       </main>
 
-      <aside class="side">
-        <div class="player-card">
-          <div class="player-row">
-            <div class="avatar" style="background:linear-gradient(145deg,#ff7aa2,#ffd166)">2</div>
-            <div>
-              <div class="player-name" id="opponentName">Adversar</div>
-              <div class="tiny" id="opponentStatus">Se conectează...</div>
-            </div>
+      <aside class="game-side">
+        <div class="profile-card">
+          <div class="avatar opponent">2</div>
+          <div>
+            <div id="opponentName" class="profile-name">Adversar</div>
+            <div id="opponentStatus" class="profile-sub">Se conectează...</div>
           </div>
         </div>
 
-        <div class="turn-box">
-          <div class="turn-title">PROGRES ADVERSAR</div>
-          <div id="opponentBingoText" class="turn-value">0 / 5 linii</div>
-          <div id="opponentProgress" class="opponent-progress"></div>
+        <div class="info-card">
+          <div class="info-title">PROGRES ADVERSAR</div>
+          <div id="opponentProgressText" class="info-value">0 / 5 linii</div>
+          <div id="opponentProgressBars" class="progress-bars"></div>
         </div>
 
-        <div class="turn-box">
-          <div class="turn-title">SELECȚIE</div>
-          <div id="opponentSelection" class="turn-value">Așteaptă...</div>
-          <div class="tiny">Numărul rămâne ascuns până selectați amândoi.</div>
+        <div class="info-card">
+          <div class="info-title">ULTIMUL NUMĂR PRIMIT</div>
+          <div id="receivedNumber" class="selected-number-big">—</div>
+          <div class="info-copy">Numerele și pozițiile adversarului rămân ascunse.</div>
         </div>
 
         <div class="side-spacer"></div>
-        <div class="tiny" style="text-align:center;line-height:1.5">Primul care completează 5 linii și taie B-I-N-G-O câștigă.</div>
+        <div class="info-copy" style="text-align:center">
+          Selectezi un număr, adversarul îl taie pe tabla lui, apoi îți trimite alt număr.
+        </div>
       </aside>
     </div>
   </section>
 </div>
 
-<!-- MODAL CONFIG SUPABASE -->
-<div id="configOverlay" class="overlay hidden">
-  <div class="modal">
-    <h2>Supabase Realtime</h2>
-    <p>Completează URL-ul proiectului și cheia anon. Datele rămân salvate doar pe dispozitiv.</p>
-    <input id="supabaseUrlInput" class="input" style="text-transform:none;letter-spacing:0;margin-top:10px" placeholder="https://xxxx.supabase.co" />
-    <input id="supabaseKeyInput" class="input" style="text-transform:none;letter-spacing:0;margin-top:10px" placeholder="anon public key" />
-    <div class="config-note">
-      În Supabase trebuie să fie activat Realtime. Jocul folosește canale Broadcast și Presence, fără tabele.
-      Nu introduce niciodată cheia <code>service_role</code>.
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeConfig()">ANULEAZĂ</button>
-      <button class="btn btn-primary" onclick="saveConfig()">SALVEAZĂ</button>
-    </div>
-  </div>
-</div>
-
 <!-- PAUZĂ -->
 <div id="pauseOverlay" class="overlay hidden">
   <div class="modal">
-    <div class="eyebrow">RUNDA ESTE OPRITĂ</div>
-    <h2 id="pauseTitle">Adversarul a oprit runda!</h2>
-    <p>Jocul se reia automat când expiră timpul.</p>
-    <div id="pauseCountdown" class="countdown">30</div>
-    <button id="resumeBtn" class="btn btn-primary" style="width:100%" onclick="resumeGame()">CONTINUĂ ACUM</button>
+    <div class="modal-icon">Ⅱ</div>
+    <h2 id="pauseTitle">Joc în pauză</h2>
+    <p id="pauseDescription">Runda se reia automat în 30 de secunde.</p>
+    <div id="pauseCounter" class="pause-count">30</div>
+    <button id="resumeButton" class="btn btn-primary" style="width:100%" onclick="resumeGame()">CONTINUĂ</button>
   </div>
 </div>
 
-<!-- WINNER -->
-<div id="winnerOverlay" class="overlay hidden">
+<!-- REZULTAT -->
+<div id="resultOverlay" class="overlay hidden">
   <div class="modal">
-    <div class="eyebrow">MECI ÎNCHEIAT</div>
-    <h2 id="winnerTitle">AI CÂȘTIGAT!</h2>
-    <p id="winnerText">Ai completat toate literele din BINGO.</p>
+    <div id="resultIcon" class="modal-icon">✓</div>
+    <h2 id="resultTitle">AI CÂȘTIGAT!</h2>
+    <p id="resultDescription">Ai completat cinci linii.</p>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="playAgain()">JOACĂ DIN NOU</button>
-      <button class="btn btn-secondary" onclick="returnToMain()">PAGINA PRINCIPALĂ</button>
+      <button class="btn btn-secondary" onclick="returnMain()">PAGINA PRINCIPALĂ</button>
     </div>
   </div>
 </div>
@@ -393,742 +1128,1289 @@
 <div id="toast" class="toast"></div>
 
 <script>
-/* ============================================================
-   CONFIGURARE
-   ============================================================ */
-const DEFAULT_CONFIG = {
-  url: localStorage.getItem("bingo_supabase_url") || "",
-  key: localStorage.getItem("bingo_supabase_key") || ""
-};
+"use strict";
 
-let sb = null;
-let channel = null;
-let gameMode = "solo"; // solo | host | guest
-let roomCode = "";
-let boardSize = 4;
-let boardNumbers = [];
-let markedNumbers = new Set();
-let pendingNumber = null;
-let opponentPending = null;
-let round = 1;
-let completedLines = new Set();
-let opponentLines = 0;
-let historyNumbers = [];
-let isReady = false;
-let opponentReady = false;
-let isPaused = false;
-let pauseTimer = null;
-let pauseLeft = 30;
-let gameStarted = false;
-let playerId = crypto.randomUUID();
-let opponentId = null;
-let hostId = null;
+/* =========================================================
+   SUPABASE — CONFIGURAȚIE COMPLETĂ
+   Folosim URL-ul de proiect, nu adresa /rest/v1/.
+   Cheia publishable este destinată utilizării în aplicația client.
+   Nu sunt necesare tabele SQL: multiplayerul folosește
+   Realtime Broadcast + Presence.
+   ========================================================= */
+const SUPABASE_URL = "https://xrzaglreviziktnepkke.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_B0LqurILNouyf3zBqlOBxw_TjuFAU_7";
 
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth:{
+      persistSession:false,
+      autoRefreshToken:false,
+      detectSessionInUrl:false
+    },
+    realtime:{
+      params:{eventsPerSecond:20}
+    }
+  }
+);
+
+/* =========================================================
+   STARE GENERALĂ
+   ========================================================= */
 const $ = id => document.getElementById(id);
 
-function initSupabase(){
-  if(!DEFAULT_CONFIG.url || !DEFAULT_CONFIG.key){
-    setNetwork(false, "Supabase neconfigurat");
-    return false;
-  }
-  try{
-    sb = supabase.createClient(DEFAULT_CONFIG.url, DEFAULT_CONFIG.key);
-    setNetwork(true, "Realtime pregătit");
-    return true;
-  }catch(err){
-    console.error(err);
-    setNetwork(false, "Configurație invalidă");
-    return false;
-  }
-}
+const state = {
+  mode:"solo",                 // solo | host | guest
+  roomCode:"",
+  playerId:localStorage.getItem("bingo_player_id") || crypto.randomUUID(),
+  opponentId:null,
+  hostId:null,
+  channel:null,
+  connected:false,
 
-function setNetwork(ok, text){
-  $("netDot").classList.toggle("online", ok);
-  $("netText").textContent = text;
-}
+  boardSize:4,
+  board:[],
+  marked:new Set(),
+  completedLines:new Set(),
+  myLineCount:0,
+  opponentLineCount:0,
 
-function openConfig(){
-  $("supabaseUrlInput").value = localStorage.getItem("bingo_supabase_url") || "";
-  $("supabaseKeyInput").value = localStorage.getItem("bingo_supabase_key") || "";
-  $("configOverlay").classList.remove("hidden");
-}
-function closeConfig(){ $("configOverlay").classList.add("hidden"); }
-function saveConfig(){
-  const url = $("supabaseUrlInput").value.trim();
-  const key = $("supabaseKeyInput").value.trim();
-  if(!url || !key) return toast("Completează URL-ul și cheia anon.");
-  localStorage.setItem("bingo_supabase_url", url);
-  localStorage.setItem("bingo_supabase_key", key);
-  DEFAULT_CONFIG.url = url;
-  DEFAULT_CONFIG.key = key;
-  closeConfig();
-  initSupabase();
-  toast("Configurarea Supabase a fost salvată.");
-}
+  ready:false,
+  opponentReady:false,
+  gameStarted:false,
+  gameOver:false,
+  round:1,
+  firstPlayerId:null,
+  turnPlayerId:null,
 
-/* ============================================================
+  pendingOwnNumber:null,       // numărul ales de tine, verde
+  pendingCallId:null,
+  incomingNumber:null,         // numărul trimis de adversar
+  incomingCallId:null,
+  waitingRoundComplete:false,
+
+  paused:false,
+  pauseOwnerId:null,
+  pauseLeft:30,
+  pauseInterval:null,
+
+  // bot
+  botId:"BOT",
+  botBoard:[],
+  botMarked:new Set(),
+  botCompletedLines:new Set(),
+  botPendingNumber:null
+};
+
+localStorage.setItem("bingo_player_id",state.playerId);
+
+/* =========================================================
+   INIȚIALIZARE
+   ========================================================= */
+window.addEventListener("load",()=>{
+  setConnection(false,"Supabase pregătit");
+  chooseSize(4,false);
+  generateMyBoard(false);
+  renderProgress();
+});
+
+window.addEventListener("resize",()=>{
+  if(state.gameStarted) renderCompletedLines();
+});
+
+/* =========================================================
    NAVIGAȚIE
-   ============================================================ */
+   ========================================================= */
 function showScreen(id){
-  ["homeScreen","setupScreen","gameScreen"].forEach(x => $(x).classList.add("hidden"));
+  ["homeScreen","setupScreen","gameScreen"].forEach(screenId=>{
+    $(screenId).classList.add("hidden");
+  });
   $(id).classList.remove("hidden");
 }
-function goHome(){
-  cleanupChannel();
-  resetAll();
+
+function resetGameOnly(){
+  state.marked = new Set();
+  state.completedLines = new Set();
+  state.myLineCount = 0;
+  state.opponentLineCount = 0;
+  state.gameStarted = false;
+  state.gameOver = false;
+  state.round = 1;
+  state.firstPlayerId = null;
+  state.turnPlayerId = null;
+  state.pendingOwnNumber = null;
+  state.pendingCallId = null;
+  state.incomingNumber = null;
+  state.incomingCallId = null;
+  state.waitingRoundComplete = false;
+  state.paused = false;
+  state.pauseOwnerId = null;
+  clearInterval(state.pauseInterval);
+
+  state.botMarked = new Set();
+  state.botCompletedLines = new Set();
+  state.botPendingNumber = null;
+}
+
+function resetEverything(){
+  resetGameOnly();
+  state.mode = "solo";
+  state.roomCode = "";
+  state.opponentId = null;
+  state.hostId = null;
+  state.ready = false;
+  state.opponentReady = false;
+  $("joinCode").value = "";
+}
+
+async function leaveToHome(){
+  await notifyLeave();
+  await cleanupRealtime();
+  resetEverything();
   showScreen("homeScreen");
+  setConnection(false,"Supabase pregătit");
 }
-function returnToMain(){
-  $("winnerOverlay").classList.add("hidden");
-  cleanupChannel();
-  resetAll();
+
+async function returnMain(){
+  $("resultOverlay").classList.add("hidden");
+  await notifyLeave();
+  await cleanupRealtime();
+  resetEverything();
   showScreen("homeScreen");
-}
-function leaveMatch(){
-  if(confirm("Sigur vrei să ieși din meci?")) returnToMain();
+  setConnection(false,"Supabase pregătit");
 }
 
-/* ============================================================
-   SETUP
-   ============================================================ */
-async function openSetup(mode){
-  gameMode = mode;
-  resetMatchState();
+/* =========================================================
+   MENIU / LOBBY
+   ========================================================= */
+function openSoloLobby(){
+  resetEverything();
+  state.mode = "solo";
+  prepareLobbyUI();
+  $("setupTitle").textContent = "Joacă singur";
+  $("setupDescription").textContent = "Alege dimensiunea și generează tabla.";
+  $("roomCodeBox").classList.add("hidden");
+  $("readyButton").classList.add("hidden");
+  $("startButton").classList.remove("hidden");
+  $("startButton").textContent = "START";
+  chooseSize(4,false);
+  generateMyBoard(false);
+  setLobbyStatus("Tabla este pregătită.");
   showScreen("setupScreen");
-
-  $("setupTitle").textContent = mode === "solo" ? "Joacă singur" : "Creează invitație";
-  $("setupSub").textContent = mode === "solo"
-    ? "Alege dimensiunea și pregătește tabla."
-    : "Alege dimensiunea, apoi trimite codul adversarului.";
-
-  $("roomBox").classList.toggle("hidden", mode === "solo");
-  $("startBtn").textContent = mode === "solo" ? "START" : "PORNEȘTE MECIUL";
-  $("readyBtn").classList.toggle("hidden", mode === "solo");
-  $("startBtn").classList.remove("hidden");
-
-  setBoardSize(4);
-  generateBoard();
-
-  if(mode === "host"){
-    if(!initSupabase()){
-      openConfig();
-      toast("Configurează Supabase pentru multiplayer.");
-      return;
-    }
-    roomCode = randomCode();
-    $("roomCode").textContent = roomCode;
-    hostId = playerId;
-    await connectRoom(true);
-    updateLobby("Așteptăm adversarul...");
-  }else{
-    updateLobby("Tabla este pregătită.");
-  }
 }
 
-async function joinByCode(){
-  const code = $("joinCodeInput").value.trim().toUpperCase();
-  if(code.length < 4) return toast("Introdu un cod valid.");
-  if(!initSupabase()){
-    openConfig();
-    return toast("Configurează Supabase pentru multiplayer.");
-  }
+async function createInvitation(){
+  resetEverything();
+  state.mode = "host";
+  state.hostId = state.playerId;
+  state.roomCode = createRoomCode();
 
-  gameMode = "guest";
-  roomCode = code;
-  resetMatchState();
+  prepareLobbyUI();
+  $("setupTitle").textContent = "Invită un jucător";
+  $("setupDescription").textContent = "Trimite codul și așteaptă conectarea adversarului.";
+  $("roomCodeBox").classList.remove("hidden");
+  $("roomCodeText").textContent = state.roomCode;
+  $("readyButton").classList.remove("hidden");
+  $("startButton").classList.remove("hidden");
+  $("startButton").textContent = "PORNEȘTE MECIUL";
+
+  chooseSize(4,false);
+  generateMyBoard(false);
   showScreen("setupScreen");
-  $("setupTitle").textContent = "Ai intrat în cameră";
-  $("setupSub").textContent = "Așteaptă setările gazdei și generează tabla.";
-  $("roomBox").classList.remove("hidden");
-  $("roomCode").textContent = roomCode;
-  $("startBtn").classList.add("hidden");
-  $("readyBtn").classList.remove("hidden");
-  setBoardSize(4);
-  generateBoard();
-  await connectRoom(false);
-  updateLobby("Conectare la gazdă...");
+  setLobbyStatus("Se creează camera...");
+
+  await connectRealtime(true);
 }
 
-function setBoardSize(size, remote=false){
-  boardSize = size;
+async function joinInvitation(){
+  const code = $("joinCode").value.trim().toUpperCase();
+  if(code.length !== 6){
+    toast("Codul trebuie să aibă 6 caractere.");
+    return;
+  }
+
+  resetEverything();
+  state.mode = "guest";
+  state.roomCode = code;
+
+  prepareLobbyUI();
+  $("setupTitle").textContent = "Camera de joc";
+  $("setupDescription").textContent = "Gazda alege dimensiunea. Tabla ta rămâne secretă.";
+  $("roomCodeBox").classList.remove("hidden");
+  $("roomCodeText").textContent = code;
+  $("readyButton").classList.remove("hidden");
+  $("startButton").classList.add("hidden");
+
+  chooseSize(4,false);
+  generateMyBoard(false);
+  showScreen("setupScreen");
+  setLobbyStatus("Se caută gazda...");
+
+  await connectRealtime(false);
+}
+
+function prepareLobbyUI(){
+  state.ready = false;
+  state.opponentReady = false;
+  document.querySelectorAll(".mode-btn").forEach(btn=>btn.disabled=false);
+  setReadyButton();
+}
+
+function chooseSize(size,broadcast=true){
+  if(state.mode === "guest" && broadcast) return;
+
+  state.boardSize = Number(size);
   document.querySelectorAll(".mode-btn").forEach(btn=>{
-    btn.classList.toggle("active", Number(btn.dataset.size) === size);
-    if(gameMode === "guest") btn.disabled = true;
+    btn.classList.toggle("active",Number(btn.dataset.size) === state.boardSize);
+    btn.disabled = state.mode === "guest";
   });
-  $("previewMode").textContent = `${size}×${size}`;
-  generateBoard();
+  $("previewBadge").textContent = `${state.boardSize}×${state.boardSize}`;
 
-  if(gameMode === "host" && !remote){
-    sendEvent("settings", { size });
+  generateMyBoard(false);
+
+  if(broadcast && state.mode === "host"){
+    state.opponentReady = false;
+    sendRealtime("lobby_settings",{size:state.boardSize});
+    sendRealtime("ready_state",{ready:false});
   }
+  updateLobbyStatus();
 }
 
-function generateBoard(){
-  const count = boardSize * boardSize;
-  boardNumbers = shuffle(Array.from({length:count},(_,i)=>i+1));
-  renderPreview();
-  isReady = false;
-  if($("readyBtn")) $("readyBtn").textContent = "SUNT GATA";
-  if(gameMode !== "solo") sendEvent("ready", { ready:false });
+function generateMyBoard(broadcastReady=true){
+  const total = state.boardSize * state.boardSize;
+  state.board = shuffle(Array.from({length:total},(_,i)=>i+1));
+  state.ready = false;
+  setReadyButton();
+  renderPreviewBoard();
+
+  if(broadcastReady && state.mode !== "solo"){
+    sendRealtime("ready_state",{ready:false});
+  }
+  updateLobbyStatus();
 }
 
-function renderPreview(){
-  const el = $("previewBoard");
-  el.innerHTML = "";
-  el.style.gridTemplateColumns = `repeat(${boardSize},1fr)`;
-  boardNumbers.forEach(n=>{
-    const c = document.createElement("div");
-    c.className = "mini-cell";
-    c.textContent = n;
-    el.appendChild(c);
+function renderPreviewBoard(){
+  const board = $("previewBoard");
+  board.innerHTML = "";
+  board.style.gridTemplateColumns = `repeat(${state.boardSize},1fr)`;
+
+  state.board.forEach(number=>{
+    const cell = document.createElement("div");
+    cell.className = "preview-cell";
+    cell.textContent = number;
+    board.appendChild(cell);
   });
 }
 
 function toggleReady(){
-  isReady = !isReady;
-  $("readyBtn").textContent = isReady ? "✓ GATA" : "SUNT GATA";
-  $("readyBtn").classList.toggle("btn-primary", isReady);
-  $("readyBtn").classList.toggle("btn-secondary", !isReady);
-  sendEvent("ready", { ready:isReady });
+  state.ready = !state.ready;
+  setReadyButton();
+  sendRealtime("ready_state",{ready:state.ready});
   updateLobbyStatus();
 }
 
-function updateLobby(text){
+function setReadyButton(){
+  const button = $("readyButton");
+  button.textContent = state.ready ? "✓ GATA" : "SUNT GATA";
+  button.classList.toggle("btn-primary",state.ready);
+  button.classList.toggle("btn-secondary",!state.ready);
+}
+
+function setLobbyStatus(text){
   $("lobbyStatusText").textContent = text;
 }
+
 function updateLobbyStatus(){
-  if(gameMode === "solo") return;
-  if(!opponentId) return updateLobby("Așteptăm adversarul...");
-  if(isReady && opponentReady) updateLobby(gameMode === "host" ? "Amândoi sunteți gata. Poți porni." : "Amândoi sunteți gata. Așteptăm gazda.");
-  else if(isReady) updateLobby("Tu ești gata. Așteptăm adversarul.");
-  else if(opponentReady) updateLobby("Adversarul este gata.");
-  else updateLobby("Ambii jucători trebuie să apese GATA.");
+  if(state.mode === "solo"){
+    setLobbyStatus("Tabla este pregătită.");
+    return;
+  }
+
+  if(!state.opponentId){
+    setLobbyStatus(state.mode === "host" ? "Așteptăm adversarul..." : "Se caută gazda...");
+    return;
+  }
+
+  if(state.ready && state.opponentReady){
+    setLobbyStatus(state.mode === "host"
+      ? "Amândoi sunteți gata. Poți porni meciul."
+      : "Amândoi sunteți gata. Gazda poate porni.");
+  }else if(state.ready){
+    setLobbyStatus("Tu ești gata. Așteptăm adversarul.");
+  }else if(state.opponentReady){
+    setLobbyStatus("Adversarul este gata.");
+  }else{
+    setLobbyStatus("Ambii jucători trebuie să apese GATA.");
+  }
 }
 
-async function startMatch(remote=false){
-  if(gameMode !== "solo"){
-    if(gameMode === "guest" && !remote) return;
-    if(!isReady || !opponentReady) return toast("Ambii jucători trebuie să fie gata.");
-    if(!opponentId) return toast("Adversarul nu este conectat.");
+function hostStartGame(){
+  if(state.mode === "solo"){
+    state.firstPlayerId = state.playerId;
+    beginGame();
+    return;
   }
 
-  if(gameMode === "host" && !remote){
-    sendEvent("start", { size:boardSize });
+  if(state.mode !== "host") return;
+  if(!state.opponentId){
+    toast("Adversarul nu este conectat.");
+    return;
   }
+  if(!state.ready || !state.opponentReady){
+    toast("Ambii jucători trebuie să fie gata.");
+    return;
+  }
+
+  state.firstPlayerId = Math.random() < .5 ? state.playerId : state.opponentId;
+  sendRealtime("start_game",{
+    size:state.boardSize,
+    firstPlayerId:state.firstPlayerId
+  });
   beginGame();
 }
 
-function beginGame(){
-  gameStarted = true;
-  round = 1;
-  markedNumbers = new Set();
-  pendingNumber = null;
-  opponentPending = null;
-  completedLines = new Set();
-  opponentLines = 0;
-  historyNumbers = [];
-  showScreen("gameScreen");
-  $("gameModeBadge").textContent = `${boardSize}×${boardSize}`;
-  $("myRoleLabel").textContent = gameMode === "host" ? "Gazdă" : gameMode === "guest" ? "Invitat" : "Contra calculatorului";
-  $("opponentName").textContent = gameMode === "solo" ? "Calculator" : "Adversar";
-  $("opponentStatus").textContent = "În meci";
-  renderBingo();
-  renderOpponentProgress();
-  renderBoard();
-  renderHistory();
-  updateRoundUI();
-}
+/* =========================================================
+   SUPABASE REALTIME
+   ========================================================= */
+async function connectRealtime(isHost){
+  await cleanupRealtime();
 
-/* ============================================================
-   REALTIME SUPABASE
-   ============================================================ */
-async function connectRoom(isHost){
-  cleanupChannel();
-  channel = sb.channel(`bingo-duel-${roomCode}`, {
+  const channelName = `bingo-duel-${state.roomCode}`;
+  state.channel = supabaseClient.channel(channelName,{
     config:{
-      broadcast:{ self:false, ack:true },
-      presence:{ key:playerId }
+      broadcast:{self:false,ack:true},
+      presence:{key:state.playerId},
+      private:false
     }
   });
 
-  channel
-    .on("broadcast",{event:"game"},({payload})=>handleRemote(payload))
+  state.channel
+    .on("broadcast",{event:"game_event"},({payload})=>{
+      handleRealtimeEvent(payload);
+    })
     .on("presence",{event:"sync"},()=>{
-      const state = channel.presenceState();
-      const players = Object.values(state).flat();
-      const other = players.find(p=>p.playerId !== playerId);
-      if(other){
-        opponentId = other.playerId;
-        if(other.isHost) hostId = other.playerId;
-        $("opponentStatus").textContent = "Conectat";
-        updateLobbyStatus();
-
-        if(gameMode === "guest"){
-          sendEvent("hello",{ playerId, wantsSettings:true });
-        }else if(gameMode === "host"){
-          sendEvent("settings",{ size:boardSize });
-        }
-      }
+      handlePresenceSync(isHost);
     })
     .on("presence",{event:"leave"},()=>{
-      $("opponentStatus").textContent = "Deconectat";
-      toast("Adversarul s-a deconectat.");
+      if(state.gameStarted && !state.gameOver){
+        toast("Adversarul s-a deconectat.");
+        $("opponentStatus").textContent = "Deconectat";
+      }
     });
 
-  await channel.subscribe(async status=>{
+  state.channel.subscribe(async(status,error)=>{
     if(status === "SUBSCRIBED"){
-      await channel.track({playerId,isHost,joinedAt:Date.now()});
-      setNetwork(true, `Camera ${roomCode}`);
-      sendEvent("hello",{ playerId,isHost });
+      state.connected = true;
+      setConnection(true,`Camera ${state.roomCode}`);
+      await state.channel.track({
+        playerId:state.playerId,
+        role:isHost ? "host" : "guest",
+        joinedAt:Date.now()
+      });
+      sendRealtime("hello",{role:isHost ? "host" : "guest"});
+      setLobbyStatus("Camera este conectată.");
+    }else if(status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+      console.error("Realtime error:",error);
+      state.connected = false;
+      setConnection(false,"Eroare Realtime");
+      setLobbyStatus("Nu s-a putut conecta la cameră.");
+      toast("Conexiunea Supabase a eșuat.");
+    }else if(status === "CLOSED"){
+      state.connected = false;
+      setConnection(false,"Deconectat");
     }
   });
 }
 
-function sendEvent(type,data={}){
-  if(!channel) return;
-  channel.send({
+function handlePresenceSync(isHost){
+  if(!state.channel) return;
+
+  const presence = state.channel.presenceState();
+  const players = Object.values(presence).flat();
+  const otherPlayers = players.filter(player=>player.playerId !== state.playerId);
+
+  if(otherPlayers.length > 1){
+    toast("Camera este deja plină.");
+    if(state.mode === "guest"){
+      setTimeout(()=>leaveToHome(),900);
+    }
+    return;
+  }
+
+  const opponent = otherPlayers[0];
+  if(!opponent){
+    state.opponentId = null;
+    updateLobbyStatus();
+    return;
+  }
+
+  state.opponentId = opponent.playerId;
+  if(opponent.role === "host") state.hostId = opponent.playerId;
+
+  $("opponentStatus").textContent = "Conectat";
+  updateLobbyStatus();
+
+  if(state.mode === "host"){
+    sendRealtime("lobby_settings",{size:state.boardSize});
+    sendRealtime("ready_state",{ready:state.ready});
+  }else{
+    sendRealtime("request_lobby_state",{});
+    sendRealtime("ready_state",{ready:state.ready});
+  }
+}
+
+function sendRealtime(type,data={}){
+  if(!state.channel) return Promise.resolve();
+
+  return state.channel.send({
     type:"broadcast",
-    event:"game",
-    payload:{ type, data, sender:playerId, t:Date.now() }
+    event:"game_event",
+    payload:{
+      type,
+      data,
+      senderId:state.playerId,
+      sentAt:Date.now()
+    }
   });
 }
 
-function handleRemote(msg){
-  if(!msg || msg.sender === playerId) return;
-  const {type,data,sender} = msg;
-  opponentId = sender;
+function handleRealtimeEvent(message){
+  if(!message || message.senderId === state.playerId) return;
+
+  const {type,data,senderId} = message;
+  state.opponentId = senderId;
 
   switch(type){
     case "hello":
       $("opponentStatus").textContent = "Conectat";
-      if(gameMode === "host") sendEvent("settings",{size:boardSize});
+      if(state.mode === "host"){
+        sendRealtime("lobby_settings",{size:state.boardSize});
+        sendRealtime("ready_state",{ready:state.ready});
+      }
       updateLobbyStatus();
       break;
 
-    case "settings":
-      if(gameMode === "guest"){
-        setBoardSize(Number(data.size), true);
-        updateLobby(`Gazda a ales modul ${data.size}×${data.size}.`);
+    case "request_lobby_state":
+      if(state.mode === "host"){
+        sendRealtime("lobby_settings",{size:state.boardSize});
+        sendRealtime("ready_state",{ready:state.ready});
       }
       break;
 
-    case "ready":
-      opponentReady = !!data.ready;
+    case "lobby_settings":
+      if(state.mode === "guest" && !state.gameStarted){
+        state.boardSize = Number(data.size) || 4;
+        document.querySelectorAll(".mode-btn").forEach(btn=>{
+          btn.classList.toggle("active",Number(btn.dataset.size) === state.boardSize);
+          btn.disabled = true;
+        });
+        $("previewBadge").textContent = `${state.boardSize}×${state.boardSize}`;
+        generateMyBoard(false);
+        setLobbyStatus(`Gazda a ales modul ${state.boardSize}×${state.boardSize}.`);
+      }
+      break;
+
+    case "ready_state":
+      state.opponentReady = Boolean(data.ready);
       updateLobbyStatus();
       break;
 
-    case "start":
-      if(gameMode === "guest"){
-        boardSize = Number(data.size);
-        beginGame();
-      }
+    case "start_game":
+      state.boardSize = Number(data.size);
+      state.firstPlayerId = data.firstPlayerId;
+      beginGame();
       break;
 
-    case "pick":
-      opponentPending = Number(data.number);
-      $("opponentSelection").textContent = "A selectat ✓";
-      resolveRoundIfReady();
+    case "call_number":
+      receiveNumberCall(data);
       break;
 
-    case "lineCount":
-      opponentLines = Number(data.count)||0;
-      renderOpponentProgress();
-      if(opponentLines >= 5) finishGame(false);
+    case "confirm_number":
+      receiveNumberConfirmation(data);
       break;
 
-    case "pause":
-      showPause(false);
+    case "round_complete":
+      receiveRoundComplete(data);
       break;
 
-    case "resume":
-      hidePause();
+    case "game_result":
+      applyGameResult(data);
       break;
 
-    case "rematch":
-      $("winnerOverlay").classList.add("hidden");
-      showScreen("setupScreen");
-      resetMatchState();
-      setBoardSize(Number(data.size)||4);
-      generateBoard();
-      updateLobby("Adversarul vrea un nou meci.");
+    case "pause_game":
+      openPause(false,senderId);
       break;
 
-    case "leave":
-      toast("Adversarul a părăsit meciul.");
-      setTimeout(returnToMain,1200);
+    case "resume_game":
+      closePause();
+      break;
+
+    case "rematch_request":
+      enterRematchLobby();
+      toast("Adversarul vrea să joace din nou.");
+      break;
+
+    case "leave_room":
+      toast("Adversarul a ieșit din joc.");
+      setTimeout(()=>returnMain(),900);
       break;
   }
 }
 
-function cleanupChannel(){
-  if(channel && sb) sb.removeChannel(channel);
-  channel = null;
-  setNetwork(false, "Mod local");
-}
-
-/* ============================================================
-   GAMEPLAY
-   ============================================================ */
-function renderBoard(){
-  const el = $("gameBoard");
-  el.innerHTML = "";
-  el.style.gridTemplateColumns = `repeat(${boardSize},1fr)`;
-
-  boardNumbers.forEach((n,index)=>{
-    const c = document.createElement("button");
-    c.className = "cell";
-    c.dataset.number = n;
-    c.dataset.index = index;
-    c.innerHTML = `<span class="num">${n}</span>`;
-    c.onclick = ()=>selectNumber(n);
-    el.appendChild(c);
-  });
-
-  renderCellStates();
-  requestAnimationFrame(renderStrikeLines);
-}
-
-function selectNumber(n){
-  if(!gameStarted || isPaused) return;
-  if(pendingNumber !== null) return toast("Ai ales deja un număr în această rundă.");
-  if(markedNumbers.has(n)) return toast("Numărul este deja marcat.");
-
-  pendingNumber = n;
-  renderCellStates();
-  $("selectionHint").textContent = "Selecție trimisă. Așteptăm adversarul.";
-  $("opponentSelection").textContent = opponentPending !== null ? "A selectat ✓" : "Așteaptă...";
-
-  if(gameMode === "solo"){
-    setTimeout(()=>{
-      const options = boardNumbers.filter(x=>!markedNumbers.has(x) && x !== pendingNumber);
-      opponentPending = options[Math.floor(Math.random()*options.length)] ?? pendingNumber;
-      $("opponentSelection").textContent = "A selectat ✓";
-      resolveRoundIfReady();
-    },500 + Math.random()*700);
-  }else{
-    sendEvent("pick",{number:n,round});
-    resolveRoundIfReady();
-  }
-}
-
-function resolveRoundIfReady(){
-  if(pendingNumber === null || opponentPending === null) return;
-
-  const chosen = [pendingNumber,opponentPending];
-  chosen.forEach(n=>{
-    markedNumbers.add(n);
-    if(!historyNumbers.includes(n)) historyNumbers.unshift(n);
-  });
-
-  pendingNumber = null;
-  opponentPending = null;
-  round++;
-
-  renderCellStates();
-  renderHistory();
-  updateRoundUI();
-
-  const previousCount = completedLines.size;
-  completedLines = detectCompletedLines();
-
-  if(completedLines.size > previousCount){
-    renderBingo();
-    renderStrikeLines();
-    pulseBoard();
-    if(gameMode !== "solo") sendEvent("lineCount",{count:Math.min(5,completedLines.size)});
-  }
-
-  if(completedLines.size >= 5){
-    finishGame(true);
-  }
-}
-
-function detectCompletedLines(){
-  const lines = new Set();
-  const n = boardSize;
-
-  // rânduri
-  for(let r=0;r<n;r++){
-    const nums=[];
-    for(let c=0;c<n;c++) nums.push(boardNumbers[r*n+c]);
-    if(nums.every(x=>markedNumbers.has(x))) lines.add(`r${r}`);
-  }
-
-  // coloane
-  for(let c=0;c<n;c++){
-    const nums=[];
-    for(let r=0;r<n;r++) nums.push(boardNumbers[r*n+c]);
-    if(nums.every(x=>markedNumbers.has(x))) lines.add(`c${c}`);
-  }
-
-  // diagonala principală
-  const d1=[];
-  for(let i=0;i<n;i++) d1.push(boardNumbers[i*n+i]);
-  if(d1.every(x=>markedNumbers.has(x))) lines.add("d1");
-
-  // diagonala secundară
-  const d2=[];
-  for(let i=0;i<n;i++) d2.push(boardNumbers[i*n+(n-1-i)]);
-  if(d2.every(x=>markedNumbers.has(x))) lines.add("d2");
-
-  return lines;
-}
-
-function renderCellStates(){
-  document.querySelectorAll("#gameBoard .cell").forEach(cell=>{
-    const n = Number(cell.dataset.number);
-    cell.classList.toggle("pending", pendingNumber === n);
-    cell.classList.toggle("marked", markedNumbers.has(n));
-    cell.disabled = markedNumbers.has(n) || pendingNumber !== null || isPaused;
-  });
-}
-
-function renderBingo(){
-  const letters = ["B","I","N","G","O"];
-  $("bingoWord").innerHTML = "";
-  letters.forEach((l,i)=>{
-    const el = document.createElement("div");
-    el.className = "bingo-letter" + (i < Math.min(5,completedLines.size) ? " done" : "");
-    el.textContent = l;
-    $("bingoWord").appendChild(el);
-  });
-}
-
-function renderOpponentProgress(){
-  $("opponentBingoText").textContent = `${Math.min(5,opponentLines)} / 5 linii`;
-  $("opponentProgress").innerHTML = "";
-  for(let i=0;i<5;i++){
-    const d=document.createElement("div");
-    d.className="op-dot"+(i<opponentLines?" fill":"");
-    $("opponentProgress").appendChild(d);
-  }
-}
-
-function renderHistory(){
-  $("calledHistory").innerHTML = "";
-  historyNumbers.slice(0,15).forEach(n=>{
-    const e=document.createElement("div");
-    e.className="history-num";
-    e.textContent=n;
-    $("calledHistory").appendChild(e);
-  });
-}
-
-function updateRoundUI(){
-  $("roundNumber").textContent = round;
-  $("selectionHint").textContent = "Alege un număr.";
-  $("opponentSelection").textContent = "Așteaptă...";
-}
-
-function renderStrikeLines(){
-  const overlay = $("lineOverlay");
-  overlay.innerHTML = "";
-  const n = boardSize;
-  const gap = 7;
-  const cellPct = 100/n;
-
-  completedLines.forEach(id=>{
-    const line=document.createElement("div");
-    line.className="strike-line";
-
-    if(id.startsWith("r")){
-      const r=Number(id.slice(1));
-      line.style.left="2%";
-      line.style.top=`calc(${(r+.5)*cellPct}% - 2px)`;
-      line.style.width="96%";
-      line.style.transform="rotate(0deg)";
-    }else if(id.startsWith("c")){
-      const c=Number(id.slice(1));
-      line.style.left=`calc(${(c+.5)*cellPct}% - 2px)`;
-      line.style.top="2%";
-      line.style.width="96%";
-      line.style.transform="rotate(90deg)";
-      line.style.transformOrigin="left center";
-    }else if(id==="d1"){
-      line.style.left="3%";
-      line.style.top="3%";
-      line.style.width="133%";
-      line.style.transform="rotate(45deg)";
-    }else if(id==="d2"){
-      line.style.left="3%";
-      line.style.top="97%";
-      line.style.width="133%";
-      line.style.transform="rotate(-45deg)";
+async function cleanupRealtime(){
+  if(state.channel){
+    try{
+      await supabaseClient.removeChannel(state.channel);
+    }catch(error){
+      console.warn(error);
     }
-    overlay.appendChild(line);
+  }
+  state.channel = null;
+  state.connected = false;
+}
+
+async function notifyLeave(){
+  if(state.channel){
+    try{await sendRealtime("leave_room",{});}catch(error){}
+  }
+}
+
+/* =========================================================
+   PORNIRE JOC
+   ========================================================= */
+function beginGame(){
+  const selectedFirstPlayer = state.firstPlayerId;
+  resetGameOnly();
+  state.gameStarted = true;
+  state.firstPlayerId = selectedFirstPlayer || state.playerId;
+  state.turnPlayerId = state.firstPlayerId;
+
+  if(state.mode === "solo"){
+    state.opponentId = state.botId;
+    state.hostId = state.playerId;
+    state.firstPlayerId = state.playerId;
+    state.turnPlayerId = state.playerId;
+    const total = state.boardSize * state.boardSize;
+    state.botBoard = shuffle(Array.from({length:total},(_,i)=>i+1));
+  }
+
+  $("myRoleText").textContent =
+    state.mode === "host" ? "Gazdă" :
+    state.mode === "guest" ? "Invitat" :
+    "Contra calculatorului";
+
+  $("opponentName").textContent = state.mode === "solo" ? "Calculator" : "Adversar";
+  $("opponentStatus").textContent = "În joc";
+  $("gameSizeBadge").textContent = `${state.boardSize}×${state.boardSize}`;
+  $("receivedNumber").textContent = "—";
+
+  renderGameBoard();
+  renderBingoWord();
+  renderProgress();
+  updateGameUI();
+  showScreen("gameScreen");
+}
+
+function renderGameBoard(){
+  const board = $("gameBoard");
+  board.innerHTML = "";
+  board.style.gridTemplateColumns = `repeat(${state.boardSize},1fr)`;
+
+  state.board.forEach((number,index)=>{
+    const cell = document.createElement("button");
+    cell.className = "game-cell";
+    cell.dataset.number = String(number);
+    cell.dataset.index = String(index);
+    cell.innerHTML = `<span class="number">${number}</span>`;
+    cell.onclick = ()=>handleCellClick(number);
+    board.appendChild(cell);
+  });
+
+  renderCells();
+  renderCompletedLines();
+}
+
+/* =========================================================
+   LOGICA JOCULUI
+   ========================================================= */
+function handleCellClick(number){
+  if(!state.gameStarted || state.gameOver || state.paused) return;
+
+  // Ai primit un număr: trebuie să apeși exact acel număr.
+  if(state.incomingNumber !== null){
+    if(number !== state.incomingNumber){
+      toast(`Trebuie să apeși numărul ${state.incomingNumber}.`);
+      return;
+    }
+    confirmIncomingNumber();
+    return;
+  }
+
+  // Poți alege un număr doar când este rândul tău.
+  if(state.turnPlayerId !== state.playerId){
+    toast("Așteaptă numărul adversarului.");
+    return;
+  }
+
+  if(state.pendingOwnNumber !== null || state.waitingRoundComplete){
+    toast("Așteaptă confirmarea adversarului.");
+    return;
+  }
+
+  if(state.marked.has(number)){
+    toast("Numărul este deja tăiat.");
+    return;
+  }
+
+  callNumber(number);
+}
+
+function callNumber(number){
+  state.pendingOwnNumber = number;
+  state.pendingCallId = crypto.randomUUID();
+  state.turnPlayerId = state.playerId;
+  renderCells();
+  updateGameUI();
+
+  if(state.mode === "solo"){
+    setTimeout(()=>resolveSoloPlayerCall(number,state.pendingCallId),650);
+    return;
+  }
+
+  sendRealtime("call_number",{
+    number,
+    callId:state.pendingCallId,
+    round:state.round
   });
 }
 
-function pulseBoard(){
-  const h=$("boardHolder");
-  h.animate([
-    {transform:"scale(1)"},
-    {transform:"scale(1.025)",filter:"brightness(1.25)"},
-    {transform:"scale(1)"}
-  ],{duration:420,easing:"ease-out"});
+function receiveNumberCall(data){
+  if(state.gameOver || !state.gameStarted) return;
+  if(state.pendingOwnNumber !== null || state.incomingNumber !== null) return;
+
+  state.incomingNumber = Number(data.number);
+  state.incomingCallId = data.callId;
+  state.turnPlayerId = state.opponentId;
+  $("receivedNumber").textContent = state.incomingNumber;
+  renderCells();
+  updateGameUI();
+  vibrate(35);
 }
 
-/* ============================================================
+function confirmIncomingNumber(){
+  const number = state.incomingNumber;
+  const callId = state.incomingCallId;
+
+  state.marked.add(number);
+  state.incomingNumber = null;
+  state.incomingCallId = null;
+  state.waitingRoundComplete = true;
+
+  updateMyLines();
+  renderCells();
+  updateGameUI();
+
+  if(state.mode === "solo"){
+    finishSoloBotCall(number);
+    return;
+  }
+
+  sendRealtime("confirm_number",{
+    number,
+    callId,
+    confirmerLineCount:state.myLineCount,
+    round:state.round
+  });
+}
+
+function receiveNumberConfirmation(data){
+  if(state.gameOver || !state.gameStarted) return;
+  if(!state.pendingCallId || data.callId !== state.pendingCallId) return;
+
+  const number = Number(data.number);
+  state.marked.add(number);
+  state.pendingOwnNumber = null;
+  state.pendingCallId = null;
+  state.opponentLineCount = Number(data.confirmerLineCount) || 0;
+
+  updateMyLines();
+
+  const result = evaluateRoundResult(state.myLineCount,state.opponentLineCount);
+
+  sendRealtime("round_complete",{
+    callerLineCount:state.myLineCount,
+    confirmerLineCount:state.opponentLineCount,
+    nextPlayerId:state.opponentId,
+    nextRound:state.round + 1,
+    result
+  });
+
+  renderCells();
+  renderProgress();
+
+  if(result){
+    sendRealtime("game_result",result);
+    applyGameResult(result);
+    return;
+  }
+
+  state.turnPlayerId = state.opponentId;
+  state.round += 1;
+  updateGameUI();
+}
+
+function receiveRoundComplete(data){
+  if(state.gameOver || !state.gameStarted) return;
+
+  state.waitingRoundComplete = false;
+  state.opponentLineCount = Number(data.callerLineCount) || 0;
+  state.turnPlayerId = data.nextPlayerId;
+  state.round = Number(data.nextRound) || (state.round + 1);
+
+  renderProgress();
+  updateGameUI();
+
+  if(data.result){
+    applyGameResult(data.result);
+  }
+}
+
+function evaluateRoundResult(callerLines,confirmerLines){
+  if(callerLines >= 5 && confirmerLines >= 5){
+    return {winnerId:"draw",reason:"Amândoi ați completat cinci linii în aceeași rundă."};
+  }
+  if(callerLines >= 5){
+    return {winnerId:state.playerId,reason:"Au fost completate cinci linii."};
+  }
+  if(confirmerLines >= 5){
+    return {winnerId:state.opponentId,reason:"Au fost completate cinci linii."};
+  }
+  return null;
+}
+
+/* =========================================================
+   MOD SOLO
+   ========================================================= */
+function resolveSoloPlayerCall(number,callId){
+  if(state.gameOver || state.pendingCallId !== callId) return;
+
+  state.botMarked.add(number);
+  state.botCompletedLines = detectLines(state.botBoard,state.botMarked,state.boardSize);
+  state.opponentLineCount = state.botCompletedLines.size;
+
+  state.marked.add(number);
+  state.pendingOwnNumber = null;
+  state.pendingCallId = null;
+  updateMyLines();
+
+  const result = evaluateSoloResult();
+  renderCells();
+  renderProgress();
+
+  if(result){
+    applyGameResult(result);
+    return;
+  }
+
+  state.turnPlayerId = state.botId;
+  state.round += 1;
+  updateGameUI();
+
+  setTimeout(botCallsNumber,750);
+}
+
+function botCallsNumber(){
+  if(state.gameOver || state.paused) return;
+
+  const available = state.botBoard.filter(number=>!state.botMarked.has(number));
+  if(!available.length) return;
+
+  const number = available[Math.floor(Math.random()*available.length)];
+  state.botPendingNumber = number;
+  state.incomingNumber = number;
+  state.incomingCallId = crypto.randomUUID();
+  state.turnPlayerId = state.botId;
+
+  $("receivedNumber").textContent = number;
+  renderCells();
+  updateGameUI();
+  vibrate(35);
+}
+
+function finishSoloBotCall(number){
+  state.botMarked.add(number);
+  state.botPendingNumber = null;
+  state.botCompletedLines = detectLines(state.botBoard,state.botMarked,state.boardSize);
+  state.opponentLineCount = state.botCompletedLines.size;
+  state.waitingRoundComplete = false;
+
+  const result = evaluateSoloResult();
+  renderProgress();
+
+  if(result){
+    applyGameResult(result);
+    return;
+  }
+
+  state.turnPlayerId = state.playerId;
+  state.round += 1;
+  updateGameUI();
+}
+
+function evaluateSoloResult(){
+  if(state.myLineCount >= 5 && state.opponentLineCount >= 5){
+    return {winnerId:"draw",reason:"Amândoi ați completat cinci linii."};
+  }
+  if(state.myLineCount >= 5){
+    return {winnerId:state.playerId,reason:"Ai completat cinci linii."};
+  }
+  if(state.opponentLineCount >= 5){
+    return {winnerId:state.botId,reason:"Calculatorul a completat cinci linii."};
+  }
+  return null;
+}
+
+/* =========================================================
+   LINII / BINGO
+   ========================================================= */
+function updateMyLines(){
+  const previousCount = state.completedLines.size;
+  state.completedLines = detectLines(state.board,state.marked,state.boardSize);
+  state.myLineCount = state.completedLines.size;
+
+  if(state.completedLines.size > previousCount){
+    animateBoard();
+    vibrate([40,30,70]);
+  }
+
+  renderBingoWord();
+  renderCompletedLines();
+  renderProgress();
+}
+
+function detectLines(board,marked,size){
+  const found = new Set();
+
+  for(let row=0;row<size;row++){
+    const numbers = [];
+    for(let col=0;col<size;col++){
+      numbers.push(board[row*size+col]);
+    }
+    if(numbers.every(number=>marked.has(number))){
+      found.add(`row-${row}`);
+    }
+  }
+
+  for(let col=0;col<size;col++){
+    const numbers = [];
+    for(let row=0;row<size;row++){
+      numbers.push(board[row*size+col]);
+    }
+    if(numbers.every(number=>marked.has(number))){
+      found.add(`col-${col}`);
+    }
+  }
+
+  const diagonalOne = [];
+  const diagonalTwo = [];
+
+  for(let i=0;i<size;i++){
+    diagonalOne.push(board[i*size+i]);
+    diagonalTwo.push(board[i*size+(size-1-i)]);
+  }
+
+  if(diagonalOne.every(number=>marked.has(number))){
+    found.add("diag-1");
+  }
+  if(diagonalTwo.every(number=>marked.has(number))){
+    found.add("diag-2");
+  }
+
+  return found;
+}
+
+function renderBingoWord(){
+  const letters = ["B","I","N","G","O"];
+  const count = Math.min(5,state.myLineCount);
+  const container = $("bingoWord");
+  container.innerHTML = "";
+
+  letters.forEach((letter,index)=>{
+    const item = document.createElement("div");
+    item.className = `bingo-letter${index < count ? " done" : ""}`;
+    item.textContent = letter;
+    container.appendChild(item);
+  });
+}
+
+function renderCompletedLines(){
+  const svg = $("lineSvg");
+  if(!svg) return;
+  svg.innerHTML = "";
+
+  const size = state.boardSize;
+
+  state.completedLines.forEach(lineId=>{
+    let x1,y1,x2,y2;
+
+    if(lineId.startsWith("row-")){
+      const row = Number(lineId.split("-")[1]);
+      y1 = y2 = ((row+.5)/size)*100;
+      x1 = 2;
+      x2 = 98;
+    }else if(lineId.startsWith("col-")){
+      const col = Number(lineId.split("-")[1]);
+      x1 = x2 = ((col+.5)/size)*100;
+      y1 = 2;
+      y2 = 98;
+    }else if(lineId === "diag-1"){
+      x1 = 3;y1 = 3;x2 = 97;y2 = 97;
+    }else{
+      x1 = 97;y1 = 3;x2 = 3;y2 = 97;
+    }
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1",x1);
+    line.setAttribute("y1",y1);
+    line.setAttribute("x2",x2);
+    line.setAttribute("y2",y2);
+    line.setAttribute("vector-effect","non-scaling-stroke");
+    line.setAttribute("class","strike");
+    svg.appendChild(line);
+  });
+}
+
+/* =========================================================
+   RANDARE ȘI STĂRI UI
+   ========================================================= */
+function renderCells(){
+  document.querySelectorAll("#gameBoard .game-cell").forEach(cell=>{
+    const number = Number(cell.dataset.number);
+    const marked = state.marked.has(number);
+    const pending = state.pendingOwnNumber === number;
+    const target = state.incomingNumber === number;
+
+    cell.classList.toggle("marked",marked);
+    cell.classList.toggle("pending",pending && !marked);
+    cell.classList.toggle("target",target && !marked);
+
+    let enabled = false;
+
+    if(!state.paused && !state.gameOver){
+      if(state.incomingNumber !== null){
+        enabled = target && !marked;
+      }else if(
+        state.turnPlayerId === state.playerId &&
+        state.pendingOwnNumber === null &&
+        !state.waitingRoundComplete
+      ){
+        enabled = !marked;
+      }
+    }
+
+    cell.disabled = !enabled;
+  });
+}
+
+function renderProgress(){
+  $("myProgressText").textContent = `${Math.min(5,state.myLineCount)} / 5 linii`;
+  $("opponentProgressText").textContent = `${Math.min(5,state.opponentLineCount)} / 5 linii`;
+
+  renderProgressBars("myProgressBars",state.myLineCount);
+  renderProgressBars("opponentProgressBars",state.opponentLineCount);
+}
+
+function renderProgressBars(containerId,count){
+  const container = $(containerId);
+  container.innerHTML = "";
+
+  for(let i=0;i<5;i++){
+    const bar = document.createElement("div");
+    bar.className = `progress-bar${i < Math.min(5,count) ? " done" : ""}`;
+    container.appendChild(bar);
+  }
+}
+
+function updateGameUI(){
+  $("roundText").textContent = state.round;
+
+  const banner = $("turnBanner");
+  banner.className = "turn-banner";
+
+  if(state.paused){
+    banner.textContent = "Jocul este în pauză.";
+    $("roundHelp").textContent = "Așteaptă reluarea jocului.";
+    renderCells();
+    return;
+  }
+
+  if(state.incomingNumber !== null){
+    banner.classList.add("incoming");
+    banner.innerHTML = `Adversarul a ales <span class="called-number">${state.incomingNumber}</span> Apasă numărul pe tabla ta.`;
+    $("roundHelp").textContent = `Găsește și apasă numărul ${state.incomingNumber}.`;
+  }else if(state.waitingRoundComplete){
+    banner.textContent = "Numărul a fost tăiat. Se finalizează runda...";
+    $("roundHelp").textContent = "Așteaptă confirmarea rundei.";
+  }else if(state.pendingOwnNumber !== null){
+    banner.innerHTML = `Ai trimis <span class="called-number">${state.pendingOwnNumber}</span> Așteptăm adversarul să îl taie.`;
+    $("roundHelp").textContent = "Numărul tău rămâne verde până este confirmat.";
+  }else if(state.turnPlayerId === state.playerId){
+    banner.classList.add("my-turn");
+    banner.textContent = "Este rândul tău. Alege orice număr netăiat.";
+    $("roundHelp").textContent = "Numărul ales devine verde și este trimis adversarului.";
+  }else{
+    banner.textContent = "Este rândul adversarului.";
+    $("roundHelp").textContent = "Așteaptă să primești un număr.";
+  }
+
+  renderCells();
+}
+
+/* =========================================================
+   REZULTAT
+   ========================================================= */
+function applyGameResult(result){
+  if(state.gameOver) return;
+
+  state.gameOver = true;
+  state.gameStarted = false;
+  state.paused = false;
+  clearInterval(state.pauseInterval);
+  $("pauseOverlay").classList.add("hidden");
+
+  const won = result.winnerId === state.playerId;
+  const draw = result.winnerId === "draw";
+
+  if(draw){
+    $("resultIcon").textContent = "=";
+    $("resultTitle").textContent = "REMIZĂ!";
+    $("resultDescription").textContent = result.reason || "Ați completat BINGO în aceeași rundă.";
+  }else if(won){
+    $("resultIcon").textContent = "✓";
+    $("resultTitle").textContent = "AI CÂȘTIGAT!";
+    $("resultDescription").textContent = "Ai completat primul cinci linii și ai tăiat B-I-N-G-O.";
+    launchConfetti();
+  }else{
+    $("resultIcon").textContent = "×";
+    $("resultTitle").textContent = "A CÂȘTIGAT ADVERSARUL";
+    $("resultDescription").textContent = "Adversarul a completat primul cinci linii.";
+  }
+
+  $("resultOverlay").classList.remove("hidden");
+}
+
+function playAgain(){
+  $("resultOverlay").classList.add("hidden");
+
+  if(state.mode === "solo"){
+    resetGameOnly();
+    state.ready = false;
+    state.opponentReady = false;
+    showScreen("setupScreen");
+    chooseSize(4,false);
+    generateMyBoard(false);
+    setLobbyStatus("Alege modul și generează o tablă nouă.");
+    return;
+  }
+
+  sendRealtime("rematch_request",{});
+  enterRematchLobby();
+}
+
+function enterRematchLobby(){
+  $("resultOverlay").classList.add("hidden");
+  resetGameOnly();
+  state.ready = false;
+  state.opponentReady = false;
+  setReadyButton();
+
+  document.querySelectorAll(".mode-btn").forEach(btn=>{
+    btn.disabled = state.mode === "guest";
+  });
+
+  generateMyBoard(false);
+  showScreen("setupScreen");
+  setLobbyStatus(
+    state.mode === "host"
+      ? "Alege modul pentru noul joc."
+      : "Așteaptă alegerea gazdei."
+  );
+
+  if(state.mode === "host"){
+    sendRealtime("lobby_settings",{size:state.boardSize});
+  }
+}
+
+/* =========================================================
    PAUZĂ
-   ============================================================ */
-function requestPause(){
-  if(isPaused || !gameStarted) return;
-  if(gameMode !== "solo") sendEvent("pause",{});
-  showPause(true);
+   ========================================================= */
+function pauseGame(){
+  if(!state.gameStarted || state.gameOver || state.paused) return;
+
+  if(state.mode === "solo"){
+    openPause(true,state.playerId);
+  }else{
+    sendRealtime("pause_game",{});
+    openPause(true,state.playerId);
+  }
 }
 
-function showPause(byMe){
-  isPaused=true;
-  pauseLeft=30;
-  $("pauseTitle").textContent = byMe ? "Ai oprit runda." : "Adversarul a oprit runda!";
-  $("resumeBtn").classList.toggle("hidden", !byMe && gameMode !== "solo");
-  $("pauseCountdown").textContent=pauseLeft;
-  $("pauseOverlay").classList.remove("hidden");
-  renderCellStates();
+function openPause(isMine,ownerId){
+  state.paused = true;
+  state.pauseOwnerId = ownerId;
+  state.pauseLeft = 30;
 
-  clearInterval(pauseTimer);
-  pauseTimer=setInterval(()=>{
-    pauseLeft--;
-    $("pauseCountdown").textContent=pauseLeft;
-    if(pauseLeft<=0) resumeGame();
+  $("pauseTitle").textContent = isMine ? "Ai oprit runda." : "Adversarul a oprit runda!";
+  $("pauseDescription").textContent = "Runda se reia automat în 30 de secunde.";
+  $("pauseCounter").textContent = "30";
+  $("resumeButton").classList.toggle("hidden",!isMine && state.mode !== "solo");
+  $("pauseOverlay").classList.remove("hidden");
+
+  renderCells();
+  updateGameUI();
+
+  clearInterval(state.pauseInterval);
+  state.pauseInterval = setInterval(()=>{
+    state.pauseLeft -= 1;
+    $("pauseCounter").textContent = String(Math.max(0,state.pauseLeft));
+
+    if(state.pauseLeft <= 0){
+      if(isMine && state.mode !== "solo"){
+        sendRealtime("resume_game",{});
+      }
+      closePause();
+    }
   },1000);
 }
 
 function resumeGame(){
-  if(!isPaused) return;
-  if(gameMode !== "solo") sendEvent("resume",{});
-  hidePause();
-}
+  if(!state.paused) return;
 
-function hidePause(){
-  clearInterval(pauseTimer);
-  isPaused=false;
-  $("pauseOverlay").classList.add("hidden");
-  renderCellStates();
-}
-
-/* ============================================================
-   FINAL
-   ============================================================ */
-function finishGame(won){
-  if(!gameStarted) return;
-  gameStarted=false;
-
-  $("winnerTitle").textContent = won ? "AI CÂȘTIGAT!" : "ADVERSARUL A CÂȘTIGAT";
-  $("winnerText").textContent = won
-    ? "Ai completat cinci linii și ai tăiat B-I-N-G-O."
-    : "Adversarul a completat primul cinci linii.";
-
-  $("winnerOverlay").classList.remove("hidden");
-  if(won) launchConfetti();
-}
-
-function playAgain(){
-  $("winnerOverlay").classList.add("hidden");
-  resetMatchState();
-
-  if(gameMode === "solo"){
-    showScreen("setupScreen");
-    setBoardSize(4);
-    generateBoard();
+  if(state.pauseOwnerId !== state.playerId && state.mode !== "solo"){
     return;
   }
 
-  sendEvent("rematch",{size:boardSize});
-  showScreen("setupScreen");
-  setBoardSize(boardSize);
-  generateBoard();
-  updateLobby("Alege modul și pregătește o tablă nouă.");
-}
-
-function launchConfetti(){
-  const canvas=$("confetti"),ctx=canvas.getContext("2d");
-  canvas.width=innerWidth; canvas.height=innerHeight;
-  const pieces=Array.from({length:180},()=>({
-    x:Math.random()*canvas.width,
-    y:-20-Math.random()*canvas.height*.4,
-    w:5+Math.random()*8,
-    h:9+Math.random()*12,
-    vy:2+Math.random()*5,
-    vx:-2+Math.random()*4,
-    r:Math.random()*Math.PI,
-    vr:-.15+Math.random()*.3,
-    hue:Math.random()*360
-  }));
-  let frames=0;
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    pieces.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.vy+=.025;
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);
-      ctx.fillStyle=`hsl(${p.hue} 90% 60%)`;
-      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-      ctx.restore();
-    });
-    frames++;
-    if(frames<240) requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(state.mode !== "solo"){
+    sendRealtime("resume_game",{});
   }
-  draw();
+  closePause();
 }
 
-/* ============================================================
-   UTILITARE
-   ============================================================ */
-function resetMatchState(){
-  markedNumbers=new Set();
-  pendingNumber=null;
-  opponentPending=null;
-  round=1;
-  completedLines=new Set();
-  opponentLines=0;
-  historyNumbers=[];
-  isReady=false;
-  opponentReady=false;
-  isPaused=false;
-  gameStarted=false;
-  clearInterval(pauseTimer);
+function closePause(){
+  clearInterval(state.pauseInterval);
+  state.paused = false;
+  state.pauseOwnerId = null;
+  $("pauseOverlay").classList.add("hidden");
+  updateGameUI();
 }
 
-function resetAll(){
-  resetMatchState();
-  gameMode="solo";
-  roomCode="";
-  opponentId=null;
-  hostId=null;
-  $("joinCodeInput").value="";
+/* =========================================================
+   IEȘIRE
+   ========================================================= */
+async function leaveGame(){
+  const answer = confirm("Sigur vrei să ieși din joc?");
+  if(!answer) return;
+  await returnMain();
 }
 
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
+/* =========================================================
+   EFECTE / UTILITARE
+   ========================================================= */
+function setConnection(online,text){
+  $("connectionDot").classList.toggle("online",online);
+  $("connectionText").textContent = text;
 }
 
-function randomCode(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function createRoomCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
 }
 
-let toastTimer;
-function toast(text){
-  const t=$("toast");
-  t.textContent=text;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove("show"),2300);
+function shuffle(array){
+  const result = [...array];
+  for(let i=result.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [result[i],result[j]] = [result[j],result[i]];
+  }
+  return result;
 }
 
-window.addEventListener("resize",()=>{
-  if(gameStarted) renderStrikeLines();
-});
+let toastTimer = null;
+function toast(message){
+  const element = $("toast");
+  element.textContent = message;
+  element.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>element.classList.remove("show"),2400);
+}
 
-initSupabase();
-setBoardSize(4);
-generateBoard();
+function animateBoard(){
+  const holder = $("boardHolder");
+  holder.animate(
+    [
+      {transform:"scale(1)"},
+      {transform:"scale(1.018)"},
+      {transform:"scale(1)"}
+    ],
+    {duration:420,easing:"ease-out"}
+  );
+}
+
+function vibrate(pattern){
+  if(navigator.vibrate){
+    navigator.vibrate(pattern);
+  }
+}
+
+function launchConfetti(){
+  const canvas = $("confetti");
+  const context = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ["#10b970","#20d98a","#08784c","#ffffff","#b9f3d7","#ffb020"];
+  const pieces = Array.from({length:190},()=>({
+    x:Math.random()*canvas.width,
+    y:-20-Math.random()*canvas.height*.45,
+    width:5+Math.random()*8,
+    height:8+Math.random()*13,
+    speedY:2.5+Math.random()*5.2,
+    speedX:-2.2+Math.random()*4.4,
+    rotation:Math.random()*Math.PI,
+    rotationSpeed:-.16+Math.random()*.32,
+    color:colors[Math.floor(Math.random()*colors.length)]
+  }));
+
+  let frame = 0;
+
+  function draw(){
+    context.clearRect(0,0,canvas.width,canvas.height);
+
+    pieces.forEach(piece=>{
+      piece.x += piece.speedX;
+      piece.y += piece.speedY;
+      piece.speedY += .025;
+      piece.rotation += piece.rotationSpeed;
+
+      context.save();
+      context.translate(piece.x,piece.y);
+      context.rotate(piece.rotation);
+      context.fillStyle = piece.color;
+      context.fillRect(-piece.width/2,-piece.height/2,piece.width,piece.height);
+      context.restore();
+    });
+
+    frame += 1;
+    if(frame < 250){
+      requestAnimationFrame(draw);
+    }else{
+      context.clearRect(0,0,canvas.width,canvas.height);
+    }
+  }
+
+  draw();
+}
 </script>
 </body>
 </html>
