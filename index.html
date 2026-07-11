@@ -15,18 +15,18 @@
       --black:#050505;
       --black-2:#0b0b0b;
       --black-3:#151515;
-      --gold:#d7ad55;
-      --gold-light:#f3d88d;
-      --gold-dark:#9a6d21;
+      --gold:#e7b83f;
+      --gold-2:#ffd66f;
+      --gold-dark:#a97615;
+      --gold-soft:#fff4cf;
       --white:#ffffff;
-      --paper:#f5f4f0;
-      --paper-2:#ebe9e3;
+      --paper:#f4f3ef;
+      --paper-2:#e9e7e1;
       --ink:#111111;
-      --muted:#727272;
-      --red:#ef2f4f;
+      --muted:#747474;
+      --red:#ed2f50;
       --red-soft:#fff0f3;
-      --green:#24b879;
-      --shadow:0 22px 60px rgba(0,0,0,.2);
+      --green:#28b97c;
       --safe-top:max(8px,env(safe-area-inset-top));
       --safe-right:max(8px,env(safe-area-inset-right));
       --safe-bottom:max(8px,env(safe-area-inset-bottom));
@@ -34,24 +34,56 @@
     }
 
     *{box-sizing:border-box}
+
     html,body{
+      position:fixed;
+      inset:0;
       width:100%;
       height:100%;
       margin:0;
       overflow:hidden;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:var(--black);
       color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       overscroll-behavior:none;
       -webkit-tap-highlight-color:transparent;
+      -webkit-text-size-adjust:100%;
     }
-    button,input{font:inherit}
-    button{border:0;cursor:pointer}
-    button:disabled{cursor:default}
+
+    button,input{
+      font:inherit;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      touch-action:manipulation;
+      user-select:none;
+      -webkit-user-select:none;
+      outline:none;
+    }
+
+    button:focus{outline:none}
     .hidden{display:none!important}
 
-    #app{width:100%;height:100dvh;overflow:hidden}
-    .screen{width:100%;height:100%;overflow:hidden}
+    #app{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:var(--black);
+    }
+
+    .screen{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+    }
 
     .btn{
       min-height:50px;
@@ -61,32 +93,20 @@
       align-items:center;
       justify-content:center;
       gap:8px;
-      font-weight:950;
+      font-weight:1000;
       letter-spacing:.02em;
-      transition:transform .15s ease,filter .15s ease,box-shadow .15s ease;
     }
-    .btn:active{transform:scale(.98)}
+
     .btn-gold{
       color:#090909;
-      background:linear-gradient(135deg,var(--gold-light),var(--gold));
-      box-shadow:0 13px 28px rgba(215,173,85,.18);
+      background:linear-gradient(135deg,var(--gold-2),var(--gold));
+      box-shadow:0 13px 30px rgba(231,184,63,.2);
     }
-    .btn-black{
-      color:#fff;
-      background:var(--black);
-    }
-    .btn-white{
-      color:#111;
-      background:#fff;
-    }
-    .btn-soft{
-      color:#111;
-      background:var(--paper-2);
-    }
-    .btn-red{
-      color:var(--red);
-      background:var(--red-soft);
-    }
+
+    .btn-black{color:#fff;background:#080808}
+    .btn-white{color:#111;background:#fff}
+    .btn-soft{color:#111;background:var(--paper-2)}
+    .btn-red{color:var(--red);background:var(--red-soft)}
     .btn-small{min-height:38px;padding:0 13px;font-size:11px}
 
     .logo{
@@ -95,11 +115,11 @@
       border-radius:12px;
       display:grid;
       place-items:center;
-      color:#090909;
-      background:linear-gradient(145deg,var(--gold-light),var(--gold));
-      font-weight:1000;
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
       font-size:19px;
-      box-shadow:0 11px 26px rgba(215,173,85,.18);
+      font-weight:1000;
+      box-shadow:0 11px 27px rgba(231,184,63,.2);
     }
 
     .brand{
@@ -112,50 +132,299 @@
       letter-spacing:.13em;
     }
 
-    .live{
+    .connection{
       min-height:35px;
       padding:0 11px;
       border-radius:999px;
       display:flex;
       align-items:center;
       gap:8px;
-      color:rgba(255,255,255,.68);
-      background:rgba(255,255,255,.075);
+      color:rgba(255,255,255,.7);
+      background:rgba(255,255,255,.08);
       font-size:10px;
-      font-weight:850;
+      font-weight:900;
       white-space:nowrap;
     }
-    .live-dot{
-      width:8px;height:8px;border-radius:50%;
+
+    .connection-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
       background:#666;
     }
-    .live-dot.on{
-      background:#53e49f;
-      box-shadow:0 0 0 5px rgba(83,228,159,.11);
+
+    .connection-dot.online{
+      background:#54e39f;
+      box-shadow:0 0 0 5px rgba(84,227,159,.11);
+    }
+
+    /* LOADING */
+    .loading{
+      z-index:200;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      background:
+        radial-gradient(circle at 50% 45%,rgba(231,184,63,.13),transparent 25%),
+        #030303;
+    }
+
+    .loading-inner{text-align:center}
+
+    .loading-mark{
+      position:relative;
+      width:104px;
+      height:104px;
+      margin:0 auto 25px;
+      border-radius:30px;
+      display:grid;
+      place-items:center;
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
+      font-size:49px;
+      font-weight:1000;
+      box-shadow:0 0 0 0 rgba(231,184,63,.24);
+      animation:loadingPulse 1.7s ease-in-out infinite;
+    }
+
+    .loading-mark::before,
+    .loading-mark::after{
+      content:"";
+      position:absolute;
+      inset:-13px;
+      border:1px solid rgba(231,184,63,.25);
+      border-radius:38px;
+      animation:ring 1.7s ease-out infinite;
+    }
+
+    .loading-mark::after{
+      inset:-27px;
+      opacity:.45;
+      animation-delay:.35s;
+    }
+
+    @keyframes loadingPulse{
+      0%,100%{box-shadow:0 0 0 0 rgba(231,184,63,.22)}
+      50%{box-shadow:0 0 55px 5px rgba(231,184,63,.2)}
+    }
+
+    @keyframes ring{
+      0%{transform:scale(.88);opacity:0}
+      30%{opacity:.75}
+      100%{transform:scale(1.08);opacity:0}
+    }
+
+    .loading-title{
+      color:var(--gold-2);
+      font-size:clamp(38px,9vw,74px);
+      font-weight:1000;
+      letter-spacing:.26em;
+      text-indent:.26em;
+    }
+
+    .loading-line{
+      width:170px;
+      height:3px;
+      margin:20px auto 0;
+      border-radius:999px;
+      overflow:hidden;
+      background:#1c1c1c;
+    }
+
+    .loading-line span{
+      display:block;
+      width:42%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--gold),var(--gold-2));
+      animation:loadingMove 1.25s ease-in-out infinite;
+    }
+
+    @keyframes loadingMove{
+      0%{transform:translateX(-110%)}
+      100%{transform:translateX(350%)}
+    }
+
+    /* LOGIN */
+    .login{
+      z-index:30;
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(330px,.9fr);
+      background:#fff;
+    }
+
+    .login-art{
+      position:relative;
+      padding:
+        calc(var(--safe-top) + 24px)
+        clamp(28px,6vw,82px)
+        calc(var(--safe-bottom) + 28px)
+        clamp(28px,6vw,82px);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      color:#fff;
+      background:
+        radial-gradient(circle at 78% 18%,rgba(255,214,111,.15),transparent 20%),
+        radial-gradient(circle at 7% 94%,rgba(231,184,63,.22),transparent 30%),
+        linear-gradient(145deg,#020202,#111);
+      overflow:hidden;
+    }
+
+    .login-art::after{
+      content:"";
+      position:absolute;
+      width:min(48vw,590px);
+      height:min(48vw,590px);
+      right:-25%;
+      bottom:-43%;
+      border-radius:50%;
+      border:64px solid rgba(231,184,63,.055);
+    }
+
+    .login-copy{
+      position:relative;
+      z-index:2;
+      margin:auto 0;
+      max-width:720px;
+    }
+
+    .eyebrow{
+      color:var(--gold);
+      font-size:10px;
+      font-weight:1000;
+      letter-spacing:.19em;
+    }
+
+    .login-copy h1{
+      margin:13px 0 17px;
+      font-size:clamp(51px,8vw,108px);
+      line-height:.84;
+      letter-spacing:-.075em;
+    }
+
+    .login-copy h1 span{color:var(--gold-2)}
+
+    .login-copy p{
+      max-width:600px;
+      margin:0;
+      color:rgba(255,255,255,.62);
+      font-size:clamp(13px,1.5vw,17px);
+      line-height:1.65;
+    }
+
+    .login-panel{
+      padding:
+        calc(var(--safe-top) + 30px)
+        clamp(24px,4vw,58px)
+        calc(var(--safe-bottom) + 30px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:#fff;
+    }
+
+    .login-panel h2{
+      margin:0 0 7px;
+      font-size:clamp(29px,3vw,41px);
+      letter-spacing:-.05em;
+    }
+
+    .login-panel>p{
+      margin:0 0 20px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .profile-list{
+      display:grid;
+      gap:9px;
+    }
+
+    .profile-choice{
+      width:100%;
+      min-height:69px;
+      padding:11px 14px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-align:left;
+      color:#111;
+      background:var(--paper);
+      box-shadow:inset 0 0 0 1px #e4e2dc;
+    }
+
+    .profile-choice.selected{
+      color:#080808;
+      background:var(--gold-soft);
+      box-shadow:inset 0 0 0 2px var(--gold);
+    }
+
+    .profile-avatar{
+      width:43px;
+      height:43px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
+      font-weight:1000;
+    }
+
+    .profile-name{font-weight:1000}
+    .profile-email{margin-top:3px;color:#777;font-size:10px}
+
+    .pin-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:9px;
+      margin-top:13px;
+    }
+
+    .pin-input{
+      min-width:0;
+      height:51px;
+      border:0;
+      border-radius:14px;
+      outline:0;
+      padding:0 15px;
+      text-align:center;
+      color:#111;
+      background:var(--paper);
+      letter-spacing:.28em;
+      font-size:19px;
+      font-weight:1000;
+      box-shadow:inset 0 0 0 1px #e3e1dc;
+    }
+
+    .pin-input:focus{
+      box-shadow:inset 0 0 0 2px var(--gold),0 0 0 5px rgba(231,184,63,.1);
     }
 
     /* HOME */
     .home{
       display:grid;
-      grid-template-columns:minmax(0,1.28fr) minmax(315px,.72fr);
-      background:var(--white);
+      grid-template-columns:minmax(0,1.28fr) minmax(320px,.72fr);
+      background:#fff;
     }
 
     .home-left{
       position:relative;
       padding:
-        calc(var(--safe-top) + 21px)
-        clamp(27px,6vw,82px)
+        calc(var(--safe-top) + 20px)
+        clamp(28px,6vw,82px)
         calc(var(--safe-bottom) + 25px)
-        clamp(27px,6vw,82px);
-      color:#fff;
-      background:
-        radial-gradient(circle at 82% 17%,rgba(243,216,141,.13),transparent 20%),
-        radial-gradient(circle at 4% 96%,rgba(215,173,85,.2),transparent 31%),
-        linear-gradient(145deg,#020202,#101010);
+        clamp(28px,6vw,82px);
       display:flex;
       flex-direction:column;
       justify-content:space-between;
+      color:#fff;
+      background:
+        radial-gradient(circle at 82% 17%,rgba(255,214,111,.14),transparent 20%),
+        radial-gradient(circle at 4% 96%,rgba(231,184,63,.2),transparent 31%),
+        linear-gradient(145deg,#020202,#101010);
       overflow:hidden;
     }
 
@@ -167,7 +436,7 @@
       right:-23%;
       bottom:-40%;
       border-radius:50%;
-      border:65px solid rgba(215,173,85,.055);
+      border:65px solid rgba(231,184,63,.055);
     }
 
     .home-top{
@@ -176,6 +445,33 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:10px;
+    }
+
+    .home-user-actions{
+      display:flex;
+      align-items:center;
+      gap:7px;
+    }
+
+    .account-chip{
+      min-height:35px;
+      padding:0 11px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:#fff;
+      background:rgba(255,255,255,.08);
+      font-size:10px;
+      font-weight:900;
+    }
+
+    .account-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--gold-2);
     }
 
     .hero{
@@ -185,24 +481,14 @@
       margin:auto 0;
     }
 
-    .eyebrow{
-      color:var(--gold);
-      font-size:10px;
-      font-weight:1000;
-      letter-spacing:.19em;
-      text-transform:uppercase;
-    }
-
     .hero h1{
-      margin:14px 0 18px;
-      font-size:clamp(53px,8.3vw,114px);
+      margin:13px 0 17px;
+      font-size:clamp(52px,8.2vw,112px);
       line-height:.83;
       letter-spacing:-.075em;
     }
 
-    .hero h1 span{
-      color:var(--gold-light);
-    }
+    .hero h1 span{color:var(--gold-2)}
 
     .hero p{
       max-width:610px;
@@ -215,15 +501,16 @@
     .letters{
       display:flex;
       gap:8px;
-      margin-top:27px;
+      margin-top:26px;
     }
+
     .letter{
       width:clamp(42px,5vw,57px);
       height:clamp(42px,5vw,57px);
       border-radius:15px;
       display:grid;
       place-items:center;
-      color:var(--gold-light);
+      color:var(--gold-2);
       background:rgba(255,255,255,.07);
       font-size:20px;
       font-weight:1000;
@@ -231,9 +518,9 @@
 
     .home-right{
       padding:
-        calc(var(--safe-top) + 32px)
-        clamp(24px,4vw,57px)
-        calc(var(--safe-bottom) + 32px);
+        calc(var(--safe-top) + 31px)
+        clamp(24px,4vw,58px)
+        calc(var(--safe-bottom) + 31px);
       display:flex;
       flex-direction:column;
       justify-content:center;
@@ -242,19 +529,19 @@
 
     .home-right h2{
       margin:0 0 7px;
-      color:#111;
-      font-size:clamp(28px,3vw,41px);
+      font-size:clamp(28px,3vw,40px);
       letter-spacing:-.05em;
     }
 
-    .home-right p{
-      margin:0 0 24px;
+    .home-right>p{
+      margin:0 0 23px;
       color:var(--muted);
       font-size:13px;
       line-height:1.55;
     }
 
     .stack{display:grid;gap:10px}
+
     .or{
       display:flex;
       align-items:center;
@@ -263,8 +550,12 @@
       font-size:10px;
       font-weight:900;
     }
+
     .or::before,.or::after{
-      content:"";height:1px;flex:1;background:#e6e6e6;
+      content:"";
+      height:1px;
+      flex:1;
+      background:#e6e6e6;
     }
 
     .code-input{
@@ -280,10 +571,18 @@
       background:var(--paper);
       letter-spacing:.21em;
       font-weight:1000;
-      box-shadow:inset 0 0 0 1px #e4e2dc;
+      box-shadow:inset 0 0 0 1px #e3e1dc;
     }
+
     .code-input:focus{
-      box-shadow:inset 0 0 0 2px var(--gold),0 0 0 5px rgba(215,173,85,.1);
+      box-shadow:inset 0 0 0 2px var(--gold),0 0 0 5px rgba(231,184,63,.1);
+    }
+
+    .secondary-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:5px;
     }
 
     /* LOBBY */
@@ -311,67 +610,71 @@
     .lobby-body{
       min-height:0;
       display:grid;
-      grid-template-columns:minmax(275px,370px) minmax(0,1fr);
+      grid-template-columns:minmax(285px,385px) minmax(0,1fr);
     }
 
     .lobby-controls{
       min-height:0;
-      padding:clamp(19px,3vw,37px);
-      color:#fff;
-      background:
-        radial-gradient(circle at 0 100%,rgba(215,173,85,.12),transparent 35%),
-        #111;
+      padding:clamp(18px,3vw,36px);
       display:flex;
       flex-direction:column;
       justify-content:center;
+      color:#fff;
+      background:
+        radial-gradient(circle at 0 100%,rgba(231,184,63,.12),transparent 35%),
+        #111;
     }
 
     .lobby-controls h2{
-      margin:0 0 7px;
-      font-size:clamp(26px,3vw,38px);
+      margin:0 0 6px;
+      font-size:clamp(25px,3vw,38px);
       letter-spacing:-.05em;
     }
 
     .sub{
-      color:#8a8a8a;
+      color:#888;
       font-size:12px;
       line-height:1.55;
     }
+
     .lobby-controls .sub{color:rgba(255,255,255,.52)}
 
     .modes{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin:21px 0 11px;
+      grid-template-columns:repeat(4,1fr);
+      gap:7px;
+      margin:20px 0 10px;
     }
 
     .mode{
-      height:54px;
-      border-radius:14px;
+      height:52px;
+      border-radius:13px;
       color:#fff;
       background:#1c1c1c;
+      font-size:13px;
       font-weight:1000;
     }
 
     .mode.active{
       color:#080808;
-      background:linear-gradient(135deg,var(--gold-light),var(--gold));
-      box-shadow:0 13px 27px rgba(215,173,85,.14);
+      background:linear-gradient(135deg,var(--gold-2),var(--gold));
+      box-shadow:0 13px 27px rgba(231,184,63,.15);
     }
 
     .room-area{
-      margin-top:15px;
-      padding:14px 0;
+      margin-top:14px;
+      padding:13px 0;
       border-top:1px solid rgba(255,255,255,.1);
       border-bottom:1px solid rgba(255,255,255,.1);
     }
+
     .room-label{
       color:var(--gold);
       font-size:9px;
       font-weight:1000;
       letter-spacing:.18em;
     }
+
     .room-code{
       margin-top:4px;
       color:#fff;
@@ -379,15 +682,17 @@
       font-weight:1000;
       letter-spacing:.18em;
     }
+
     .lobby-message{
-      min-height:46px;
-      margin:10px 0;
+      min-height:43px;
+      margin:9px 0;
       display:flex;
       align-items:center;
       color:rgba(255,255,255,.78);
-      font-size:12px;
+      font-size:11px;
       font-weight:850;
     }
+
     .lobby-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -397,30 +702,32 @@
     .preview{
       min-height:0;
       padding:clamp(15px,2.5vw,29px);
-      background:#fff;
       display:flex;
       flex-direction:column;
+      background:#fff;
     }
+
     .preview-top{
       display:flex;
-      justify-content:space-between;
       align-items:flex-start;
+      justify-content:space-between;
       gap:13px;
-      margin-bottom:11px;
+      margin-bottom:10px;
     }
+
     .preview-top h3{
       margin:0 0 4px;
       font-size:19px;
-      color:#111;
     }
+
     .pill{
       min-height:35px;
       padding:0 12px;
       border-radius:999px;
       display:flex;
       align-items:center;
-      color:#111;
-      background:linear-gradient(135deg,var(--gold-light),var(--gold));
+      color:#080808;
+      background:linear-gradient(135deg,var(--gold-2),var(--gold));
       font-size:11px;
       font-weight:1000;
     }
@@ -428,24 +735,35 @@
     .preview-board{
       flex:1;
       min-height:0;
-      width:min(100%,560px);
+      width:min(100%,580px);
       aspect-ratio:1;
       margin:auto;
       display:grid;
-      gap:clamp(4px,.6vw,8px);
+      gap:clamp(3px,.55vw,7px);
     }
+
     .preview-cell{
-      border-radius:clamp(7px,1vw,13px);
+      border-radius:clamp(5px,.9vw,12px);
       display:grid;
       place-items:center;
       color:#111;
       background:var(--paper);
-      font-size:clamp(11px,2vw,22px);
+      font-size:clamp(9px,1.8vw,21px);
       font-weight:1000;
+    }
+
+    .preview-board.size-10{
+      gap:2px;
+    }
+
+    .preview-board.size-10 .preview-cell{
+      border-radius:4px;
+      font-size:clamp(7px,1.25vw,13px);
     }
 
     /* GAME */
     .game{background:#fff}
+
     .game-grid{
       width:100%;
       height:100%;
@@ -459,14 +777,13 @@
         var(--safe-top)
         clamp(10px,1.7vw,21px)
         var(--safe-bottom);
-      color:#fff;
-      background:#080808;
       display:flex;
       flex-direction:column;
+      color:#fff;
+      background:#080808;
     }
-    .side.right{
-      background:#121212;
-    }
+
+    .side.right{background:#121212}
 
     .player{
       min-height:53px;
@@ -474,46 +791,63 @@
       align-items:center;
       gap:10px;
     }
+
     .avatar{
-      width:39px;height:39px;flex:0 0 auto;
+      width:39px;
+      height:39px;
+      flex:0 0 auto;
       border-radius:12px;
       display:grid;
       place-items:center;
       color:#080808;
-      background:linear-gradient(145deg,var(--gold-light),var(--gold));
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
       font-size:11px;
       font-weight:1000;
     }
+
     .player-name{font-size:12px;font-weight:1000}
     .player-state{margin-top:2px;color:#777;font-size:10px;font-weight:800}
 
     .side-block{
-      padding:15px 0;
+      padding:14px 0;
       border-top:1px solid #242424;
     }
+
     .side-label{
       color:#777;
       font-size:8px;
       font-weight:1000;
       letter-spacing:.17em;
     }
+
     .side-number{
       margin-top:5px;
       color:#fff;
       font-size:clamp(17px,2vw,25px);
       font-weight:1000;
     }
+
     .side-help{
       margin-top:5px;
       color:#777;
       font-size:9px;
       line-height:1.45;
     }
-    .bars{display:flex;gap:4px;margin-top:9px}
-    .bar{
-      flex:1;height:6px;border-radius:999px;background:#292929;
+
+    .bars{
+      display:flex;
+      gap:4px;
+      margin-top:9px;
     }
-    .bar.done{background:var(--gold-light)}
+
+    .bar{
+      flex:1;
+      height:6px;
+      border-radius:999px;
+      background:#292929;
+    }
+
+    .bar.done{background:var(--gold-2)}
     .grow{flex:1}
     .side .btn{min-height:41px;font-size:10px}
 
@@ -524,20 +858,21 @@
         var(--safe-top)
         clamp(9px,1.5vw,20px)
         var(--safe-bottom);
-      background:
-        radial-gradient(circle at 50% -15%,rgba(215,173,85,.13),transparent 35%),
-        #fff;
       display:flex;
       flex-direction:column;
+      background:
+        radial-gradient(circle at 50% -15%,rgba(231,184,63,.12),transparent 35%),
+        #fff;
     }
 
     .game-top{
-      min-height:50px;
+      min-height:48px;
       display:grid;
       grid-template-columns:1fr auto 1fr;
       align-items:center;
       gap:8px;
     }
+
     .game-caption{
       color:#777;
       font-size:9px;
@@ -550,6 +885,7 @@
       justify-content:center;
       gap:clamp(4px,.7vw,8px);
     }
+
     .bingo-letter{
       position:relative;
       width:clamp(30px,4vw,44px);
@@ -563,10 +899,12 @@
       font-weight:1000;
       overflow:hidden;
     }
+
     .bingo-letter.done{
       color:#080808;
-      background:linear-gradient(145deg,var(--gold-light),var(--gold));
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
     }
+
     .bingo-letter.done::after{
       content:"";
       position:absolute;
@@ -578,7 +916,7 @@
     }
 
     .turn{
-      min-height:42px;
+      min-height:44px;
       margin:5px 0 7px;
       padding:7px 12px;
       border-radius:13px;
@@ -589,15 +927,17 @@
       color:#111;
       background:var(--paper);
       font-size:clamp(10px,1.2vw,13px);
-      font-weight:950;
+      font-weight:1000;
+      flex:0 0 auto;
     }
+
     .turn.mine{
       color:#080808;
-      background:linear-gradient(120deg,var(--gold-light),var(--gold));
+      background:linear-gradient(120deg,var(--gold-2),var(--gold));
     }
-    .turn.received{
-      background:#f3e9d2;
-    }
+
+    .turn.received{background:#f5e7bd}
+
     .number-pill{
       min-width:34px;
       height:28px;
@@ -617,24 +957,29 @@
       min-height:0;
       display:grid;
       place-items:center;
+      overflow:hidden;
     }
+
     .board-holder{
       position:relative;
       height:min(100%,620px);
       aspect-ratio:1;
       max-width:100%;
+      flex:0 0 auto;
     }
+
     .board{
       position:absolute;
       inset:0;
       display:grid;
       gap:clamp(3px,.65vmin,8px);
     }
+
     .cell{
       position:relative;
       min-width:0;
       min-height:0;
-      border-radius:clamp(6px,1.1vmin,13px);
+      border-radius:clamp(6px,1.05vmin,13px);
       display:grid;
       place-items:center;
       color:#111;
@@ -642,76 +987,94 @@
       font-size:clamp(10px,2.25vmin,24px);
       font-weight:1000;
       user-select:none;
+      -webkit-user-select:none;
+      touch-action:manipulation;
       overflow:hidden;
-      transition:transform .13s ease,background .13s ease,box-shadow .13s ease;
+      outline:none;
     }
-    .cell:not(:disabled):active{transform:scale(.92)}
 
-    /* număr trimis, neconfirmat */
+    .board.size-10{
+      gap:2px;
+    }
+
+    .board.size-10 .cell{
+      border-radius:4px;
+      font-size:clamp(7px,1.35vmin,13px);
+    }
+
+    /* Nu folosim transform/scale: ecranul nu mai sare la apăsare */
     .cell.pending{
       color:#080808;
-      background:linear-gradient(145deg,var(--gold-light),var(--gold));
-      box-shadow:0 0 0 4px rgba(215,173,85,.14),0 12px 27px rgba(154,109,33,.2);
-      animation:pulse 1.1s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1)}
-      50%{transform:scale(.96)}
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
+      box-shadow:inset 0 0 0 2px var(--gold-dark),0 0 0 3px rgba(231,184,63,.12);
+      animation:goldGlow 1.1s ease-in-out infinite alternate;
     }
 
-    /* număr primit */
+    @keyframes goldGlow{
+      from{box-shadow:inset 0 0 0 2px var(--gold-dark),0 0 8px rgba(231,184,63,.2)}
+      to{box-shadow:inset 0 0 0 2px var(--gold-dark),0 0 19px rgba(231,184,63,.42)}
+    }
+
     .cell.target{
       color:#111;
-      background:#f4e7c6;
-      box-shadow:inset 0 0 0 3px var(--gold-dark),0 0 0 5px rgba(215,173,85,.13);
-      animation:target .75s ease-in-out infinite alternate;
-    }
-    @keyframes target{
-      from{transform:scale(.96)}
-      to{transform:scale(1.02)}
+      background:#f5e7bd;
+      box-shadow:inset 0 0 0 3px var(--gold-dark);
+      animation:targetGlow .75s ease-in-out infinite alternate;
     }
 
-    /* tăiat */
+    @keyframes targetGlow{
+      from{box-shadow:inset 0 0 0 3px var(--gold-dark),0 0 7px rgba(231,184,63,.16)}
+      to{box-shadow:inset 0 0 0 3px var(--gold-dark),0 0 17px rgba(231,184,63,.4)}
+    }
+
     .cell.marked{
       color:#4a4a4a;
       background:var(--red-soft);
     }
-    .cell.marked::before,.cell.marked::after{
+
+    .cell.marked::before,
+    .cell.marked::after{
       content:"";
       position:absolute;
-      width:70%;
+      width:72%;
       height:4px;
       z-index:3;
       border-radius:999px;
       background:var(--red);
-      box-shadow:0 0 8px rgba(239,47,79,.36);
+      box-shadow:0 0 8px rgba(237,47,80,.35);
     }
+
     .cell.marked::before{transform:rotate(45deg)}
     .cell.marked::after{transform:rotate(-45deg)}
     .cell span{position:relative;z-index:4}
 
+    /* Linia este solidă, dublă și trece complet peste toată tabla */
     .line-svg{
       position:absolute;
       inset:0;
-      z-index:8;
+      z-index:20;
       width:100%;
       height:100%;
       pointer-events:none;
       overflow:visible;
     }
-    .strike{
-      stroke:#111;
-      stroke-width:1.1;
+
+    .strike-gold{
+      stroke:var(--gold-2);
+      stroke-width:7;
       stroke-linecap:round;
       vector-effect:non-scaling-stroke;
-      filter:drop-shadow(0 0 2px rgba(0,0,0,.35));
-      stroke-dasharray:150;
-      stroke-dashoffset:150;
-      animation:draw .42s ease forwards;
+      opacity:.98;
     }
-    @keyframes draw{to{stroke-dashoffset:0}}
 
-    /* OVERLAYS */
+    .strike-black{
+      stroke:#111;
+      stroke-width:3.2;
+      stroke-linecap:round;
+      vector-effect:non-scaling-stroke;
+    }
+
+    /* MODALS */
     .overlay{
       position:fixed;
       inset:0;
@@ -720,47 +1083,56 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:rgba(0,0,0,.78);
+      background:rgba(0,0,0,.8);
       backdrop-filter:blur(12px);
     }
+
     .modal{
-      width:min(510px,calc(100% - 26px));
+      width:min(520px,calc(100% - 26px));
+      max-height:calc(100% - 25px);
+      overflow:auto;
       padding:27px;
       border-radius:24px;
       text-align:center;
       background:#fff;
-      box-shadow:0 35px 90px rgba(0,0,0,.34);
+      box-shadow:0 35px 90px rgba(0,0,0,.35);
     }
+
     .modal-icon{
-      width:60px;height:60px;
+      width:60px;
+      height:60px;
       margin:0 auto 14px;
       border-radius:19px;
       display:grid;
       place-items:center;
       color:#080808;
-      background:linear-gradient(145deg,var(--gold-light),var(--gold));
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
       font-size:25px;
       font-weight:1000;
     }
+
     .modal h2{
       margin:0;
       color:#111;
-      font-size:clamp(30px,5vw,41px);
+      font-size:clamp(29px,5vw,41px);
       letter-spacing:-.05em;
     }
+
     .modal p{
-      max-width:420px;
+      max-width:430px;
       margin:9px auto 0;
       color:#777;
       font-size:13px;
       line-height:1.55;
     }
+
     .modal-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:9px;
       margin-top:19px;
     }
+
     .countdown{
       margin:14px 0 8px;
       color:#111;
@@ -770,12 +1142,92 @@
       letter-spacing:-.06em;
     }
 
+    /* HISTORY */
+    .history-modal{
+      width:min(680px,calc(100% - 26px));
+      text-align:left;
+    }
+
+    .history-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .history-head h2{text-align:left}
+
+    .history-list{
+      display:grid;
+      gap:8px;
+      margin-top:18px;
+    }
+
+    .history-empty{
+      padding:28px 16px;
+      border-radius:16px;
+      color:#777;
+      background:var(--paper);
+      text-align:center;
+      font-size:13px;
+    }
+
+    .history-item{
+      min-height:68px;
+      padding:12px 14px;
+      border-radius:15px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:12px;
+      background:var(--paper);
+    }
+
+    .history-result{
+      width:42px;
+      height:42px;
+      border-radius:13px;
+      display:grid;
+      place-items:center;
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold-2),var(--gold));
+      font-weight:1000;
+    }
+
+    .history-result.loss{
+      color:var(--red);
+      background:var(--red-soft);
+    }
+
+    .history-result.draw{
+      color:#111;
+      background:#ddd;
+    }
+
+    .history-title{
+      color:#111;
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .history-meta{
+      margin-top:3px;
+      color:#777;
+      font-size:10px;
+    }
+
+    .history-mode{
+      color:#111;
+      font-size:11px;
+      font-weight:1000;
+    }
+
     #confetti{
       position:fixed;
       inset:0;
+      z-index:110;
       width:100%;
       height:100%;
-      z-index:110;
       pointer-events:none;
     }
 
@@ -783,184 +1235,338 @@
       position:fixed;
       left:50%;
       bottom:calc(var(--safe-bottom) + 11px);
-      z-index:130;
+      z-index:150;
       max-width:calc(100% - 26px);
       padding:12px 17px;
       border-radius:13px;
       color:#080808;
-      background:linear-gradient(135deg,var(--gold-light),var(--gold));
+      background:linear-gradient(135deg,var(--gold-2),var(--gold));
       text-align:center;
       font-size:11px;
-      font-weight:950;
-      box-shadow:0 16px 38px rgba(0,0,0,.25);
+      font-weight:1000;
+      box-shadow:0 16px 38px rgba(0,0,0,.26);
       opacity:0;
       transform:translate(-50%,20px);
       transition:.2s ease;
       pointer-events:none;
     }
+
     .toast.show{opacity:1;transform:translate(-50%,0)}
 
     /* PORTRAIT */
     @media(max-aspect-ratio:4/5){
+      .login{
+        grid-template-columns:1fr;
+        grid-template-rows:39% 61%;
+        overflow:auto;
+      }
+
+      .login-art{
+        padding:
+          calc(var(--safe-top) + 13px)
+          calc(var(--safe-right) + 21px)
+          16px
+          calc(var(--safe-left) + 21px);
+      }
+
+      .login-copy h1{
+        margin:8px 0;
+        font-size:clamp(45px,16vw,74px);
+      }
+
+      .login-copy p{font-size:11px;line-height:1.42}
+
+      .login-panel{
+        padding:
+          19px
+          calc(var(--safe-right) + 21px)
+          calc(var(--safe-bottom) + 21px)
+          calc(var(--safe-left) + 21px);
+      }
+
+      .login-panel h2{font-size:27px}
+      .login-panel>p{margin-bottom:12px}
+      .profile-choice{min-height:61px}
+      .pin-row{grid-template-columns:1fr}
+
       .home{
         grid-template-columns:1fr;
         grid-template-rows:46% 54%;
         overflow:auto;
       }
+
       .home-left{
         padding:
-          calc(var(--safe-top) + 13px)
-          calc(var(--safe-right) + 21px)
-          17px
-          calc(var(--safe-left) + 21px);
+          calc(var(--safe-top) + 12px)
+          calc(var(--safe-right) + 20px)
+          16px
+          calc(var(--safe-left) + 20px);
       }
-      .hero h1{margin:9px 0;font-size:clamp(47px,17vw,77px)}
-      .hero p{font-size:12px;line-height:1.45}
-      .letters{margin-top:13px}
-      .letter{width:37px;height:37px;border-radius:11px;font-size:15px}
+
+      .home-user-actions .connection{display:none}
+      .hero h1{margin:8px 0;font-size:clamp(47px,17vw,76px)}
+      .hero p{font-size:11px;line-height:1.44}
+      .letters{margin-top:12px}
+      .letter{width:36px;height:36px;border-radius:11px;font-size:15px}
+
       .home-right{
         padding:
-          21px
-          calc(var(--safe-right) + 21px)
-          calc(var(--safe-bottom) + 21px)
-          calc(var(--safe-left) + 21px);
+          20px
+          calc(var(--safe-right) + 20px)
+          calc(var(--safe-bottom) + 20px)
+          calc(var(--safe-left) + 20px);
       }
-      .home-right h2{font-size:28px}
-      .home-right p{margin-bottom:14px}
+
+      .home-right h2{font-size:27px}
+      .home-right>p{margin-bottom:13px}
 
       .lobby-body{
         grid-template-columns:1fr;
         grid-template-rows:auto minmax(0,1fr);
       }
+
       .lobby-controls{
-        padding:15px calc(var(--safe-right) + 15px) 13px calc(var(--safe-left) + 15px);
+        padding:14px calc(var(--safe-right) + 14px) 12px calc(var(--safe-left) + 14px);
         justify-content:flex-start;
       }
-      .lobby-controls h2{font-size:24px}
-      .modes{margin:12px 0 8px}
-      .mode{height:44px}
-      .room-area{margin-top:9px;padding:9px 0}
-      .room-code{font-size:24px}
-      .lobby-message{min-height:31px;margin:4px 0;font-size:10px}
-      .preview{padding:10px calc(var(--safe-right) + 10px) var(--safe-bottom) calc(var(--safe-left) + 10px)}
-      .preview-top{margin-bottom:6px}
+
+      .lobby-controls h2{font-size:23px}
+      .modes{margin:11px 0 8px}
+      .mode{height:43px}
+      .room-area{margin-top:8px;padding:8px 0}
+      .room-code{font-size:23px}
+      .lobby-message{min-height:29px;margin:4px 0;font-size:10px}
+      .preview{padding:9px calc(var(--safe-right) + 10px) var(--safe-bottom) calc(var(--safe-left) + 10px)}
+      .preview-top{margin-bottom:5px}
       .preview-board{width:min(100%,42dvh)}
 
       .game-grid{
         grid-template-columns:1fr;
         grid-template-rows:auto minmax(0,1fr) auto;
       }
+
       .side{
-        padding:var(--safe-top) calc(var(--safe-right) + 11px) 7px calc(var(--safe-left) + 11px);
+        padding:var(--safe-top) calc(var(--safe-right) + 10px) 7px calc(var(--safe-left) + 10px);
         flex-direction:row;
         align-items:center;
-        gap:11px;
+        gap:10px;
       }
+
       .side.right{
         grid-row:3;
-        padding:7px calc(var(--safe-right) + 11px) var(--safe-bottom) calc(var(--safe-left) + 11px);
+        padding:7px calc(var(--safe-right) + 10px) var(--safe-bottom) calc(var(--safe-left) + 10px);
       }
-      .player{min-height:40px}
-      .avatar{width:34px;height:34px;border-radius:10px}
+
+      .player{min-height:39px}
+      .avatar{width:33px;height:33px;border-radius:10px}
       .side-block{
-        padding:0 0 0 11px;
+        padding:0 0 0 10px;
         border-top:0;
         border-left:1px solid #2a2a2a;
       }
       .side-help{display:none}
-      .side-number{font-size:15px}
-      .bars{width:85px;margin-top:5px}
+      .side-number{font-size:14px}
+      .bars{width:82px;margin-top:5px}
       .grow{display:none}
-      .side .btn{min-height:34px;padding:0 10px;margin-left:auto}
+      .side .btn{min-height:33px;padding:0 10px;margin-left:auto}
       .side .btn-red{display:none}
 
       .center{
         grid-row:2;
-        padding:7px calc(var(--safe-right) + 8px) 7px calc(var(--safe-left) + 8px);
+        padding:6px calc(var(--safe-right) + 8px) 6px calc(var(--safe-left) + 8px);
       }
-      .game-top{min-height:39px}
+
+      .game-top{min-height:38px}
       .game-caption{display:none}
-      .turn{min-height:37px;margin:2px 0 5px}
-      .board-holder{height:min(100%,calc(100vw - var(--safe-left) - var(--safe-right) - 16px))}
+      .turn{min-height:38px;margin:2px 0 5px}
+      .board-holder{
+        width:min(100%,calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
+        height:auto;
+      }
     }
 
     /* SMALL LANDSCAPE */
     @media(max-height:500px) and (min-aspect-ratio:4/5){
-      .home{grid-template-columns:58% 42%}
-      .home-left{
+      .login{
+        grid-template-columns:57% 43%;
+      }
+
+      .login-art{
         padding:
           calc(var(--safe-top) + 9px)
-          25px
+          24px
           calc(var(--safe-bottom) + 10px)
-          calc(var(--safe-left) + 25px);
+          calc(var(--safe-left) + 24px);
       }
-      .hero h1{margin:7px 0;font-size:clamp(47px,10vw,73px)}
-      .hero p{font-size:11px;line-height:1.4}
-      .letters{margin-top:10px}
-      .letter{width:34px;height:34px;border-radius:10px;font-size:14px}
+
+      .login-copy h1{
+        margin:6px 0;
+        font-size:clamp(44px,9.6vw,70px);
+      }
+
+      .login-copy p{font-size:10px;line-height:1.4}
+
+      .login-panel{
+        padding:
+          calc(var(--safe-top) + 14px)
+          calc(var(--safe-right) + 19px)
+          calc(var(--safe-bottom) + 14px)
+          19px;
+      }
+
+      .login-panel h2{font-size:24px}
+      .login-panel>p{margin-bottom:10px;font-size:10px}
+      .profile-list{gap:6px}
+      .profile-choice{min-height:55px;padding:7px 10px}
+      .profile-avatar{width:36px;height:36px;border-radius:11px}
+      .pin-row{margin-top:8px}
+      .pin-input{height:41px}
+      .pin-row .btn{min-height:41px}
+
+      .home{grid-template-columns:58% 42%}
+
+      .home-left{
+        padding:
+          calc(var(--safe-top) + 8px)
+          24px
+          calc(var(--safe-bottom) + 9px)
+          calc(var(--safe-left) + 24px);
+      }
+
+      .hero h1{margin:6px 0;font-size:clamp(45px,9.8vw,71px)}
+      .hero p{font-size:10px;line-height:1.4}
+      .letters{margin-top:9px}
+      .letter{width:33px;height:33px;border-radius:10px;font-size:14px}
+
       .home-right{
         padding:
-          calc(var(--safe-top) + 15px)
-          calc(var(--safe-right) + 20px)
-          calc(var(--safe-bottom) + 15px)
-          20px;
+          calc(var(--safe-top) + 14px)
+          calc(var(--safe-right) + 19px)
+          calc(var(--safe-bottom) + 14px)
+          19px;
       }
-      .home-right h2{font-size:25px}
-      .home-right p{margin-bottom:11px;font-size:10px}
-      .stack{gap:7px}
-      .btn{min-height:42px;border-radius:12px;font-size:10px}
-      .code-input{height:42px;border-radius:12px}
 
-      .black-header{min-height:52px;padding-bottom:5px}
-      .lobby-body{grid-template-columns:295px 1fr}
-      .lobby-controls{padding:13px 17px}
-      .lobby-controls h2{font-size:21px}
-      .modes{margin:9px 0 7px}
-      .mode{height:41px}
-      .room-area{margin-top:7px;padding:7px 0}
-      .room-code{font-size:22px}
-      .lobby-message{min-height:28px;margin:4px 0;font-size:9px}
-      .lobby-actions .btn{min-height:38px}
-      .preview{padding:9px 15px}
-      .preview-top{margin-bottom:4px}
-      .preview-board{width:min(100%,calc(100dvh - 76px))}
+      .home-right h2{font-size:24px}
+      .home-right>p{margin-bottom:10px;font-size:10px}
+      .stack{gap:6px}
+      .btn{min-height:40px;border-radius:12px;font-size:10px}
+      .code-input{height:40px;border-radius:12px}
+      .secondary-actions{gap:6px}
 
-      .game-grid{grid-template-columns:140px minmax(0,1fr) 140px}
+      .black-header{min-height:51px;padding-bottom:5px}
+      .lobby-body{grid-template-columns:305px 1fr}
+      .lobby-controls{padding:12px 16px}
+      .lobby-controls h2{font-size:20px}
+      .modes{margin:8px 0 6px}
+      .mode{height:39px;font-size:11px}
+      .room-area{margin-top:6px;padding:6px 0}
+      .room-code{font-size:21px}
+      .lobby-message{min-height:26px;margin:3px 0;font-size:9px}
+      .lobby-actions .btn{min-height:36px}
+      .preview{padding:8px 14px}
+      .preview-top{margin-bottom:3px}
+      .preview-board{width:min(100%,calc(100dvh - 73px))}
+
+      .game-grid{grid-template-columns:138px minmax(0,1fr) 138px}
       .side{padding:var(--safe-top) 8px var(--safe-bottom)}
-      .player{min-height:40px}
-      .avatar{width:33px;height:33px;border-radius:10px}
-      .side-block{padding:9px 0}
+      .player{min-height:39px}
+      .avatar{width:32px;height:32px;border-radius:10px}
+      .side-block{padding:8px 0}
       .side-number{font-size:14px}
       .side-help{font-size:8px}
-      .side .btn{min-height:33px;padding:0 8px}
+      .side .btn{min-height:31px;padding:0 8px}
       .center{padding:var(--safe-top) 7px var(--safe-bottom)}
-      .game-top{min-height:37px}
-      .turn{min-height:33px;margin:2px 0 4px}
-      .bingo-letter{width:29px;height:29px;border-radius:8px;font-size:13px}
-      .board-holder{height:min(100%,calc(100dvh - 81px))}
+      .game-top{min-height:35px}
+      .turn{min-height:32px;margin:2px 0 4px}
+      .bingo-letter{width:28px;height:28px;border-radius:8px;font-size:12px}
+      .board-holder{height:min(100%,calc(100dvh - 76px))}
     }
   </style>
 </head>
 
 <body>
 <div id="app">
+  <!-- LOADING -->
+  <section id="loadingScreen" class="screen loading">
+    <div class="loading-inner">
+      <div class="loading-mark">B</div>
+      <div class="loading-title">BINGO</div>
+      <div class="loading-line"><span></span></div>
+    </div>
+  </section>
+
+  <!-- LOGIN -->
+  <section id="loginScreen" class="screen login hidden">
+    <div class="login-art">
+      <div class="brand"><div class="logo">B</div>BINGO DUEL</div>
+
+      <div class="login-copy">
+        <div class="eyebrow">CONTURILE VOASTRE</div>
+        <h1>INTRĂ.<br><span>JOACĂ.</span></h1>
+        <p>Alege contul și introdu codul personal. Contul rămâne conectat pe telefon.</p>
+      </div>
+    </div>
+
+    <div class="login-panel">
+      <h2>Conectare</h2>
+      <p>Alege profilul care folosește acest telefon.</p>
+
+      <div class="profile-list">
+        <button id="profileIonut" class="profile-choice" onclick="selectProfile('ionut')">
+          <div class="profile-avatar">I</div>
+          <div>
+            <div class="profile-name">Ionuț</div>
+            <div class="profile-email">ionut7628c@gmail.com</div>
+          </div>
+        </button>
+
+        <button id="profileGabriela" class="profile-choice" onclick="selectProfile('gabriela')">
+          <div class="profile-avatar">G</div>
+          <div>
+            <div class="profile-name">Gabriela</div>
+            <div class="profile-email">stan91874@gmail.com</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="pin-row">
+        <input
+          id="pinInput"
+          class="pin-input"
+          type="password"
+          inputmode="numeric"
+          maxlength="4"
+          placeholder="COD"
+          autocomplete="off"
+        />
+        <button class="btn btn-gold" onclick="login()">INTRĂ</button>
+      </div>
+    </div>
+  </section>
+
   <!-- HOME -->
-  <section id="homeScreen" class="screen home">
+  <section id="homeScreen" class="screen home hidden">
     <div class="home-left">
       <div class="home-top">
         <div class="brand"><div class="logo">B</div>BINGO DUEL</div>
-        <div class="live">
-          <span id="homeDot" class="live-dot"></span>
-          <span id="homeConnection">Pregătit</span>
+
+        <div class="home-user-actions">
+          <div class="connection">
+            <span id="homeDot" class="connection-dot"></span>
+            <span id="homeConnection">Pregătit</span>
+          </div>
+          <div class="account-chip">
+            <span class="account-dot"></span>
+            <span id="activeUserName">Jucător</span>
+          </div>
         </div>
       </div>
 
       <div class="hero">
         <div class="eyebrow">MULTIPLAYER REALTIME</div>
         <h1>BINGO.<br><span>DUEL.</span></h1>
-        <p>
-          Două table secrete, un singur câștigător. Trimite un număr, adversarul îl taie, apoi primești următorul număr.
-        </p>
+        <p>Două table secrete. Trimite un număr, adversarul îl taie, apoi îți trimite următorul număr.</p>
+
         <div class="letters">
           <div class="letter">B</div>
           <div class="letter">I</div>
@@ -980,6 +1586,11 @@
         <div class="or">SAU</div>
         <input id="joinCode" class="code-input" maxlength="6" placeholder="COD INVITAȚIE" autocomplete="off" />
         <button class="btn btn-soft" onclick="joinRoom()">INTRĂ ÎN CAMERĂ</button>
+
+        <div class="secondary-actions">
+          <button class="btn btn-black" onclick="openHistory()">ISTORIC JOCURI</button>
+          <button class="btn btn-soft" onclick="logout()">DECONECTARE</button>
+        </div>
       </div>
     </div>
   </section>
@@ -988,9 +1599,10 @@
   <section id="lobbyScreen" class="screen lobby hidden">
     <header class="black-header">
       <div class="brand"><div class="logo">B</div>PREGĂTIRE MECI</div>
+
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="live">
-          <span id="lobbyDot" class="live-dot"></span>
+        <div class="connection">
+          <span id="lobbyDot" class="connection-dot"></span>
           <span id="lobbyConnection">Conectare...</span>
         </div>
         <button class="btn btn-white btn-small" onclick="leaveRoom()">ÎNAPOI</button>
@@ -1006,6 +1618,7 @@
           <button class="mode active" data-size="4" onclick="setSize(4)">4×4</button>
           <button class="mode" data-size="5" onclick="setSize(5)">5×5</button>
           <button class="mode" data-size="7" onclick="setSize(7)">7×7</button>
+          <button class="mode" data-size="10" onclick="setSize(10)">10×10</button>
         </div>
 
         <button class="btn btn-white" onclick="shuffleBoard()">GENEREAZĂ NUMERE</button>
@@ -1013,7 +1626,7 @@
         <div class="room-area">
           <div class="room-label">CODUL CAMEREI</div>
           <div id="roomCodeText" class="room-code">------</div>
-          <div class="sub">Adversarul nu vede ordinea numerelor tale.</div>
+          <div class="sub">Fiecare trebuie să genereze propria tablă și apoi să apese GATA.</div>
         </div>
 
         <div id="lobbyMessage" class="lobby-message">Se creează camera...</div>
@@ -1028,10 +1641,11 @@
         <div class="preview-top">
           <div>
             <h3>Tabla ta secretă</h3>
-            <div class="sub">Numerele se amestecă separat pe fiecare telefon.</div>
+            <div class="sub">Apasă „Generează numere” de câte ori vrei, până îți convine tabla.</div>
           </div>
           <div id="previewSize" class="pill">4×4</div>
         </div>
+
         <div id="previewBoard" class="preview-board"></div>
       </div>
     </div>
@@ -1042,9 +1656,9 @@
     <div class="game-grid">
       <aside class="side">
         <div class="player">
-          <div class="avatar">TU</div>
+          <div id="myAvatar" class="avatar">TU</div>
           <div>
-            <div class="player-name">Tabla ta</div>
+            <div id="myPlayerName" class="player-name">Jucător</div>
             <div id="myRole" class="player-state">Jucător</div>
           </div>
         </div>
@@ -1087,9 +1701,9 @@
 
       <aside class="side right">
         <div class="player">
-          <div class="avatar">2</div>
+          <div id="opponentAvatar" class="avatar">2</div>
           <div>
-            <div class="player-name">Adversar</div>
+            <div id="opponentName" class="player-name">Adversar</div>
             <div id="opponentState" class="player-state">Conectat</div>
           </div>
         </div>
@@ -1108,7 +1722,7 @@
 
         <div class="grow"></div>
         <div class="side-help" style="text-align:center">
-          Numărul trimis rămâne auriu până când este confirmat.
+          Numărul trimis rămâne auriu până când adversarul îl confirmă.
         </div>
       </aside>
     </div>
@@ -1132,10 +1746,24 @@
     <div id="resultIcon" class="modal-icon">✓</div>
     <h2 id="resultTitle">AI CÂȘTIGAT!</h2>
     <p id="resultText">Ai completat primul cinci linii.</p>
+
     <div class="modal-actions">
       <button class="btn btn-gold" onclick="rematch()">JOACĂ DIN NOU</button>
       <button class="btn btn-soft" onclick="backHome()">PAGINA PRINCIPALĂ</button>
     </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="historyOverlay" class="overlay hidden">
+  <div class="modal history-modal">
+    <div class="history-head">
+      <h2>Istoric jocuri</h2>
+      <button class="btn btn-soft btn-small" onclick="closeHistory()">ÎNCHIDE</button>
+    </div>
+
+    <p id="historyAccountText"></p>
+    <div id="historyList" class="history-list"></div>
   </div>
 </div>
 
@@ -1164,9 +1792,31 @@ const supa = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
 
 const $ = id => document.getElementById(id);
 
+/* Codurile sunt comparate ca hash, nu sunt afișate direct în interfață. */
+const PROFILES = {
+  ionut:{
+    id:"ionut",
+    name:"Ionuț",
+    email:"ionut7628c@gmail.com",
+    initial:"I",
+    pinHash:"4f4532d3e566afc790a3ebe4056fabedea24a9cf94bd23b18d4593b858f0a1a8"
+  },
+  gabriela:{
+    id:"gabriela",
+    name:"Gabriela",
+    email:"stan91874@gmail.com",
+    initial:"G",
+    pinHash:"b968e8bbbac5318680e60cee33b2cad83d75ea30b4005ac8903c7d3c66895146"
+  }
+};
+
 const S = {
+  selectedProfile:null,
+  profile:null,
+  opponentProfile:null,
+
   role:null,
-  sessionId:crypto.randomUUID(),
+  clientId:crypto.randomUUID(),
   opponentId:null,
   room:"",
   matchId:null,
@@ -1190,28 +1840,51 @@ const S = {
   turn:null,
   first:null,
 
-  outgoing:null,          // {number,actionId,round}
-  incoming:null,          // {number,actionId,round}
-  confirmedWaiting:null,  // confirmat local, așteaptă turn_advance
+  outgoing:null,
+  incoming:null,
+  confirmedWaiting:null,
+  advancePending:null,
+  resultPending:null,
+  lastAdvancedAction:null,
 
   paused:false,
   pauseOwner:null,
   resumeAt:0,
-  pauseTimer:null,
 
   seen:new Set(),
   counter:0,
-  startOffer:null
+  timers:{
+    start:null,
+    call:null,
+    confirm:null,
+    advance:null,
+    result:null,
+    pause:null
+  },
+
+  startOffer:null,
+  cloudHistoryAvailable:null
 };
 
 /* ============================================================
-   INIT / RECOVERY
+   BOOT / LOGIN
    ============================================================ */
 window.addEventListener("load",()=>{
   setSize(4,false);
   shuffleBoard(false);
   renderProgress();
-  setHomeLive(false,"Pregătit");
+
+  setTimeout(()=>{
+    const savedId=localStorage.getItem("bingo_active_profile");
+    if(savedId && PROFILES[savedId]){
+      S.profile=PROFILES[savedId];
+      enterHome();
+    }else{
+      show("loginScreen");
+    }
+
+    $("loadingScreen").classList.add("hidden");
+  },2100);
 });
 
 window.addEventListener("resize",()=>{
@@ -1219,68 +1892,151 @@ window.addEventListener("resize",()=>{
 });
 
 window.addEventListener("offline",()=>{
-  setHomeLive(false,"Fără internet");
-  setLobbyLive(false,"Fără internet");
+  setHomeConnection(false,"Fără internet");
+  setLobbyConnection(false,"Fără internet");
   toast("Nu există conexiune la internet.");
 });
 
 window.addEventListener("online",async()=>{
   toast("Internetul a revenit.");
+
   if(S.room && !S.subscribed){
     await reconnect();
   }else if(S.started){
+    restartCriticalTimers();
     requestSync();
   }
 });
 
 document.addEventListener("visibilitychange",async()=>{
   if(document.visibilityState!=="visible" || !S.room) return;
+
   if(!S.subscribed){
     await reconnect();
   }else if(S.started){
+    restartCriticalTimers();
     requestSync();
   }
 });
 
-/* ============================================================
-   NAV
-   ============================================================ */
 function show(id){
-  ["homeScreen","lobbyScreen","gameScreen"].forEach(screen=>{
+  ["loadingScreen","loginScreen","homeScreen","lobbyScreen","gameScreen"].forEach(screen=>{
     $(screen).classList.add("hidden");
   });
   $(id).classList.remove("hidden");
 }
 
+function selectProfile(id){
+  S.selectedProfile=PROFILES[id];
+
+  $("profileIonut").classList.toggle("selected",id==="ionut");
+  $("profileGabriela").classList.toggle("selected",id==="gabriela");
+
+  $("pinInput").value="";
+  $("pinInput").focus({preventScroll:true});
+}
+
+async function sha256(text){
+  const bytes=new TextEncoder().encode(text);
+  const digest=await crypto.subtle.digest("SHA-256",bytes);
+
+  return Array.from(new Uint8Array(digest))
+    .map(byte=>byte.toString(16).padStart(2,"0"))
+    .join("");
+}
+
+async function login(){
+  if(!S.selectedProfile) return toast("Alege contul.");
+  const pin=$("pinInput").value.trim();
+  if(pin.length!==4) return toast("Introdu codul de 4 cifre.");
+
+  const hash=await sha256(pin);
+
+  if(hash!==S.selectedProfile.pinHash){
+    $("pinInput").value="";
+    toast("Cod incorect.");
+    return;
+  }
+
+  S.profile=S.selectedProfile;
+  localStorage.setItem("bingo_active_profile",S.profile.id);
+  $("pinInput").value="";
+  enterHome();
+}
+
+async function logout(){
+  if(S.room) await leaveRoom();
+
+  localStorage.removeItem("bingo_active_profile");
+  S.profile=null;
+  S.selectedProfile=null;
+
+  $("profileIonut").classList.remove("selected");
+  $("profileGabriela").classList.remove("selected");
+  show("loginScreen");
+}
+
+function enterHome(){
+  $("activeUserName").textContent=S.profile.name;
+  setHomeConnection(false,"Pregătit");
+  show("homeScreen");
+  loadCloudHistory();
+}
+
+/* ============================================================
+   RESET / NAV
+   ============================================================ */
+function clearTimer(name){
+  if(S.timers[name]){
+    clearInterval(S.timers[name]);
+    clearTimeout(S.timers[name]);
+    S.timers[name]=null;
+  }
+}
+
+function clearAllTimers(){
+  Object.keys(S.timers).forEach(clearTimer);
+}
+
 function clearMatch(){
+  clearAllTimers();
+
   S.matchId=null;
   S.marked=new Set();
   S.lines=new Set();
   S.myLines=0;
   S.enemyLines=0;
+
   S.started=false;
   S.ended=false;
   S.round=1;
   S.turn=null;
   S.first=null;
+
   S.outgoing=null;
   S.incoming=null;
   S.confirmedWaiting=null;
+  S.advancePending=null;
+  S.resultPending=null;
+  S.lastAdvancedAction=null;
+
   S.paused=false;
   S.pauseOwner=null;
   S.resumeAt=0;
   S.startOffer=null;
-  clearInterval(S.pauseTimer);
 }
 
 function clearEverything(){
   clearMatch();
+
   S.role=null;
   S.opponentId=null;
+  S.opponentProfile=null;
   S.room="";
   S.ready=false;
   S.enemyReady=false;
   S.seen.clear();
+
   $("joinCode").value="";
 }
 
@@ -1288,7 +2044,7 @@ async function leaveRoom(){
   await emit("leave",{});
   await disconnect();
   clearEverything();
-  setHomeLive(false,"Pregătit");
+  setHomeConnection(false,"Pregătit");
   show("homeScreen");
 }
 
@@ -1298,7 +2054,7 @@ async function backHome(){
 }
 
 /* ============================================================
-   ROOM
+   ROOM / PRESENCE
    ============================================================ */
 async function createRoom(){
   if(!navigator.onLine) return toast("Ai nevoie de internet.");
@@ -1319,6 +2075,7 @@ async function createRoom(){
   setSize(4,false);
   shuffleBoard(false);
   updateReadyButton();
+
   show("lobbyScreen");
   setLobbyMessage("Se creează camera...");
 
@@ -1347,6 +2104,7 @@ async function joinRoom(){
   setSize(4,false);
   shuffleBoard(false);
   updateReadyButton();
+
   show("lobbyScreen");
   setLobbyMessage("Se caută gazda...");
 
@@ -1357,13 +2115,13 @@ async function connect(){
   if(S.connecting || S.subscribed) return;
 
   S.connecting=true;
-  setLobbyLive(false,"Conectare...");
-  setHomeLive(false,"Conectare...");
+  setLobbyConnection(false,"Conectare...");
+  setHomeConnection(false,"Conectare...");
 
   S.channel=supa.channel(`bingo-duel:${S.room}`,{
     config:{
       broadcast:{self:false,ack:true},
-      presence:{key:S.sessionId},
+      presence:{key:S.clientId},
       private:false
     }
   });
@@ -1374,6 +2132,7 @@ async function connect(){
     .on("presence",{event:"join"},presenceSync)
     .on("presence",{event:"leave"},()=>{
       presenceSync();
+
       if(S.started && !S.ended && !S.opponentId){
         $("opponentState").textContent="Reconectare...";
         toast("Adversarul s-a deconectat.");
@@ -1387,25 +2146,39 @@ async function connect(){
         S.connecting=false;
 
         await S.channel.track({
-          sessionId:S.sessionId,
+          clientId:S.clientId,
           role:S.role,
+          profileId:S.profile.id,
+          name:S.profile.name,
+          email:S.profile.email,
           joinedAt:Date.now()
         });
 
-        setLobbyLive(true,`Camera ${S.room}`);
-        setHomeLive(true,`Camera ${S.room}`);
+        setLobbyConnection(true,`Camera ${S.room}`);
+        setHomeConnection(true,`Camera ${S.room}`);
 
-        await emit("hello",{role:S.role});
+        await emit("hello",{
+          role:S.role,
+          profile:{
+            id:S.profile.id,
+            name:S.profile.name,
+            email:S.profile.email,
+            initial:S.profile.initial
+          }
+        });
+
         await emit("lobby_request",{});
         resolve();
       }
 
       if(status==="CHANNEL_ERROR" || status==="TIMED_OUT"){
-        console.error(error);
+        console.error("Supabase Realtime:",error);
+
         S.subscribed=false;
         S.connecting=false;
-        setLobbyLive(false,"Eroare");
-        setHomeLive(false,"Eroare");
+
+        setLobbyConnection(false,"Eroare");
+        setHomeConnection(false,"Eroare");
         setLobbyMessage("Conectarea Realtime a eșuat.");
         toast("Nu s-a putut conecta la cameră.");
         resolve();
@@ -1414,8 +2187,8 @@ async function connect(){
       if(status==="CLOSED"){
         S.subscribed=false;
         S.connecting=false;
-        setLobbyLive(false,"Deconectat");
-        setHomeLive(false,"Deconectat");
+        setLobbyConnection(false,"Deconectat");
+        setHomeConnection(false,"Deconectat");
       }
     });
   });
@@ -1423,19 +2196,33 @@ async function connect(){
 
 async function reconnect(){
   if(!S.room || S.connecting) return;
+
   await disconnect(false);
   await connect();
-  if(S.started) requestSync();
+
+  if(S.started){
+    restartCriticalTimers();
+    requestSync();
+  }
 }
 
 async function disconnect(clearOpponent=true){
   if(S.channel){
-    try{await supa.removeChannel(S.channel)}catch(error){console.warn(error)}
+    try{
+      await supa.removeChannel(S.channel);
+    }catch(error){
+      console.warn(error);
+    }
   }
+
   S.channel=null;
   S.subscribed=false;
   S.connecting=false;
-  if(clearOpponent) S.opponentId=null;
+
+  if(clearOpponent){
+    S.opponentId=null;
+    S.opponentProfile=null;
+  }
 }
 
 function presenceSync(){
@@ -1443,11 +2230,14 @@ function presenceSync(){
 
   const presence=S.channel.presenceState();
   const players=Object.values(presence).flat();
-  const others=players.filter(player=>player.sessionId!==S.sessionId);
+  const others=players.filter(player=>player.clientId!==S.clientId);
 
   if(others.length>1){
     toast("Camera este deja ocupată.");
-    if(S.role==="guest") setTimeout(leaveRoom,850);
+
+    if(S.role==="guest"){
+      setTimeout(leaveRoom,850);
+    }
     return;
   }
 
@@ -1455,12 +2245,20 @@ function presenceSync(){
 
   if(!enemy){
     S.opponentId=null;
+    S.opponentProfile=null;
     updateLobbyMessage();
     return;
   }
 
-  S.opponentId=enemy.sessionId;
-  $("opponentState").textContent="Conectat";
+  S.opponentId=enemy.clientId;
+  S.opponentProfile={
+    id:enemy.profileId,
+    name:enemy.name || "Adversar",
+    email:enemy.email || "",
+    initial:(enemy.name || "A").charAt(0).toUpperCase()
+  };
+
+  updateOpponentUI();
   updateLobbyMessage();
 
   if(S.role==="host" && !S.started){
@@ -1471,11 +2269,14 @@ function presenceSync(){
     emit("ready",{ready:S.ready});
   }
 
-  if(S.started) requestSync();
+  if(S.started){
+    restartCriticalTimers();
+    requestSync();
+  }
 }
 
 /* ============================================================
-   RELIABLE EVENTS
+   REALTIME EVENTS
    ============================================================ */
 async function emit(type,data={}){
   if(!S.channel || !S.subscribed) return false;
@@ -1483,8 +2284,8 @@ async function emit(type,data={}){
   const payload={
     type,
     data,
-    eventId:`${S.sessionId}-${Date.now()}-${++S.counter}`,
-    senderId:S.sessionId,
+    eventId:`${S.clientId}-${Date.now()}-${++S.counter}`,
+    senderId:S.clientId,
     sentAt:Date.now()
   };
 
@@ -1509,12 +2310,13 @@ async function emit(type,data={}){
 }
 
 function receive(message){
-  if(!message || message.senderId===S.sessionId) return;
+  if(!message || message.senderId===S.clientId) return;
   if(!message.eventId || S.seen.has(message.eventId)) return;
 
   S.seen.add(message.eventId);
-  if(S.seen.size>500){
-    S.seen=new Set(Array.from(S.seen).slice(-250));
+
+  if(S.seen.size>600){
+    S.seen=new Set(Array.from(S.seen).slice(-300));
   }
 
   S.opponentId=message.senderId;
@@ -1522,10 +2324,16 @@ function receive(message){
 
   switch(type){
     case "hello":
+      if(data.profile){
+        S.opponentProfile=data.profile;
+        updateOpponentUI();
+      }
+
       if(S.role==="host" && !S.started){
         emit("lobby_settings",{size:S.size});
         emit("ready",{ready:S.ready});
       }
+
       updateLobbyMessage();
       break;
 
@@ -1537,7 +2345,9 @@ function receive(message){
       break;
 
     case "lobby_settings":
-      if(S.role==="guest" && !S.started) applyGuestSize(Number(data.size));
+      if(S.role==="guest" && !S.started){
+        applyGuestSize(Number(data.size));
+      }
       break;
 
     case "ready":
@@ -1565,16 +2375,28 @@ function receive(message){
       receiverAdvancesTurn(data);
       break;
 
+    case "turn_ack":
+      callerReceivesTurnAck(data);
+      break;
+
     case "match_finished":
-      showResult(data);
+      receiveResult(data);
+      break;
+
+    case "result_ack":
+      receiveResultAck(data);
       break;
 
     case "pause":
-      openPause(false,message.senderId,Number(data.resumeAt));
+      if(validMatch(data)){
+        openPause(false,message.senderId,Number(data.resumeAt));
+      }
       break;
 
     case "resume":
-      closePause();
+      if(validMatch(data)){
+        closePause();
+      }
       break;
 
     case "sync_request":
@@ -1633,20 +2455,29 @@ function applyGuestSize(size){
 
 function shuffleBoard(sendReady=true){
   const total=S.size*S.size;
-  S.board=shuffle(Array.from({length:total},(_,index)=>index+1));
+
+  S.board=shuffle(
+    Array.from({length:total},(_,index)=>index+1)
+  );
+
   S.ready=false;
 
   renderPreview();
   updateReadyButton();
 
-  if(sendReady && S.channel) emit("ready",{ready:false});
+  if(sendReady && S.channel){
+    emit("ready",{ready:false});
+  }
+
   updateLobbyMessage();
 }
 
 function renderPreview(){
   const board=$("previewBoard");
+
   board.innerHTML="";
   board.style.gridTemplateColumns=`repeat(${S.size},1fr)`;
+  board.classList.toggle("size-10",S.size===10);
 
   S.board.forEach(number=>{
     const cell=document.createElement("div");
@@ -1667,6 +2498,7 @@ function toggleReady(){
 
 function updateReadyButton(){
   const button=$("readyButton");
+
   button.textContent=S.ready?"✓ GATA":"SUNT GATA";
   button.classList.toggle("btn-gold",S.ready);
   button.classList.toggle("btn-white",!S.ready);
@@ -1674,20 +2506,26 @@ function updateReadyButton(){
 
 function updateLobbyMessage(){
   if(!S.opponentId){
-    setLobbyMessage(S.role==="host"?"Așteptăm adversarul...":"Se caută gazda...");
+    setLobbyMessage(
+      S.role==="host"
+        ?"Așteptăm adversarul..."
+        :"Se caută gazda..."
+    );
     return;
   }
 
   if(S.ready && S.enemyReady){
-    setLobbyMessage(S.role==="host"
-      ?"Amândoi sunteți gata. Poți porni jocul."
-      :"Amândoi sunteți gata. Așteptăm gazda.");
+    setLobbyMessage(
+      S.role==="host"
+        ?"Amândoi sunteți gata. Poți porni jocul."
+        :"Amândoi sunteți gata. Așteptăm gazda."
+    );
   }else if(S.ready){
     setLobbyMessage("Tu ești gata. Așteptăm adversarul.");
   }else if(S.enemyReady){
     setLobbyMessage("Adversarul este gata.");
   }else{
-    setLobbyMessage("Adversarul este conectat. Apăsați amândoi GATA.");
+    setLobbyMessage("Adversarul este conectat. Generați tabla și apăsați amândoi GATA.");
   }
 }
 
@@ -1695,7 +2533,9 @@ function setLobbyMessage(text){
   $("lobbyMessage").textContent=text;
 }
 
-/* start cu confirmare */
+/* ============================================================
+   START HANDSHAKE
+   ============================================================ */
 async function startMatch(){
   if(S.role!=="host") return;
   if(!S.opponentId) return toast("Adversarul nu este conectat.");
@@ -1704,19 +2544,47 @@ async function startMatch(){
   S.startOffer={
     matchId:crypto.randomUUID(),
     size:S.size,
-    first:Math.random()<.5?S.sessionId:S.opponentId
+    first:Math.random()<.5 ? S.clientId : S.opponentId
   };
 
-  const sent=await emit("start_offer",S.startOffer);
-  if(sent) setLobbyMessage("Pornim jocul...");
+  setLobbyMessage("Pornim jocul...");
+  await sendStartOffer();
+
+  clearTimer("start");
+  S.timers.start=setInterval(sendStartOffer,1000);
+}
+
+async function sendStartOffer(){
+  if(!S.startOffer || S.started) return;
+
+  await emit("start_offer",{
+    ...S.startOffer,
+    hostProfile:{
+      id:S.profile.id,
+      name:S.profile.name,
+      email:S.profile.email,
+      initial:S.profile.initial
+    }
+  });
 }
 
 async function acceptStart(data){
-  if(S.role!=="guest" || S.started) return;
+  if(S.role!=="guest") return;
+
+  if(S.started && S.matchId===data.matchId){
+    await emit("start_ack",{matchId:S.matchId});
+    return;
+  }
+
+  if(S.started) return;
 
   S.matchId=data.matchId;
   S.size=Number(data.size);
   S.first=data.first;
+
+  if(data.hostProfile){
+    S.opponentProfile=data.hostProfile;
+  }
 
   await emit("start_ack",{matchId:S.matchId});
   beginGame();
@@ -1726,9 +2594,12 @@ function hostStartAfterAck(data){
   if(S.role!=="host" || S.started || !S.startOffer) return;
   if(data.matchId!==S.startOffer.matchId) return;
 
+  clearTimer("start");
+
   S.matchId=S.startOffer.matchId;
   S.size=S.startOffer.size;
   S.first=S.startOffer.first;
+
   beginGame();
 }
 
@@ -1746,29 +2617,40 @@ function beginGame(){
   S.turn=first;
   S.started=true;
 
+  $("myPlayerName").textContent=S.profile.name;
+  $("myAvatar").textContent=S.profile.initial;
   $("myRole").textContent=S.role==="host"?"Gazdă":"Invitat";
-  $("opponentState").textContent="Conectat";
   $("gameSize").textContent=`${S.size}×${S.size}`;
   $("receivedNumber").textContent="—";
 
+  updateOpponentUI();
   renderBoard();
   renderBingo();
   renderProgress();
   updateGameUI();
+
   show("gameScreen");
 }
 
 function renderBoard(){
   const board=$("gameBoard");
+
   board.innerHTML="";
   board.style.gridTemplateColumns=`repeat(${S.size},1fr)`;
+  board.classList.toggle("size-10",S.size===10);
 
   S.board.forEach(number=>{
     const cell=document.createElement("button");
+
     cell.className="cell";
     cell.dataset.number=String(number);
     cell.innerHTML=`<span>${number}</span>`;
-    cell.onclick=()=>pressCell(number);
+
+    cell.addEventListener("click",event=>{
+      event.currentTarget.blur();
+      pressCell(number);
+    });
+
     board.appendChild(cell);
   });
 
@@ -1789,44 +2671,65 @@ function pressCell(number){
     return;
   }
 
-  if(S.turn!==S.sessionId) return toast("Așteaptă numărul adversarului.");
-  if(S.outgoing || S.confirmedWaiting) return toast("Așteaptă confirmarea.");
-  if(S.marked.has(number)) return toast("Numărul este deja tăiat.");
+  if(S.turn!==S.clientId){
+    toast("Așteaptă numărul adversarului.");
+    return;
+  }
+
+  if(S.outgoing || S.confirmedWaiting || S.advancePending){
+    toast("Așteaptă confirmarea.");
+    return;
+  }
+
+  if(S.marked.has(number)){
+    toast("Numărul este deja tăiat.");
+    return;
+  }
 
   callNumber(number);
 }
 
 async function callNumber(number){
-  const outgoing={
+  S.outgoing={
     number,
     actionId:crypto.randomUUID(),
     round:S.round
   };
 
-  S.outgoing=outgoing;
   renderCells();
   updateGameUI();
 
-  const sent=await emit("number_called",{
-    ...outgoing,
+  await sendOutgoingCall();
+
+  clearTimer("call");
+  S.timers.call=setInterval(sendOutgoingCall,1050);
+}
+
+async function sendOutgoingCall(){
+  if(!S.outgoing || S.ended) return;
+
+  await emit("number_called",{
+    ...S.outgoing,
     matchId:S.matchId
   });
-
-  if(!sent){
-    S.outgoing=null;
-    renderCells();
-    updateGameUI();
-  }
 }
 
 function receiveCalledNumber(data){
   if(!validMatch(data) || S.ended) return;
   if(Number(data.round)!==S.round) return;
 
-  /* duplicat după reconnect */
   if(S.incoming?.actionId===data.actionId) return;
+
   if(S.confirmedWaiting?.actionId===data.actionId){
-    resendConfirmation();
+    sendConfirmation();
+    return;
+  }
+
+  if(S.lastAdvancedAction===data.actionId){
+    emit("turn_ack",{
+      matchId:S.matchId,
+      actionId:data.actionId
+    });
     return;
   }
 
@@ -1837,9 +2740,10 @@ function receiveCalledNumber(data){
     actionId:data.actionId,
     round:Number(data.round)
   };
-  S.turn=S.opponentId;
 
+  S.turn=S.opponentId;
   $("receivedNumber").textContent=String(S.incoming.number);
+
   renderCells();
   updateGameUI();
   vibrate(35);
@@ -1849,6 +2753,7 @@ async function confirmIncoming(){
   if(!S.incoming) return;
 
   const confirmed={...S.incoming};
+
   S.marked.add(confirmed.number);
   S.incoming=null;
   S.confirmedWaiting=confirmed;
@@ -1857,11 +2762,14 @@ async function confirmIncoming(){
   renderCells();
   updateGameUI();
 
-  await resendConfirmation();
+  await sendConfirmation();
+
+  clearTimer("confirm");
+  S.timers.confirm=setInterval(sendConfirmation,1050);
 }
 
-async function resendConfirmation(){
-  if(!S.confirmedWaiting) return;
+async function sendConfirmation(){
+  if(!S.confirmedWaiting || S.ended) return;
 
   await emit("number_confirmed",{
     ...S.confirmedWaiting,
@@ -1875,6 +2783,9 @@ async function callerReceivesConfirmation(data){
   if(data.actionId!==S.outgoing.actionId) return;
   if(Number(data.round)!==S.round) return;
 
+  clearTimer("call");
+
+  const actionId=S.outgoing.actionId;
   const number=S.outgoing.number;
 
   S.marked.add(number);
@@ -1886,39 +2797,61 @@ async function callerReceivesConfirmation(data){
   const result=calculateResult(S.myLines,S.enemyLines);
 
   if(result){
-    await emit("match_finished",result);
+    S.resultPending=result;
     showResult(result);
+    await sendResult();
+
+    clearTimer("result");
+    S.timers.result=setInterval(sendResult,1100);
     return;
   }
 
-  const nextRound=S.round+1;
-  const nextTurn=S.opponentId;
-
-  const advanced=await emit("turn_advanced",{
+  S.advancePending={
     matchId:S.matchId,
-    actionId:data.actionId,
+    actionId,
     previousRound:S.round,
-    round:nextRound,
-    turn:nextTurn,
+    round:S.round+1,
+    turn:S.opponentId,
     callerLines:S.myLines,
     confirmerLines:S.enemyLines
-  });
+  };
 
-  if(advanced){
-    S.round=nextRound;
-    S.turn=nextTurn;
-    renderCells();
-    renderProgress();
-    updateGameUI();
-  }
+  S.round=S.advancePending.round;
+  S.turn=S.advancePending.turn;
+
+  renderProgress();
+  renderCells();
+  updateGameUI();
+
+  await sendAdvance();
+
+  clearTimer("advance");
+  S.timers.advance=setInterval(sendAdvance,1050);
 }
 
-function receiverAdvancesTurn(data){
+async function sendAdvance(){
+  if(!S.advancePending || S.ended) return;
+  await emit("turn_advanced",S.advancePending);
+}
+
+async function receiverAdvancesTurn(data){
   if(!validMatch(data) || S.ended) return;
+
+  if(S.lastAdvancedAction===data.actionId){
+    await emit("turn_ack",{
+      matchId:S.matchId,
+      actionId:data.actionId
+    });
+    return;
+  }
+
   if(!S.confirmedWaiting) return;
   if(data.actionId!==S.confirmedWaiting.actionId) return;
   if(Number(data.previousRound)!==S.round) return;
 
+  clearTimer("confirm");
+
+  S.lastAdvancedAction=data.actionId;
   S.confirmedWaiting=null;
   S.enemyLines=Number(data.callerLines)||0;
   S.round=Number(data.round);
@@ -1927,8 +2860,24 @@ function receiverAdvancesTurn(data){
   renderProgress();
   renderCells();
   updateGameUI();
+
+  await emit("turn_ack",{
+    matchId:S.matchId,
+    actionId:data.actionId
+  });
 }
 
+function callerReceivesTurnAck(data){
+  if(!validMatch(data) || !S.advancePending) return;
+  if(data.actionId!==S.advancePending.actionId) return;
+
+  clearTimer("advance");
+  S.advancePending=null;
+}
+
+/* ============================================================
+   RESULT
+   ============================================================ */
 function calculateResult(callerLines,receiverLines){
   if(callerLines>=5 && receiverLines>=5){
     return{
@@ -1937,13 +2886,15 @@ function calculateResult(callerLines,receiverLines){
       text:"Amândoi ați completat cinci linii în aceeași rundă."
     };
   }
+
   if(callerLines>=5){
     return{
       matchId:S.matchId,
-      winner:S.sessionId,
+      winner:S.clientId,
       text:"Au fost completate cinci linii."
     };
   }
+
   if(receiverLines>=5){
     return{
       matchId:S.matchId,
@@ -1951,16 +2902,131 @@ function calculateResult(callerLines,receiverLines){
       text:"Au fost completate cinci linii."
     };
   }
+
   return null;
 }
 
-function validMatch(data){
-  return data && data.matchId===S.matchId;
+async function sendResult(){
+  if(!S.resultPending) return;
+  await emit("match_finished",S.resultPending);
+}
+
+async function receiveResult(data){
+  if(!validMatch(data)) return;
+
+  showResult(data);
+
+  await emit("result_ack",{
+    matchId:S.matchId
+  });
+}
+
+function receiveResultAck(data){
+  if(!validMatch(data)) return;
+
+  clearTimer("result");
+  S.resultPending=null;
+}
+
+function showResult(result){
+  if(S.ended) return;
+
+  S.ended=true;
+  S.started=false;
+
+  clearTimer("call");
+  clearTimer("confirm");
+  clearTimer("advance");
+  clearTimer("pause");
+
+  $("pauseOverlay").classList.add("hidden");
+
+  const draw=result.winner==="draw";
+  const won=result.winner===S.clientId;
+
+  if(draw){
+    $("resultIcon").textContent="=";
+    $("resultTitle").textContent="REMIZĂ!";
+    $("resultText").textContent=result.text;
+  }else if(won){
+    $("resultIcon").textContent="✓";
+    $("resultTitle").textContent="AI CÂȘTIGAT!";
+    $("resultText").textContent="Ai completat primul cinci linii și ai tăiat B-I-N-G-O.";
+    fireConfetti();
+  }else{
+    $("resultIcon").textContent="×";
+    $("resultTitle").textContent="A CÂȘTIGAT ADVERSARUL";
+    $("resultText").textContent="Adversarul a completat primul cinci linii.";
+  }
+
+  saveHistory(result);
+  $("resultOverlay").classList.remove("hidden");
+}
+
+async function rematch(){
+  $("resultOverlay").classList.add("hidden");
+  await emit("rematch",{});
+  openRematchLobby();
+}
+
+function openRematchLobby(){
+  $("resultOverlay").classList.add("hidden");
+
+  clearMatch();
+
+  S.ready=false;
+  S.enemyReady=false;
+
+  updateReadyButton();
+  shuffleBoard(false);
+
+  document.querySelectorAll(".mode").forEach(button=>{
+    button.disabled=S.role==="guest";
+  });
+
+  show("lobbyScreen");
+
+  setLobbyMessage(
+    S.role==="host"
+      ?"Alege modul pentru noul joc."
+      :"Așteaptă alegerea gazdei."
+  );
+
+  if(S.role==="host"){
+    emit("lobby_settings",{size:S.size});
+  }
 }
 
 /* ============================================================
    SYNC / RECONNECT
    ============================================================ */
+function restartCriticalTimers(){
+  if(S.startOffer && !S.started){
+    clearTimer("start");
+    S.timers.start=setInterval(sendStartOffer,1000);
+  }
+
+  if(S.outgoing){
+    clearTimer("call");
+    S.timers.call=setInterval(sendOutgoingCall,1050);
+  }
+
+  if(S.confirmedWaiting){
+    clearTimer("confirm");
+    S.timers.confirm=setInterval(sendConfirmation,1050);
+  }
+
+  if(S.advancePending){
+    clearTimer("advance");
+    S.timers.advance=setInterval(sendAdvance,1050);
+  }
+
+  if(S.resultPending){
+    clearTimer("result");
+    S.timers.result=setInterval(sendResult,1100);
+  }
+}
+
 function requestSync(){
   if(!S.started || !S.opponentId) return;
 
@@ -1971,7 +3037,7 @@ function requestSync(){
 }
 
 function sendSync(requestId){
-  if(!S.started || S.ended) return;
+  if(!S.started && !S.ended) return;
 
   emit("sync_response",{
     target:S.opponentId,
@@ -1982,54 +3048,40 @@ function sendSync(requestId){
     turn:S.turn,
     myLines:S.myLines,
     outgoing:S.outgoing,
-    incoming:S.incoming,
     confirmedWaiting:S.confirmedWaiting,
+    advancePending:S.advancePending,
+    resultPending:S.resultPending,
     paused:S.paused,
     pauseOwner:S.pauseOwner,
     resumeAt:S.resumeAt
   });
 
-  /* dacă am confirmat deja, retrimitem confirmarea */
-  if(S.confirmedWaiting) resendConfirmation();
-
-  /* dacă am trimis un număr, îl retrimitem */
-  if(S.outgoing){
-    emit("number_called",{
-      ...S.outgoing,
-      matchId:S.matchId
-    });
-  }
+  restartCriticalTimers();
 }
 
 function applySync(data){
-  if(data.target!==S.sessionId || data.matchId!==S.matchId || !S.started) return;
+  if(data.target!==S.clientId || data.matchId!==S.matchId) return;
 
   S.enemyLines=Number(data.myLines)||S.enemyLines;
 
-  if(Number(data.round)>S.round){
-    S.round=Number(data.round);
-    S.turn=data.turn;
-    S.confirmedWaiting=null;
-  }
-
-  /*
-    Adversarul are un număr trimis spre noi.
-    Îl restaurăm fără să aflăm tabla lui.
-  */
   if(data.outgoing && !S.incoming && !S.confirmedWaiting){
-    S.incoming={
-      number:Number(data.outgoing.number),
-      actionId:data.outgoing.actionId,
-      round:Number(data.outgoing.round)
-    };
-    S.turn=S.opponentId;
-    $("receivedNumber").textContent=String(S.incoming.number);
+    receiveCalledNumber({
+      ...data.outgoing,
+      matchId:S.matchId
+    });
   }
 
-  /*
-    Adversarul a confirmat numărul nostru, dar confirmarea s-a pierdut.
-    Evenimentul este retrimis separat de adversar.
-  */
+  if(
+    data.advancePending &&
+    S.confirmedWaiting &&
+    data.advancePending.actionId===S.confirmedWaiting.actionId
+  ){
+    receiverAdvancesTurn(data.advancePending);
+  }
+
+  if(data.resultPending){
+    receiveResult(data.resultPending);
+  }
 
   if(data.paused && !S.paused){
     openPause(false,data.pauseOwner,Number(data.resumeAt));
@@ -2041,15 +3093,89 @@ function applySync(data){
 }
 
 /* ============================================================
-   LINES
+   PAUSE
+   ============================================================ */
+async function pauseMatch(){
+  if(!S.started || S.ended || S.paused) return;
+
+  const resumeAt=Date.now()+30000;
+
+  const sent=await emit("pause",{
+    matchId:S.matchId,
+    resumeAt
+  });
+
+  if(sent){
+    openPause(true,S.clientId,resumeAt);
+  }
+}
+
+function openPause(mine,owner,resumeAt){
+  S.paused=true;
+  S.pauseOwner=owner;
+  S.resumeAt=resumeAt || Date.now()+30000;
+
+  $("pauseTitle").textContent=mine
+    ?"Ai oprit runda."
+    :"Adversarul a oprit runda!";
+
+  $("resumeButton").classList.toggle("hidden",!mine);
+  $("pauseOverlay").classList.remove("hidden");
+
+  clearTimer("pause");
+
+  const tick=async()=>{
+    const seconds=Math.max(
+      0,
+      Math.ceil((S.resumeAt-Date.now())/1000)
+    );
+
+    $("pauseCount").textContent=String(seconds);
+
+    if(seconds<=0){
+      clearTimer("pause");
+
+      if(mine){
+        await emit("resume",{matchId:S.matchId});
+      }
+
+      closePause();
+    }
+  };
+
+  tick();
+  S.timers.pause=setInterval(tick,250);
+  updateGameUI();
+}
+
+async function resumeMatch(){
+  if(!S.paused || S.pauseOwner!==S.clientId) return;
+
+  await emit("resume",{matchId:S.matchId});
+  closePause();
+}
+
+function closePause(){
+  clearTimer("pause");
+
+  S.paused=false;
+  S.pauseOwner=null;
+  S.resumeAt=0;
+
+  $("pauseOverlay").classList.add("hidden");
+  updateGameUI();
+}
+
+/* ============================================================
+   LINES / BOARD
    ============================================================ */
 function updateLines(){
-  const old=S.lines.size;
+  const oldCount=S.lines.size;
+
   S.lines=detectLines(S.board,S.marked,S.size);
   S.myLines=S.lines.size;
 
-  if(S.lines.size>old){
-    animateBoard();
+  if(S.lines.size>oldCount){
     vibrate([35,25,65]);
   }
 
@@ -2062,27 +3188,44 @@ function detectLines(board,marked,size){
   const result=new Set();
 
   for(let row=0;row<size;row++){
-    const nums=[];
-    for(let col=0;col<size;col++) nums.push(board[row*size+col]);
-    if(nums.every(number=>marked.has(number))) result.add(`r-${row}`);
+    const numbers=[];
+
+    for(let col=0;col<size;col++){
+      numbers.push(board[row*size+col]);
+    }
+
+    if(numbers.every(number=>marked.has(number))){
+      result.add(`r-${row}`);
+    }
   }
 
   for(let col=0;col<size;col++){
-    const nums=[];
-    for(let row=0;row<size;row++) nums.push(board[row*size+col]);
-    if(nums.every(number=>marked.has(number))) result.add(`c-${col}`);
+    const numbers=[];
+
+    for(let row=0;row<size;row++){
+      numbers.push(board[row*size+col]);
+    }
+
+    if(numbers.every(number=>marked.has(number))){
+      result.add(`c-${col}`);
+    }
   }
 
-  const d1=[];
-  const d2=[];
+  const diagonal1=[];
+  const diagonal2=[];
 
   for(let index=0;index<size;index++){
-    d1.push(board[index*size+index]);
-    d2.push(board[index*size+(size-1-index)]);
+    diagonal1.push(board[index*size+index]);
+    diagonal2.push(board[index*size+(size-1-index)]);
   }
 
-  if(d1.every(number=>marked.has(number))) result.add("d-1");
-  if(d2.every(number=>marked.has(number))) result.add("d-2");
+  if(diagonal1.every(number=>marked.has(number))){
+    result.add("d-1");
+  }
+
+  if(diagonal2.every(number=>marked.has(number))){
+    result.add("d-2");
+  }
 
   return result;
 }
@@ -2098,30 +3241,49 @@ function renderLines(){
 
     if(id.startsWith("r-")){
       const row=Number(id.split("-")[1]);
+
       y1=y2=((row+.5)/S.size)*100;
-      x1=2;x2=98;
+      x1=1;
+      x2=99;
     }else if(id.startsWith("c-")){
       const col=Number(id.split("-")[1]);
+
       x1=x2=((col+.5)/S.size)*100;
-      y1=2;y2=98;
+      y1=1;
+      y2=99;
     }else if(id==="d-1"){
-      x1=3;y1=3;x2=97;y2=97;
+      x1=1;
+      y1=1;
+      x2=99;
+      y2=99;
     }else{
-      x1=97;y1=3;x2=3;y2=97;
+      x1=99;
+      y1=1;
+      x2=1;
+      y2=99;
     }
 
-    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("x1",x1);
-    line.setAttribute("y1",y1);
-    line.setAttribute("x2",x2);
-    line.setAttribute("y2",y2);
-    line.setAttribute("class","strike");
-    svg.appendChild(line);
+    const goldLine=document.createElementNS("http://www.w3.org/2000/svg","line");
+    goldLine.setAttribute("x1",x1);
+    goldLine.setAttribute("y1",y1);
+    goldLine.setAttribute("x2",x2);
+    goldLine.setAttribute("y2",y2);
+    goldLine.setAttribute("class","strike-gold");
+
+    const blackLine=document.createElementNS("http://www.w3.org/2000/svg","line");
+    blackLine.setAttribute("x1",x1);
+    blackLine.setAttribute("y1",y1);
+    blackLine.setAttribute("x2",x2);
+    blackLine.setAttribute("y2",y2);
+    blackLine.setAttribute("class","strike-black");
+
+    svg.appendChild(goldLine);
+    svg.appendChild(blackLine);
   });
 }
 
 /* ============================================================
-   RENDER
+   RENDER UI
    ============================================================ */
 function renderCells(){
   document.querySelectorAll("#gameBoard .cell").forEach(cell=>{
@@ -2140,9 +3302,10 @@ function renderCells(){
       if(S.incoming){
         enabled=target && !marked;
       }else if(
-        S.turn===S.sessionId &&
+        S.turn===S.clientId &&
         !S.outgoing &&
-        !S.confirmedWaiting
+        !S.confirmedWaiting &&
+        !S.advancePending
       ){
         enabled=!marked;
       }
@@ -2161,8 +3324,10 @@ function renderBingo(){
 
   letters.forEach((letter,index)=>{
     const item=document.createElement("div");
+
     item.className=`bingo-letter${index<done?" done":""}`;
     item.textContent=letter;
+
     container.appendChild(item);
   });
 }
@@ -2170,16 +3335,19 @@ function renderBingo(){
 function renderProgress(){
   $("myProgressText").textContent=`${Math.min(5,S.myLines)} / 5`;
   $("opponentProgressText").textContent=`${Math.min(5,S.enemyLines)} / 5`;
+
   drawBars("myBars",S.myLines);
   drawBars("opponentBars",S.enemyLines);
 }
 
 function drawBars(id,count){
   const container=$(id);
+
   container.innerHTML="";
 
   for(let index=0;index<5;index++){
     const bar=document.createElement("div");
+
     bar.className=`bar${index<Math.min(5,count)?" done":""}`;
     container.appendChild(bar);
   }
@@ -2187,6 +3355,7 @@ function drawBars(id,count){
 
 function updateGameUI(){
   $("roundText").textContent=String(S.round);
+
   const turn=$("turnText");
   turn.className="turn";
 
@@ -2195,141 +3364,216 @@ function updateGameUI(){
     $("roundHelp").textContent="Așteaptă reluarea jocului.";
   }else if(S.incoming){
     turn.classList.add("received");
-    turn.innerHTML=`Adversarul a trimis <span class="number-pill">${S.incoming.number}</span> Apasă numărul.`;
+    turn.innerHTML=`Adversarul a trimis <span class="number-pill">${S.incoming.number}</span> Apasă numărul pe tabla ta.`;
     $("roundHelp").textContent=`Apasă numărul ${S.incoming.number}.`;
   }else if(S.confirmedWaiting){
-    turn.textContent="Numărul a fost tăiat. Se încheie runda...";
+    turn.textContent="Numărul a fost tăiat. Se schimbă rândul...";
     $("roundHelp").textContent="Așteaptă schimbarea turei.";
   }else if(S.outgoing){
     turn.innerHTML=`Ai trimis <span class="number-pill">${S.outgoing.number}</span> Așteptăm confirmarea.`;
     $("roundHelp").textContent="Numărul rămâne auriu până este confirmat.";
-  }else if(S.turn===S.sessionId){
+  }else if(S.advancePending){
+    turn.textContent="Runda a fost confirmată. Este rândul adversarului.";
+    $("roundHelp").textContent="Așteaptă numărul adversarului.";
+  }else if(S.turn===S.clientId){
     turn.classList.add("mine");
-    turn.textContent="Este rândul tău. Alege un număr netăiat.";
+    turn.textContent="ESTE RÂNDUL TĂU — ALEGE UN NUMĂR";
     $("roundHelp").textContent="Numărul este trimis instant adversarului.";
   }else{
-    turn.textContent="Este rândul adversarului.";
+    turn.textContent="ESTE RÂNDUL ADVERSARULUI";
     $("roundHelp").textContent="Așteaptă să primești un număr.";
   }
 
   renderCells();
 }
 
-/* ============================================================
-   PAUSE
-   ============================================================ */
-async function pauseMatch(){
-  if(!S.started || S.ended || S.paused) return;
+function updateOpponentUI(){
+  const opponent=S.opponentProfile;
 
-  const resumeAt=Date.now()+30000;
-  const sent=await emit("pause",{
-    matchId:S.matchId,
-    resumeAt
-  });
-
-  if(sent) openPause(true,S.sessionId,resumeAt);
+  $("opponentName").textContent=opponent?.name || "Adversar";
+  $("opponentAvatar").textContent=opponent?.initial || "2";
+  $("opponentState").textContent=S.opponentId?"Conectat":"Se conectează...";
 }
 
-function openPause(mine,owner,resumeAt){
-  S.paused=true;
-  S.pauseOwner=owner;
-  S.resumeAt=resumeAt || Date.now()+30000;
-
-  $("pauseTitle").textContent=mine?"Ai oprit runda.":"Adversarul a oprit runda!";
-  $("resumeButton").classList.toggle("hidden",!mine);
-  $("pauseOverlay").classList.remove("hidden");
-
-  clearInterval(S.pauseTimer);
-
-  const tick=async()=>{
-    const seconds=Math.max(0,Math.ceil((S.resumeAt-Date.now())/1000));
-    $("pauseCount").textContent=String(seconds);
-
-    if(seconds<=0){
-      clearInterval(S.pauseTimer);
-      if(mine) await emit("resume",{matchId:S.matchId});
-      closePause();
-    }
-  };
-
-  tick();
-  S.pauseTimer=setInterval(tick,250);
-  updateGameUI();
+function setHomeConnection(on,text){
+  $("homeDot").classList.toggle("online",on);
+  $("homeConnection").textContent=text;
 }
 
-async function resumeMatch(){
-  if(!S.paused || S.pauseOwner!==S.sessionId) return;
-  await emit("resume",{matchId:S.matchId});
-  closePause();
-}
-
-function closePause(){
-  clearInterval(S.pauseTimer);
-  S.paused=false;
-  S.pauseOwner=null;
-  S.resumeAt=0;
-  $("pauseOverlay").classList.add("hidden");
-  updateGameUI();
+function setLobbyConnection(on,text){
+  $("lobbyDot").classList.toggle("online",on);
+  $("lobbyConnection").textContent=text;
 }
 
 /* ============================================================
-   RESULT / REMATCH
+   HISTORY
    ============================================================ */
-function showResult(result){
-  if(S.ended || !validMatch(result)) return;
+function historyKey(){
+  return `bingo_history_${S.profile.email}`;
+}
 
-  S.ended=true;
-  S.started=false;
-  clearInterval(S.pauseTimer);
-  $("pauseOverlay").classList.add("hidden");
+function getLocalHistory(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(historyKey()) || "[]");
+    return Array.isArray(parsed)?parsed:[];
+  }catch{
+    return [];
+  }
+}
+
+function saveLocalHistory(records){
+  localStorage.setItem(
+    historyKey(),
+    JSON.stringify(records.slice(0,100))
+  );
+}
+
+async function saveHistory(result){
+  if(!S.profile || !S.matchId) return;
+
+  const current=getLocalHistory();
+
+  if(current.some(item=>item.matchId===S.matchId)) return;
 
   const draw=result.winner==="draw";
-  const won=result.winner===S.sessionId;
+  const won=result.winner===S.clientId;
 
-  if(draw){
-    $("resultIcon").textContent="=";
-    $("resultTitle").textContent="REMIZĂ!";
-    $("resultText").textContent=result.text;
-  }else if(won){
-    $("resultIcon").textContent="✓";
-    $("resultTitle").textContent="AI CÂȘTIGAT!";
-    $("resultText").textContent="Ai completat primul cinci linii și ai tăiat B-I-N-G-O.";
-    fireConfetti();
-  }else{
-    $("resultIcon").textContent="×";
-    $("resultTitle").textContent="A CÂȘTIGAT ADVERSARUL";
-    $("resultText").textContent="Adversarul a completat primul cinci linii.";
+  const record={
+    matchId:S.matchId,
+    userEmail:S.profile.email,
+    playerName:S.profile.name,
+    opponentName:S.opponentProfile?.name || "Adversar",
+    result:draw?"Remiză":won?"Victorie":"Înfrângere",
+    boardSize:S.size,
+    playedAt:new Date().toISOString()
+  };
+
+  current.unshift(record);
+  saveLocalHistory(current);
+
+  /* Sincronizare cloud dacă tabelul bingo_history a fost creat în Supabase. */
+  try{
+    const {error}=await supa
+      .from("bingo_history")
+      .upsert({
+        match_id:record.matchId,
+        user_email:record.userEmail,
+        player_name:record.playerName,
+        opponent_name:record.opponentName,
+        result:record.result,
+        board_size:record.boardSize,
+        played_at:record.playedAt
+      },{
+        onConflict:"match_id,user_email"
+      });
+
+    S.cloudHistoryAvailable=!error;
+  }catch{
+    S.cloudHistoryAvailable=false;
+  }
+}
+
+async function loadCloudHistory(){
+  if(!S.profile) return;
+
+  try{
+    const {data,error}=await supa
+      .from("bingo_history")
+      .select("match_id,user_email,player_name,opponent_name,result,board_size,played_at")
+      .eq("user_email",S.profile.email)
+      .order("played_at",{ascending:false})
+      .limit(100);
+
+    if(error){
+      S.cloudHistoryAvailable=false;
+      return;
+    }
+
+    S.cloudHistoryAvailable=true;
+
+    const local=getLocalHistory();
+    const merged=new Map();
+
+    [...local,...data.map(row=>({
+      matchId:row.match_id,
+      userEmail:row.user_email,
+      playerName:row.player_name,
+      opponentName:row.opponent_name,
+      result:row.result,
+      boardSize:row.board_size,
+      playedAt:row.played_at
+    }))].forEach(item=>{
+      merged.set(item.matchId,item);
+    });
+
+    const records=Array.from(merged.values())
+      .sort((a,b)=>new Date(b.playedAt)-new Date(a.playedAt));
+
+    saveLocalHistory(records);
+
+    if(!$("historyOverlay").classList.contains("hidden")){
+      renderHistory();
+    }
+  }catch{
+    S.cloudHistoryAvailable=false;
+  }
+}
+
+function openHistory(){
+  $("historyAccountText").textContent=`Cont: ${S.profile.name} · ${S.profile.email}`;
+  renderHistory();
+  $("historyOverlay").classList.remove("hidden");
+  loadCloudHistory();
+}
+
+function closeHistory(){
+  $("historyOverlay").classList.add("hidden");
+}
+
+function renderHistory(){
+  const container=$("historyList");
+  const records=getLocalHistory();
+
+  container.innerHTML="";
+
+  if(!records.length){
+    container.innerHTML='<div class="history-empty">Nu există încă jocuri salvate.</div>';
+    return;
   }
 
-  $("resultOverlay").classList.remove("hidden");
-}
+  records.forEach(record=>{
+    const item=document.createElement("div");
+    const resultClass=
+      record.result==="Înfrângere"
+        ?"loss"
+        :record.result==="Remiză"
+          ?"draw"
+          :"";
 
-async function rematch(){
-  $("resultOverlay").classList.add("hidden");
-  await emit("rematch",{});
-  openRematchLobby();
-}
+    const symbol=
+      record.result==="Victorie"
+        ?"V"
+        :record.result==="Înfrângere"
+          ?"Î"
+          :"R";
 
-function openRematchLobby(){
-  $("resultOverlay").classList.add("hidden");
+    const dateText=new Intl.DateTimeFormat("ro-RO",{
+      dateStyle:"medium",
+      timeStyle:"short"
+    }).format(new Date(record.playedAt));
 
-  clearMatch();
-  S.ready=false;
-  S.enemyReady=false;
+    item.className="history-item";
+    item.innerHTML=`
+      <div class="history-result ${resultClass}">${symbol}</div>
+      <div>
+        <div class="history-title">${escapeHtml(record.result)} contra ${escapeHtml(record.opponentName)}</div>
+        <div class="history-meta">${escapeHtml(dateText)}</div>
+      </div>
+      <div class="history-mode">${record.boardSize}×${record.boardSize}</div>
+    `;
 
-  updateReadyButton();
-  shuffleBoard(false);
-
-  document.querySelectorAll(".mode").forEach(button=>{
-    button.disabled=S.role==="guest";
+    container.appendChild(item);
   });
-
-  show("lobbyScreen");
-  setLobbyMessage(S.role==="host"
-    ?"Alege modul pentru noul joc."
-    :"Așteaptă alegerea gazdei.");
-
-  if(S.role==="host") emit("lobby_settings",{size:S.size});
 }
 
 /* ============================================================
@@ -2343,26 +3587,27 @@ async function exitGame(){
 /* ============================================================
    HELPERS
    ============================================================ */
-function setHomeLive(on,text){
-  $("homeDot").classList.toggle("on",on);
-  $("homeConnection").textContent=text;
-}
-function setLobbyLive(on,text){
-  $("lobbyDot").classList.toggle("on",on);
-  $("lobbyConnection").textContent=text;
+function validMatch(data){
+  return data && data.matchId===S.matchId;
 }
 
 function makeCode(){
   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
+
+  return Array.from(
+    {length:6},
+    ()=>chars[Math.floor(Math.random()*chars.length)]
+  ).join("");
 }
 
 function shuffle(array){
   const copy=[...array];
+
   for(let index=copy.length-1;index>0;index--){
     const random=Math.floor(Math.random()*(index+1));
     [copy[index],copy[random]]=[copy[random],copy[index]];
   }
+
   return copy;
 }
 
@@ -2370,33 +3615,45 @@ function sleep(ms){
   return new Promise(resolve=>setTimeout(resolve,ms));
 }
 
-let toastTimer;
+function vibrate(pattern){
+  if(navigator.vibrate){
+    navigator.vibrate(pattern);
+  }
+}
+
+function escapeHtml(value){
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+let toastTimer=null;
+
 function toast(text){
   const element=$("toast");
+
   element.textContent=text;
   element.classList.add("show");
+
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>element.classList.remove("show"),2300);
-}
 
-function vibrate(pattern){
-  if(navigator.vibrate) navigator.vibrate(pattern);
-}
-
-function animateBoard(){
-  $("boardHolder").animate(
-    [{transform:"scale(1)"},{transform:"scale(1.018)"},{transform:"scale(1)"}],
-    {duration:380,easing:"ease-out"}
-  );
+  toastTimer=setTimeout(()=>{
+    element.classList.remove("show");
+  },2300);
 }
 
 function fireConfetti(){
   const canvas=$("confetti");
   const context=canvas.getContext("2d");
+
   canvas.width=innerWidth;
   canvas.height=innerHeight;
 
-  const colors=["#050505","#d7ad55","#f3d88d","#ffffff","#ef2f4f"];
+  const colors=["#050505","#e7b83f","#ffd66f","#ffffff","#ed2f50"];
+
   const pieces=Array.from({length:190},()=>({
     x:Math.random()*canvas.width,
     y:-20-Math.random()*canvas.height*.45,
@@ -2429,8 +3686,12 @@ function fireConfetti(){
     });
 
     frame++;
-    if(frame<250) requestAnimationFrame(draw);
-    else context.clearRect(0,0,canvas.width,canvas.height);
+
+    if(frame<250){
+      requestAnimationFrame(draw);
+    }else{
+      context.clearRect(0,0,canvas.width,canvas.height);
+    }
   }
 
   draw();
