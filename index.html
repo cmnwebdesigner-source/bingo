@@ -2656,7 +2656,7 @@ async function emit(type,data={}){
       const status=await S.channel.send({type:"broadcast",event:"duel",payload});
       if(status==="ok") return true;
     }catch(error){console.warn(error)}
-    await sleep(150*attempt);
+    await sleep(65*attempt);
   }
 
   toast("Acțiunea nu a fost trimisă.");
@@ -2705,9 +2705,12 @@ function receive(message){
       }
       break;
 
-    case "start_offer":acceptStart(data,senderId);break;
+    case "game_start":receiveGameStart(data,senderId);break;
+
+    /* Compatibilitate cu versiunile vechi ale fișierului. */
+    case "start_offer":receiveGameStart(data,senderId);break;
+    case "start_commit":receiveGameStart(data,senderId);break;
     case "start_ack":hostReceivesStartAck(data,senderId);break;
-    case "start_commit":receiveStartCommit(data,senderId);break;
     case "commit_ack":hostReceivesCommitAck(data,senderId);break;
 
     case "number_called":receiveCalledNumber(data,senderId);break;
@@ -2861,30 +2864,44 @@ function updateLobbyMessage(){
 
 function setLobbyMessage(text){$("lobbyMessage").textContent=text}
 
-/* START — handshake în două faze pentru 2 sau 3 jucători */
+/* START — pornire imediată, fără așteptarea confirmărilor în lanț */
 async function startMatch(){
   if(S.role!=="host") return;
+
   const players=getLobbyPlayers();
   if(players.length<2) return toast("Sunt necesari minimum doi jucători.");
   if(players.length>3) return toast("Camera acceptă maximum trei jucători.");
 
-  const allReady=players.every(player=>player.clientId===S.clientId?S.ready:Boolean(S.readyById.get(player.clientId)));
-  if(!allReady) return toast("Toți jucătorii conectați trebuie să apese GATA.");
+  const allReady=players.every(player=>
+    player.clientId===S.clientId
+      ? S.ready
+      : Boolean(S.readyById.get(player.clientId))
+  );
 
-  const ordered=players.sort((a,b)=>{
+  if(!allReady){
+    return toast("Toți jucătorii conectați trebuie să apese GATA.");
+  }
+
+  const ordered=[...players].sort((a,b)=>{
     if(a.role==="host"&&b.role!=="host") return -1;
     if(b.role==="host"&&a.role!=="host") return 1;
     return Number(a.joinedAt)-Number(b.joinedAt);
   });
 
-  let firstPlayer=ordered.find(player=>player.profile?.id===S.lastWinnerProfileId)?.clientId;
-  if(!firstPlayer) firstPlayer=ordered[Math.floor(Math.random()*ordered.length)].clientId;
+  let firstPlayer=ordered.find(
+    player=>player.profile?.id===S.lastWinnerProfileId
+  )?.clientId;
 
-  S.startOffer={
+  if(!firstPlayer){
+    firstPlayer=ordered[Math.floor(Math.random()*ordered.length)].clientId;
+  }
+
+  const startData={
     matchId:makeUUID(),
     hostId:S.clientId,
     size:S.size,
     first:firstPlayer,
+    startedAt:Date.now(),
     participants:ordered.map(player=>({
       clientId:player.clientId,
       role:player.role,
@@ -2892,81 +2909,64 @@ async function startMatch(){
       profile:player.profile
     }))
   };
-  S.startAcks=new Set();
-  setLobbyMessage("Se sincronizează jocul...");
-  await sendStartOffer();
-  clearTimer("start");
-  S.timers.start=setInterval(sendStartOffer,950);
+
+  /* Interfața gazdei pornește imediat. Mesajul este trimis în rafală
+     pentru ca un telefon care are o variație scurtă de rețea să îl primească. */
+  setLobbyMessage("Jocul începe...");
+  sendGameStartBurst(startData);
+  beginGameFromCommit(startData);
 }
 
-async function sendStartOffer(){
-  if(!S.startOffer||S.started) return;
-  await emit("start_offer",S.startOffer);
-}
+function sendGameStartBurst(startData){
+  const delays=[0,120,320,700,1300];
 
-async function acceptStart(data,senderId){
-  if(S.role!=="guest") return;
-  if(!Array.isArray(data.participants)) return;
-  if(senderId!==(data.hostId||hostClientIdFrom(data.participants))) return;
-  if(!data.participants.some(player=>player.clientId===S.clientId)) return;
-
-  S.startOffer=data;
-  await emit("start_ack",{matchId:data.matchId});
-}
-
-async function hostReceivesStartAck(data,senderId){
-  if(S.role!=="host"||!S.startOffer||data.matchId!==S.startOffer.matchId) return;
-  if(!S.startOffer.participants.some(player=>player.clientId===senderId)) return;
-
-  S.startAcks.add(senderId);
-  const expected=S.startOffer.participants
-    .map(player=>player.clientId)
-    .filter(id=>id!==S.clientId);
-
-  if(expected.length&&expected.every(id=>S.startAcks.has(id))){
-    clearTimer("start");
-    S.startCommit={...S.startOffer};
-    S.commitAcks=new Set();
-    await sendStartCommit();
-    clearTimer("commit");
-    S.timers.commit=setInterval(sendStartCommit,950);
+  for(const delay of delays){
+    setTimeout(()=>{
+      if(
+        S.channel&&
+        S.subscribed&&
+        S.room&&
+        S.matchId===startData.matchId
+      ){
+        emit("game_start",startData);
+      }
+    },delay);
   }
 }
 
-async function sendStartCommit(){
-  if(!S.startCommit) return;
-  await emit("start_commit",S.startCommit);
+function receiveGameStart(data,senderId){
+  if(!data||!Array.isArray(data.participants)) return;
+  if(senderId!==data.hostId) return;
+  if(!data.participants.some(player=>player.clientId===S.clientId)) return;
+
+  /* Mesajele repetate sunt intenționate. Același meci nu este pornit de două ori. */
+  if(S.started&&S.matchId===data.matchId) return;
+
+  beginGameFromCommit(data);
+}
+
+/* Funcțiile acestea rămân pentru compatibilitate cu o pagină mai veche
+   care ar putea fi încă deschisă pe celălalt telefon. */
+async function acceptStart(data,senderId){
+  receiveGameStart(data,senderId);
+}
+
+async function hostReceivesStartAck(){
+  return;
 }
 
 async function receiveStartCommit(data,senderId){
-  if(!Array.isArray(data.participants)) return;
-  if(senderId!==(data.hostId||hostClientIdFrom(data.participants))) return;
-  if(!data.participants.some(player=>player.clientId===S.clientId)) return;
-
-  if(!S.started||S.matchId!==data.matchId){
-    beginGameFromCommit(data);
-  }
-
-  await emit("commit_ack",{matchId:data.matchId});
+  receiveGameStart(data,senderId);
 }
 
-function hostReceivesCommitAck(data,senderId){
-  if(S.role!=="host"||!S.startCommit||data.matchId!==S.startCommit.matchId) return;
-  if(!S.startCommit.participants.some(player=>player.clientId===senderId)) return;
-
-  S.commitAcks.add(senderId);
-  const expected=S.startCommit.participants
-    .map(player=>player.clientId)
-    .filter(id=>id!==S.clientId);
-
-  if(expected.length&&expected.every(id=>S.commitAcks.has(id))){
-    const commit=S.startCommit;
-    clearTimer("commit");
-    beginGameFromCommit(commit);
-  }
+function hostReceivesCommitAck(){
+  return;
 }
 
 function beginGameFromCommit(data){
+  if(!data||!Array.isArray(data.participants)) return;
+  if(S.started&&S.matchId===data.matchId) return;
+
   const winner=S.lastWinnerProfileId;
   clearMatch();
   S.lastWinnerProfileId=winner;
@@ -2976,7 +2976,9 @@ function beginGameFromCommit(data){
   S.turn=data.first;
   S.started=true;
   S.participantOrder=data.participants.map(player=>player.clientId);
-  S.participants=new Map(data.participants.map(player=>[player.clientId,player]));
+  S.participants=new Map(
+    data.participants.map(player=>[player.clientId,player])
+  );
   S.playerLines=new Map(S.participantOrder.map(id=>[id,0]));
 
   updateOwnProfileUI();
@@ -2995,8 +2997,10 @@ function beginGameFromCommit(data){
 }
 
 function hostClientId(){
-  return Array.from(S.participants.values()).find(player=>player.role==="host")?.clientId||null;
+  return Array.from(S.participants.values())
+    .find(player=>player.role==="host")?.clientId||null;
 }
+
 function hostClientIdFrom(participants){
   return participants?.find(player=>player.role==="host")?.clientId||null;
 }
@@ -3044,7 +3048,7 @@ async function callNumber(number){
   updateGameUI();
   await sendOutgoingCall();
   clearTimer("call");
-  S.timers.call=setInterval(sendOutgoingCall,950);
+  S.timers.call=setInterval(sendOutgoingCall,380);
 }
 
 async function sendOutgoingCall(){
@@ -3088,7 +3092,7 @@ async function confirmIncoming(){
   updateGameUI();
   await sendConfirmation();
   clearTimer("confirm");
-  S.timers.confirm=setInterval(sendConfirmation,950);
+  S.timers.confirm=setInterval(sendConfirmation,380);
 }
 
 async function sendConfirmation(){
@@ -3128,7 +3132,7 @@ async function callerReceivesConfirmation(data,senderId){
     showResult(result);
     await sendResult();
     clearTimer("result");
-    S.timers.result=setInterval(sendResult,1000);
+    S.timers.result=setInterval(sendResult,420);
     return;
   }
 
@@ -3149,7 +3153,7 @@ async function callerReceivesConfirmation(data,senderId){
   updateGameUI();
   await sendAdvance();
   clearTimer("advance");
-  S.timers.advance=setInterval(sendAdvance,950);
+  S.timers.advance=setInterval(sendAdvance,380);
 }
 
 function nextPlayerAfter(clientId){
@@ -3405,7 +3409,7 @@ async function endGameFromMenu(){
   showResult(result);
   await sendResult();
   clearTimer("result");
-  S.timers.result=setInterval(sendResult,1000);
+  S.timers.result=setInterval(sendResult,420);
 }
 
 /* SOUND */
@@ -3509,12 +3513,10 @@ function closePause(){
 
 /* SYNC */
 function restartCriticalTimers(){
-  if(S.startOffer&&!S.started){clearTimer("start");S.timers.start=setInterval(sendStartOffer,950)}
-  if(S.startCommit){clearTimer("commit");S.timers.commit=setInterval(sendStartCommit,950)}
-  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,950)}
-  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,950)}
-  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,950)}
-  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,1000)}
+  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,380)}
+  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,380)}
+  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,380)}
+  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,420)}
 }
 
 function requestSync(){
