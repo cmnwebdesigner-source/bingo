@@ -108,6 +108,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       box-shadow:0 13px 30px rgba(232,183,47,.2);
     }
     .btn-black{color:#fff;background:#080808}
+    .btn-ready{
+      color:#07150e;
+      background:linear-gradient(135deg,#65f0ad,#2fd286);
+      box-shadow:0 12px 28px rgba(47,210,134,.22);
+    }
     .btn-white{color:#111;background:#fff}
     .btn-soft{color:#111;background:var(--paper2)}
     .btn-red{color:var(--red);background:var(--red-soft)}
@@ -183,6 +188,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     .loading-inner{
       position:relative;
       text-align:center;
+      animation:loadingHoldPulse 1.8s ease-in-out 2.25s infinite alternate;
     }
     .loading-word{
       position:relative;
@@ -202,7 +208,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       text-shadow:0 0 30px rgba(232,183,47,.16);
       opacity:0;
       transform:translateY(38px) scale(.75);
-      animation:letterJump 2.55s cubic-bezier(.2,.8,.25,1) infinite;
+      animation:letterJump 2.15s cubic-bezier(.2,.8,.25,1) 1 both;
       animation-delay:calc(var(--i) * .13s);
     }
     .loading-strike{
@@ -217,7 +223,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       box-shadow:0 0 15px rgba(255,218,104,.48);
       transform:scaleX(0) rotate(-5deg);
       transform-origin:left center;
-      animation:loadingStrike 2.55s ease-in-out infinite;
+      animation:loadingStrike 2.15s ease-in-out 1 forwards;
     }
     .loading-duel{
       margin-top:-5px;
@@ -226,24 +232,24 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       font-weight:1000;
       letter-spacing:.48em;
       text-indent:.48em;
-      animation:loadingSub 2.55s ease-in-out infinite;
+      animation:loadingSub 2.15s ease-in-out 1 forwards;
     }
     @keyframes letterJump{
       0%,7%{opacity:0;transform:translateY(38px) scale(.75)}
       18%{opacity:1;transform:translateY(-22px) scale(1.08)}
-      29%,76%{opacity:1;transform:translateY(0) scale(1)}
-      92%,100%{opacity:0;transform:translateY(-8px) scale(.96)}
+      31%,100%{opacity:1;transform:translateY(0) scale(1)}
     }
     @keyframes loadingStrike{
-      0%,51%{opacity:0;transform:scaleX(0) rotate(-5deg)}
-      58%{opacity:1;transform:scaleX(1) rotate(-5deg)}
-      82%{opacity:1;transform:scaleX(1) rotate(-5deg)}
-      100%{opacity:0;transform:scaleX(1) rotate(-5deg)}
+      0%,56%{opacity:0;transform:scaleX(0) rotate(-5deg)}
+      67%,100%{opacity:1;transform:scaleX(1) rotate(-5deg)}
     }
     @keyframes loadingSub{
-      0%,35%{opacity:0;transform:translateY(7px)}
-      50%,82%{opacity:1;transform:translateY(0)}
-      100%{opacity:0;transform:translateY(-4px)}
+      0%,38%{opacity:0;transform:translateY(7px)}
+      58%,100%{opacity:1;transform:translateY(0)}
+    }
+    @keyframes loadingHoldPulse{
+      from{transform:scale(1);filter:drop-shadow(0 0 0 rgba(232,183,47,0))}
+      to{transform:scale(1.025);filter:drop-shadow(0 0 16px rgba(232,183,47,.16))}
     }
 
     /* LOGIN */
@@ -567,7 +573,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     .lobby-controls .sub{color:rgba(255,255,255,.52)}
     .modes{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      grid-template-columns:repeat(3,1fr);
       gap:7px;
       margin:20px 0 10px;
     }
@@ -734,15 +740,24 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     .bar.done{background:var(--gold2)}
     .grow{flex:1}
 
-    /* CHAT */
+    /* CHAT — lângă profilurile adversarilor */
+    .chat-dock{
+      position:relative;
+      flex:0 0 auto;
+    }
     .chat-trigger{
       width:100%;
-      min-height:58px;
-      padding:9px 0;
+      min-height:44px;
+      padding:0 2px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
       color:#fff;
       background:transparent;
       text-align:left;
       border-top:1px solid #242424;
+      border-bottom:1px solid #242424;
     }
     .chat-trigger-title{
       color:var(--gold2);
@@ -750,21 +765,45 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       font-weight:1000;
       letter-spacing:.16em;
     }
-    .chat-preview{
-      display:block;
-      max-width:100%;
-      margin-top:6px;
+    .chat-prompt{
       overflow:hidden;
-      color:#ddd;
-      font-size:10px;
+      color:#aaa;
+      font-size:9px;
       font-weight:800;
       text-overflow:ellipsis;
       white-space:nowrap;
     }
+    .chat-floating-preview{
+      position:absolute;
+      right:0;
+      bottom:calc(100% + 7px);
+      z-index:76;
+      width:min(230px,52vw);
+      min-height:42px;
+      padding:8px 10px;
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:12px;
+      overflow:hidden;
+      color:#fff;
+      background:rgba(5,5,5,.9);
+      box-shadow:0 13px 32px rgba(0,0,0,.3);
+      font-size:10px;
+      font-weight:850;
+      line-height:1.35;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      animation:chatNoticeIn .16s ease-out;
+    }
+    @keyframes chatNoticeIn{
+      from{opacity:0;transform:translateY(5px)}
+      to{opacity:1;transform:translateY(0)}
+    }
     .chat-panel{
       position:absolute;
-      left:calc(100% + 8px);
-      bottom:57px;
+      left:auto;
+      right:calc(100% + 8px);
+      bottom:8px;
       z-index:70;
       width:min(310px,52vw);
       height:218px;
@@ -968,7 +1007,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       position:relative;
       flex:1;
       min-height:0;
-      padding-top:43px;
+      padding-top:44px;
       display:grid;
       place-items:center;
       overflow:hidden;
@@ -977,7 +1016,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     /* Fix: bara este absolută, cu înălțime fixă; tabla nu se mai mută */
     .turn{
       position:absolute;
-      top:1px;
+      top:5px;
       left:50%;
       z-index:15;
       width:min(96%,650px);
@@ -1108,6 +1147,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       stroke-width:1.3;
       stroke-linecap:round;
       vector-effect:non-scaling-stroke;
+    }
+
+    .score-rules{
+      margin:15px 0 4px;
+      padding:13px 15px;
+      border-radius:15px;
+      color:#111;
+      background:var(--paper);
+      font-size:12px;
+      line-height:1.75;
+    }
+    .score-rules strong{
+      display:block;
+      margin-bottom:3px;
+      color:var(--gold-dark);
+      font-size:11px;
+      letter-spacing:.14em;
     }
 
     /* OVERLAYS */
@@ -1530,11 +1586,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       .chat-panel{
         left:8px;
         right:8px;
-        top:calc(100% + 6px);
-        bottom:auto;
+        top:auto;
+        bottom:calc(100% + 6px);
         width:auto;
         height:205px;
-        transform-origin:left top;
+        transform-origin:right bottom;
       }
 
       .center{
@@ -1543,8 +1599,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
       .game-top{min-height:36px}
       .game-caption{display:none}
-      .board-zone{padding-top:40px}
-      .turn{height:35px;font-size:9px}
+      .board-zone{padding-top:40px;align-items:start;justify-items:center}
+      .turn{top:4px;height:35px;font-size:9px}
       .board-holder{
         width:min(100%,calc(100vw - var(--safe-left) - var(--safe-right) - 16px));
         height:auto;
@@ -1627,7 +1683,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       .center{padding:var(--safe-top) 7px var(--safe-bottom)}
       .game-top{min-height:34px}
       .board-zone{padding-top:36px}
-      .turn{height:32px;font-size:9px}
+      .turn{top:3px;height:32px;font-size:9px}
       .bingo-letter{width:28px;height:28px;border-radius:8px;font-size:12px}
       .board-holder{height:min(100%,calc(100dvh - 73px))}
     }
@@ -1638,8 +1694,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       .side>.player{flex:0 1 72px;min-width:0}
       .side>.player>div:last-child{min-width:0}
       .side>.player .player-name{max-width:43px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .chat-trigger{width:76px;min-width:0}
-      .chat-preview{max-width:70px}
+      .chat-dock{width:118px;min-width:0}
+      .chat-trigger{width:118px;min-width:0}
+      .chat-prompt{max-width:72px}
+      .chat-floating-preview{right:0;width:210px}
       .emoji-row{
         width:110px;
         min-width:110px;
@@ -1746,7 +1804,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
           <button class="account-chip" onclick="openProfileEditor()">
             <span id="accountAvatar" class="account-avatar">I</span>
-            <span class="account-dot"></span>
             <span id="activeUserName">Jucător</span>
           </button>
         </div>
@@ -1807,8 +1864,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         <div id="lobbyDescription" class="sub">Alege dimensiunea și trimite codul adversarului.</div>
 
         <div class="modes">
-          <button class="mode active" data-size="4" onclick="setSize(4)">4×4</button>
-          <button class="mode" data-size="5" onclick="setSize(5)">5×5</button>
+          <button class="mode active" data-size="5" onclick="setSize(5)">5×5</button>
           <button class="mode" data-size="7" onclick="setSize(7)">7×7</button>
           <button class="mode" data-size="10" onclick="setSize(10)">10×10</button>
         </div>
@@ -1836,7 +1892,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             <h3>Tabla ta secretă</h3>
             <div class="sub">Apasă „Generează numere” până când tabla îți convine.</div>
           </div>
-          <div id="previewSize" class="pill">4×4</div>
+          <div id="previewSize" class="pill">5×5</div>
         </div>
 
         <div id="previewBoard" class="preview-board"></div>
@@ -1854,11 +1910,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             <div id="myRole" class="player-state">Jucător</div>
           </div>
         </div>
-
-        <button class="chat-trigger" onclick="toggleChat()">
-          <span class="chat-trigger-title">CHAT</span>
-          <span id="chatPreview" class="chat-preview">Apasă pentru a scrie...</span>
-        </button>
 
         <div class="emoji-row" aria-label="Reacții rapide">
           <button class="emoji-button" onclick="sendReaction('😘')">😘</button>
@@ -1892,17 +1943,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           </div>
         </div>
 
-        <div id="chatPanel" class="chat-panel hidden">
-          <div class="chat-head">
-            CHAT
-            <button class="chat-close" onclick="toggleChat()">×</button>
-          </div>
-          <div id="chatMessages" class="chat-messages"></div>
-          <div class="chat-input-row">
-            <input id="chatInput" class="chat-input" maxlength="120" placeholder="Scrie un mesaj..." />
-            <button class="chat-send" onclick="sendChat()">TRIMITE</button>
-          </div>
-        </div>
       </aside>
 
       <main class="center">
@@ -1910,7 +1950,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           <div class="game-caption">TABLA TA SECRETĂ</div>
           <div id="bingoWord" class="bingo"></div>
           <div style="display:flex;justify-content:flex-end">
-            <div id="gameSize" class="pill">4×4</div>
+            <div id="gameSize" class="pill">5×5</div>
           </div>
         </div>
 
@@ -1926,6 +1966,26 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
       <aside id="rightSide" class="side right">
         <div id="opponentsList" class="opponents-list"></div>
+
+        <div class="chat-dock">
+          <div id="chatFloatingPreview" class="chat-floating-preview hidden"></div>
+          <button class="chat-trigger" onclick="toggleChat()">
+            <span class="chat-trigger-title">CHAT</span>
+            <span class="chat-prompt">Scrie un mesaj</span>
+          </button>
+
+          <div id="chatPanel" class="chat-panel hidden">
+            <div class="chat-head">
+              CHAT
+              <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-row">
+              <input id="chatInput" class="chat-input" maxlength="120" placeholder="Scrie un mesaj..." />
+              <button class="chat-send" onclick="sendChat()">TRIMITE</button>
+            </div>
+          </div>
+        </div>
 
         <div class="side-block">
           <div class="side-label">NUMĂR PRIMIT</div>
@@ -2007,7 +2067,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       <h2>Clasament</h2>
       <button class="btn btn-soft btn-small" onclick="closeLeaderboard()">ÎNCHIDE</button>
     </div>
-    <p>Victorie: 4×4 = 2p · 5×5 = 4p · 7×7 = 6p · 10×10 = 10p</p>
+    <div class="score-rules">
+      <strong>VICTORIE</strong>
+      <div>5 x 5 - 4 pct</div>
+      <div>7 x 7 - 6 pct</div>
+      <div>10 x 10 - 10 pct</div>
+    </div>
     <div id="leaderboardList" class="clean-list"></div>
   </div>
 </div>
@@ -2034,7 +2099,7 @@ const BASE_PROFILES={
   adela:{id:"adela",name:"Adela",email:"ade.preda14@gmail.com",initial:"A",avatar:""}
 };
 
-const POINTS={4:2,5:4,7:6,10:10};
+const POINTS={5:4,7:6,10:10};
 const ALLOWED_REACTIONS=new Set(["😘","😂","🥲","😡"]);
 
 function makeUUID(){
@@ -2074,7 +2139,7 @@ const S={
   participantOrder:[],
   playerLines:new Map(),
 
-  size:4,
+  size:5,
   board:[],
   marked:new Set(),
   lines:new Set(),
@@ -2117,7 +2182,7 @@ const S={
 
 /* BOOT */
 window.addEventListener("load",async()=>{
-  setSize(4,false);
+  setSize(5,false);
   shuffleBoard(false);
   renderProgress();
   updateSoundMenu();
@@ -2387,7 +2452,11 @@ function clearMatch(){
   S.pauseOwner=null;
   S.resumeAt=0;
   S.chatMessages=[];
-  if($("chatPreview")) $("chatPreview").textContent="Apasă pentru a scrie...";
+  clearTimeout(chatPreviewTimer);
+  if($("chatFloatingPreview")){
+    $("chatFloatingPreview").textContent="";
+    $("chatFloatingPreview").classList.add("hidden");
+  }
   closeChat();
   closeBurger();
 }
@@ -2434,7 +2503,7 @@ async function createRoom(){
   $("startButton").classList.remove("hidden");
   document.querySelectorAll(".mode").forEach(button=>button.disabled=false);
 
-  setSize(4,false);
+  setSize(5,false);
   shuffleBoard(false);
   updateReadyButton();
   updateOwnProfileUI();
@@ -2463,7 +2532,7 @@ async function joinRoom(){
   $("startButton").classList.add("hidden");
   document.querySelectorAll(".mode").forEach(button=>button.disabled=true);
 
-  setSize(4,false);
+  setSize(5,false);
   shuffleBoard(false);
   updateReadyButton();
   updateOwnProfileUI();
@@ -3145,7 +3214,7 @@ async function toggleReady(){
 function updateReadyButton(){
   const button=$("readyButton");
   button.textContent=S.ready?"✓ GATA":"SUNT GATA";
-  button.classList.toggle("btn-gold",S.ready);
+  button.classList.toggle("btn-ready",S.ready);
   button.classList.toggle("btn-white",!S.ready);
 }
 
@@ -3334,7 +3403,7 @@ function beginGameFromCommit(data){
     }).eq("room_code",S.room).then(()=>{}).catch(()=>{});
   }
   playStartSound();
-  speak("Pornește jocul");
+  speak("A început jocul");
 }
 
 function hostClientId(){
@@ -3604,6 +3673,8 @@ function showResult(result){
     $("resultIcon").textContent="×";
     $("resultTitle").textContent="JOC ÎNCHEIAT";
     $("resultText").textContent=`Au câștigat ${names}.`;
+    playLoseSound();
+    speak("Ai pierdut");
   }else if(won){
     S.lastWinnerProfileId=S.profile.id;
     $("resultIcon").textContent="✓";
@@ -3616,6 +3687,8 @@ function showResult(result){
     $("resultIcon").textContent="×";
     $("resultTitle").textContent=`A CÂȘTIGAT ${winnerName.toUpperCase()}`;
     $("resultText").textContent=`${winnerName} începe jocul următor.`;
+    playLoseSound();
+    speak("Ai pierdut");
   }else{
     S.lastWinnerProfileId=null;
     $("resultIcon").textContent="×";
@@ -3704,8 +3777,17 @@ function renderChat(){
   container.scrollTop=container.scrollHeight;
 }
 
+let chatPreviewTimer=null;
 function updateChatPreview(message){
-  $("chatPreview").textContent=`${message.senderId===S.clientId?"Tu":message.senderName}: ${message.text}`;
+  const preview=$("chatFloatingPreview");
+  if(!preview) return;
+  preview.textContent=`${message.senderId===S.clientId?"Tu":message.senderName}: ${message.text}`;
+  preview.classList.remove("hidden");
+  clearTimeout(chatPreviewTimer);
+  chatPreviewTimer=setTimeout(()=>{
+    preview.classList.add("hidden");
+    preview.textContent="";
+  },1000);
 }
 
 /* EMOJI REACTIONS */
@@ -3793,6 +3875,7 @@ function playTapSound(){tone(620,.055,.024)}
 function playNotifySound(){tone(720,.09,.035);tone(920,.1,.025,"sine",.09)}
 function playMessageSound(){tone(880,.07,.025);tone(1170,.08,.02,"sine",.075)}
 function playStartSound(){tone(392,.13,.04,"triangle");tone(523,.15,.04,"triangle",.13);tone(659,.2,.045,"triangle",.28)}
+function playLoseSound(){tone(390,.15,.035,"triangle");tone(285,.18,.04,"triangle",.13);tone(190,.24,.045,"triangle",.29)}
 function playReactionSound(emoji){
   const map={"😘":[740,980],"😂":[520,760],"🥲":[430,610],"😡":[210,170]};
   const [a,b]=map[emoji]||[600,800];
@@ -4206,7 +4289,7 @@ function renderLeaderboard(ranking){
     const avatar=document.createElement("div");avatar.className="leader-avatar";applyAvatar(avatar,entry.profile);
     const rank=document.createElement("div");rank.className="leader-rank";rank.textContent=String(index+1);
     const info=document.createElement("div");info.innerHTML=`<div class="leader-name">${escapeHtml(entry.profile.name)}</div><div class="leader-detail">${entry.wins} victorii · ${entry.games} jocuri</div>`;
-    const points=document.createElement("div");points.className="leader-points";points.textContent=`${entry.points} p`;
+    const points=document.createElement("div");points.className="leader-points";points.textContent=`${entry.points} pct`;
     row.append(rank,avatar,info,points);container.appendChild(row);
   });
 }
