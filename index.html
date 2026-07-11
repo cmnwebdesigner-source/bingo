@@ -119,6 +119,7 @@
       width:100%;
       height:100%;
       object-fit:cover;
+      object-position:50% 32%;
       display:block;
     }
 
@@ -2277,12 +2278,23 @@ function compressImage(file,maxW,maxH,quality){
       const img=new Image();
       img.onerror=reject;
       img.onload=()=>{
-        const scale=Math.min(maxW/img.width,maxH/img.height,1);
-        const w=Math.max(1,Math.round(img.width*scale));
-        const h=Math.max(1,Math.round(img.height*scale));
+        /* Decupare pătrată automată, centrată mai sus pentru portrete. */
+        const sourceSide=Math.min(img.width,img.height);
+        const sourceX=Math.max(0,(img.width-sourceSide)/2);
+        const verticalSpace=Math.max(0,img.height-sourceSide);
+        const sourceY=verticalSpace*.28;
+        const outputSize=Math.max(128,Math.min(256,Math.max(maxW,maxH)));
         const canvas=document.createElement("canvas");
-        canvas.width=w;canvas.height=h;
-        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        canvas.width=outputSize;
+        canvas.height=outputSize;
+        const context=canvas.getContext("2d");
+        context.imageSmoothingEnabled=true;
+        context.imageSmoothingQuality="high";
+        context.drawImage(
+          img,
+          sourceX,sourceY,sourceSide,sourceSide,
+          0,0,outputSize,outputSize
+        );
         resolve(canvas.toDataURL("image/jpeg",quality));
       };
       img.src=reader.result;
@@ -2405,7 +2417,7 @@ async function createRoom(){
   updateReadyButton();
   updateOwnProfileUI();
   show("lobbyScreen");
-  setLobbyMessage("Se creează camera...");
+  setLobbyMessage("1/3 jucători · Se așteaptă jucători noi.");
   await connect();
 }
 
@@ -2430,7 +2442,7 @@ async function joinRoom(){
   updateReadyButton();
   updateOwnProfileUI();
   show("lobbyScreen");
-  setLobbyMessage("Se caută camera...");
+  setLobbyMessage("1/3 jucători · Se așteaptă jucători noi.");
   await connect();
 }
 
@@ -2462,9 +2474,9 @@ async function connect(){
         S.subscribed=true;
         S.connecting=false;
         await trackPresence();
-        setLobbyConnection(true,`Camera ${S.room}`);
-        setHomeConnection(true,`Camera ${S.room}`);
-        setLobbyMessage("Camera este conectată.");
+        setLobbyConnection(true,`${S.room}`);
+        setHomeConnection(true,`${S.room}`);
+        updateLobbyMessage();
         await emit("hello",{role:S.role,profile:publicProfile(S.profile)});
         await emit("lobby_request",{});
         resolve();
@@ -2526,19 +2538,33 @@ async function disconnect(clearParticipants=true){
 
 function presenceSync(){
   if(!S.channel) return;
+
   const raw=Object.values(S.channel.presenceState()).flat();
-  const unique=new Map();
+  const newestByClient=new Map();
 
   for(const player of raw){
     if(!player?.clientId) continue;
-    const previous=unique.get(player.clientId);
-    if(!previous||Number(player.joinedAt)>=Number(previous.joinedAt)) unique.set(player.clientId,player);
+    const previous=newestByClient.get(player.clientId);
+    if(!previous||Number(player.joinedAt)>=Number(previous.joinedAt)){
+      newestByClient.set(player.clientId,player);
+    }
   }
 
-  const players=Array.from(unique.values());
+  /* Un singur telefon activ pentru fiecare profil.
+     O prezență veche nu mai este numărată ca al treilea jucător. */
+  const newestByProfile=new Map();
+  for(const player of newestByClient.values()){
+    const key=player.profileId||player.clientId;
+    const previous=newestByProfile.get(key);
+    if(!previous||Number(player.joinedAt)>=Number(previous.joinedAt)){
+      newestByProfile.set(key,player);
+    }
+  }
+
+  const players=sortPresence(Array.from(newestByProfile.values()));
+
   if(players.length>3){
-    const sorted=sortPresence(players);
-    const allowed=sorted.slice(0,3).map(player=>player.clientId);
+    const allowed=players.slice(0,3).map(player=>player.clientId);
     if(!allowed.includes(S.clientId)){
       toast("Camera este deja ocupată de trei jucători.");
       setTimeout(leaveRoom,850);
@@ -2546,8 +2572,10 @@ function presenceSync(){
     }
   }
 
-  const active=sortPresence(players).slice(0,3);
+  const active=players.slice(0,3);
+  const previousReady=new Map(S.readyById);
   S.participants=new Map();
+  S.readyById=new Map();
 
   for(const player of active){
     const profile={
@@ -2557,16 +2585,36 @@ function presenceSync(){
       initial:(player.name||"J").charAt(0).toUpperCase(),
       avatar:player.avatar||""
     };
+
     S.participants.set(player.clientId,{
       clientId:player.clientId,
       role:player.role,
       joinedAt:Number(player.joinedAt)||Date.now(),
       profile
     });
-    if(!S.readyById.has(player.clientId)) S.readyById.set(player.clientId,Boolean(player.ready));
+
+    const readyFromEvent=previousReady.get(player.clientId);
+    S.readyById.set(
+      player.clientId,
+      player.clientId===S.clientId
+        ? S.ready
+        : readyFromEvent!==undefined
+          ? Boolean(readyFromEvent)
+          : Boolean(player.ready)
+    );
   }
 
-  S.readyById.set(S.clientId,S.ready);
+  /* Presence poate avea o scurtă întârziere imediat după conectare. */
+  if(!S.participants.has(S.clientId)&&S.profile){
+    S.participants.set(S.clientId,{
+      clientId:S.clientId,
+      role:S.role,
+      joinedAt:S.joinedAt,
+      profile:publicProfile(S.profile)
+    });
+    S.readyById.set(S.clientId,S.ready);
+  }
+
   renderOpponents();
   updateLobbyMessage();
 
@@ -2581,7 +2629,9 @@ function presenceSync(){
   if(S.started){
     const intruders=active.filter(player=>!S.participantOrder.includes(player.clientId));
     if(intruders.length&&S.role==="host"){
-      for(const intruder of intruders) emit("room_locked",{target:intruder.clientId});
+      for(const intruder of intruders){
+        emit("room_locked",{target:intruder.clientId});
+      }
     }
     restartCriticalTimers();
     requestSync();
@@ -2776,21 +2826,37 @@ function getLobbyPlayers(){
 
 function updateLobbyMessage(){
   const players=getLobbyPlayers();
-  if($("lobbyPlayersCount")) $("lobbyPlayersCount").textContent=`${players.length}/3 jucători în cameră`;
+  const count=players.length;
 
-  if(players.length<2){
-    setLobbyMessage(S.role==="host"?"Așteptăm încă un jucător...":"Se caută ceilalți jucători...");
+  if($("lobbyPlayersCount")){
+    $("lobbyPlayersCount").classList.add("hidden");
+  }
+
+  if(count<=1){
+    setLobbyMessage("1/3 jucători · Se așteaptă jucători noi.");
     return;
   }
 
-  const notReady=players.filter(player=>!(player.clientId===S.clientId?S.ready:S.readyById.get(player.clientId)));
-  if(!notReady.length){
-    setLobbyMessage(S.role==="host"?`${players.length} jucători sunt gata. Poți porni jocul.`:"Toți jucătorii sunt gata. Așteptăm gazda.");
-  }else if(S.ready){
-    setLobbyMessage(`Tu ești gata. Mai așteptăm ${notReady.length} jucător${notReady.length===1?"":"i"}.`);
-  }else{
-    setLobbyMessage("Generează tabla, apoi apasă SUNT GATA.");
+  const allReady=players.every(player=>
+    player.clientId===S.clientId
+      ? S.ready
+      : Boolean(S.readyById.get(player.clientId))
+  );
+
+  if(count===2){
+    setLobbyMessage(
+      allReady
+        ? "2/3 jucători · Camera are destui jucători pentru a începe jocul!"
+        : "2/3 jucători · Camera are destui jucători. Apăsați GATA."
+    );
+    return;
   }
+
+  setLobbyMessage(
+    allReady
+      ? "3/3 jucători · Camera este completă și poate începe jocul!"
+      : "3/3 jucători · Camera este completă. Apăsați GATA."
+  );
 }
 
 function setLobbyMessage(text){$("lobbyMessage").textContent=text}
@@ -2816,6 +2882,7 @@ async function startMatch(){
 
   S.startOffer={
     matchId:makeUUID(),
+    hostId:S.clientId,
     size:S.size,
     first:firstPlayer,
     participants:ordered.map(player=>({
@@ -2838,23 +2905,28 @@ async function sendStartOffer(){
 }
 
 async function acceptStart(data,senderId){
-  if(S.role!=="guest"||senderId!==hostClientIdFrom(data.participants)) return;
-  if(!Array.isArray(data.participants)||!data.participants.some(player=>player.clientId===S.clientId)) return;
+  if(S.role!=="guest") return;
+  if(!Array.isArray(data.participants)) return;
+  if(senderId!==(data.hostId||hostClientIdFrom(data.participants))) return;
+  if(!data.participants.some(player=>player.clientId===S.clientId)) return;
+
   S.startOffer=data;
   await emit("start_ack",{matchId:data.matchId});
 }
 
 async function hostReceivesStartAck(data,senderId){
   if(S.role!=="host"||!S.startOffer||data.matchId!==S.startOffer.matchId) return;
-  S.startAcks.add(senderId);
-  const expected=S.startOffer.participants.map(player=>player.clientId).filter(id=>id!==S.clientId);
+  if(!S.startOffer.participants.some(player=>player.clientId===senderId)) return;
 
-  if(expected.every(id=>S.startAcks.has(id))){
+  S.startAcks.add(senderId);
+  const expected=S.startOffer.participants
+    .map(player=>player.clientId)
+    .filter(id=>id!==S.clientId);
+
+  if(expected.length&&expected.every(id=>S.startAcks.has(id))){
     clearTimer("start");
-    const commit={...S.startOffer};
+    S.startCommit={...S.startOffer};
     S.commitAcks=new Set();
-    beginGameFromCommit(commit);
-    S.startCommit=commit;
     await sendStartCommit();
     clearTimer("commit");
     S.timers.commit=setInterval(sendStartCommit,950);
@@ -2867,19 +2939,30 @@ async function sendStartCommit(){
 }
 
 async function receiveStartCommit(data,senderId){
-  if(senderId!==hostClientIdFrom(data.participants)) return;
+  if(!Array.isArray(data.participants)) return;
+  if(senderId!==(data.hostId||hostClientIdFrom(data.participants))) return;
   if(!data.participants.some(player=>player.clientId===S.clientId)) return;
-  if(!S.started||S.matchId!==data.matchId) beginGameFromCommit(data);
+
+  if(!S.started||S.matchId!==data.matchId){
+    beginGameFromCommit(data);
+  }
+
   await emit("commit_ack",{matchId:data.matchId});
 }
 
 function hostReceivesCommitAck(data,senderId){
   if(S.role!=="host"||!S.startCommit||data.matchId!==S.startCommit.matchId) return;
+  if(!S.startCommit.participants.some(player=>player.clientId===senderId)) return;
+
   S.commitAcks.add(senderId);
-  const expected=S.startCommit.participants.map(player=>player.clientId).filter(id=>id!==S.clientId);
-  if(expected.every(id=>S.commitAcks.has(id))){
+  const expected=S.startCommit.participants
+    .map(player=>player.clientId)
+    .filter(id=>id!==S.clientId);
+
+  if(expected.length&&expected.every(id=>S.commitAcks.has(id))){
+    const commit=S.startCommit;
     clearTimer("commit");
-    S.startCommit=null;
+    beginGameFromCommit(commit);
   }
 }
 
