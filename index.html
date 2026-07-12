@@ -138,6 +138,45 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       font-weight:1000;
       box-shadow:0 11px 27px rgba(232,183,47,.2);
     }
+    .logo-mark{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:12px;
+    }
+
+    .logo.logo-cut{
+      position:relative;
+      color:var(--gold2);
+      background:#050505;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,220,103,.72),
+        0 10px 24px rgba(232,183,47,.16);
+    }
+    .logo.logo-cut span{
+      position:relative;
+      z-index:1;
+      font-size:20px;
+      line-height:1;
+      font-weight:1000;
+    }
+    .logo.logo-cut::after{
+      content:"";
+      position:absolute;
+      z-index:2;
+      left:13%;
+      top:51%;
+      width:74%;
+      height:1px;
+      border-radius:999px;
+      background:var(--gold2);
+      box-shadow:0 0 4px rgba(255,220,103,.42);
+      transform:rotate(-17deg);
+      transform-origin:center;
+      pointer-events:none;
+    }
+
     .header-avatar img,.avatar img,.profile-avatar img,.account-avatar img{
       width:100%;
       height:100%;
@@ -223,7 +262,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       top:49%;
       z-index:3;
       width:92%;
-      height:4px;
+      height:2px;
       border-radius:999px;
       background:linear-gradient(90deg,transparent,var(--gold) 7%,var(--gold2) 50%,var(--gold) 93%,transparent);
       box-shadow:0 0 15px rgba(255,218,104,.48);
@@ -986,7 +1025,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       content:"";
       position:absolute;
       width:145%;
-      height:2px;
+      height:1px;
       border-radius:999px;
       background:#080808;
       transform:rotate(-17deg);
@@ -1405,6 +1444,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       white-space:nowrap;
     }
     .opponent-card .bars{margin-top:0}
+    .opponent-room-wins{
+      margin-top:4px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.02em;
+      color:#b89f54;
+    }
+    .opponent-room-wins strong{
+      color:#fff;
+      font-size:13px;
+      margin-left:4px;
+    }
     .players-count{
       margin-top:6px;
       color:rgba(255,255,255,.5);
@@ -1799,7 +1850,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         radial-gradient(circle at 100% 0,rgba(255,220,103,.12),transparent 31%),
         linear-gradient(155deg,#11100d,#050505 64%);
     }
-    .login-panel,.home-right{border-left:1px solid rgba(255,220,103,.2)}
+    .login-panel,.home-right{border-left:0}
     .login-panel h2,.home-right h2,.preview-top h3{color:var(--gold2)}
     .login-panel>p,.home-right>p,.preview .sub{color:rgba(255,244,200,.55)}
     .profile-choice{
@@ -1835,7 +1886,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       background:
         radial-gradient(circle at 0 100%,rgba(255,220,103,.16),transparent 40%),
         linear-gradient(150deg,#15120a,#050505 62%);
-      border-right:1px solid rgba(255,220,103,.17);
+      border-right:0;
     }
     .mode{color:#cbbd91;background:#12110d;box-shadow:inset 0 0 0 1px rgba(255,220,103,.12)}
     .mode.active{color:#080704;background:linear-gradient(135deg,var(--gold2),var(--gold))}
@@ -2298,7 +2349,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   <section id="loginScreen" class="screen login hidden">
     <div class="login-art">
-      <div class="brand"><div class="logo">B</div>BINGO DUEL</div>
+      <div class="brand"><div class="logo logo-cut"><span>B</span></div>BINGO DUEL</div>
       <div class="login-copy">
         <div class="eyebrow">ALEGE CONTUL</div>
         <h1>INTRĂ.<br><span>JOACĂ.</span></h1>
@@ -2341,7 +2392,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   <section id="homeScreen" class="screen home hidden">
     <div class="home-left">
       <div class="home-top">
-        <div class="brand"><div class="logo">B</div>BINGO DUEL</div>
+        <div class="brand"><div class="logo logo-cut"><span>B</span></div>BINGO DUEL</div>
 
         <div class="home-user-actions">
           <div class="connection">
@@ -2677,6 +2728,8 @@ const S={
   readyById:new Map(),
   participantOrder:[],
   playerLines:new Map(),
+  roomWins:new Map(),
+  countedRoomMatches:new Set(),
 
   size:5,
   board:[],
@@ -3003,6 +3056,8 @@ function clearEverything(){
   S.room="";
   S.ready=false;
   S.readyById=new Map();
+  S.roomWins=new Map();
+  S.countedRoomMatches=new Set();
   S.participants=new Map();
   S.seen.clear();
   S.lastWinnerProfileId=null;
@@ -3194,7 +3249,7 @@ function setupRealtimeChannel(){
 
   const generation=++S.connectionGeneration;
   S.channel=supa.channel(`bingo-duel:${S.room}`,{
-    config:{broadcast:{self:false,ack:true},private:false}
+    config:{broadcast:{self:false,ack:false},private:false}
   });
 
   S.channel
@@ -3255,8 +3310,8 @@ function startNetworkLoops(){
   /* WebSocket-ul livrează instant. Interogările REST sunt doar rezervă și
      sunt limitate ca să nu blocheze telefonul cu cereri suprapuse. */
   S.networkTimers.heartbeat=setInterval(heartbeatBackend,2500);
-  S.networkTimers.players=setInterval(refreshPlayersFromBackend,650);
-  S.networkTimers.events=setInterval(pollEventsFromBackend,300);
+  S.networkTimers.players=setInterval(refreshPlayersFromBackend,700);
+  S.networkTimers.events=setInterval(pollEventsFromBackend,450);
 }
 
 function stopNetworkLoops(){
@@ -3584,7 +3639,7 @@ function queueRealtimeDelivery(baseMessage,delay=0){
         event:"duel",
         payload:message
       })).then(status=>{
-        if(status!=="ok"){
+        if(status==="error"||status==="timed out"){
           S.realtimeOnline=false;
           scheduleNetworkReconnect();
         }
@@ -3629,8 +3684,8 @@ async function emit(type,data={}){
     /* Comenzile de joc pleacă în rafală scurtă prin WebSocket.
        Nu așteptăm polling-ul și nu scriem rânduri duplicate în Supabase. */
     if(isCriticalRealtimeType(type)){
-      queueRealtimeDelivery(persistentMessage,70);
-      queueRealtimeDelivery(persistentMessage,170);
+      queueRealtimeDelivery(persistentMessage,60);
+      queueRealtimeDelivery(persistentMessage,150);
     }
   }
 
@@ -4069,7 +4124,7 @@ async function callNumber(number){
   updateGameUI();
   void sendOutgoingCall();
   clearTimer("call");
-  S.timers.call=setInterval(sendOutgoingCall,420);
+  S.timers.call=setInterval(sendOutgoingCall,480);
 }
 
 async function sendOutgoingCall(){
@@ -4113,7 +4168,7 @@ async function confirmIncoming(){
   updateGameUI();
   void sendConfirmation();
   clearTimer("confirm");
-  S.timers.confirm=setInterval(sendConfirmation,420);
+  S.timers.confirm=setInterval(sendConfirmation,480);
 }
 
 async function sendConfirmation(){
@@ -4154,7 +4209,7 @@ async function callerReceivesConfirmation(data,senderId){
     showResult(result);
     void sendResult();
     clearTimer("result");
-    S.timers.result=setInterval(sendResult,260);
+    S.timers.result=setInterval(sendResult,500);
     return;
   }
 
@@ -4175,7 +4230,7 @@ async function callerReceivesConfirmation(data,senderId){
   updateGameUI();
   void sendAdvance();
   clearTimer("advance");
-  S.timers.advance=setInterval(sendAdvance,420);
+  S.timers.advance=setInterval(sendAdvance,480);
 }
 
 function nextPlayerAfter(clientId){
@@ -4304,6 +4359,7 @@ function showResult(result){
     $("resultText").textContent=result.text||"Jocul a fost încheiat.";
   }
 
+  applyRoomScore(result);
   saveHistory(result);
   $("resultOverlay").classList.remove("hidden");
 }
@@ -4447,7 +4503,7 @@ async function endGameFromMenu(){
   showResult(result);
   await sendResult();
   clearTimer("result");
-  S.timers.result=setInterval(sendResult,260);
+  S.timers.result=setInterval(sendResult,500);
 }
 
 /* SOUND — doar atingere */
@@ -4537,10 +4593,10 @@ function closePause(){
 
 /* SYNC */
 function restartCriticalTimers(){
-  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,220)}
-  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,220)}
-  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,220)}
-  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,260)}
+  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,480)}
+  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,480)}
+  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,480)}
+  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,500)}
 }
 
 function requestSync(){
@@ -4681,6 +4737,23 @@ function renderBingo(){
   });
 }
 
+
+function getRoomWinsFor(playerId){
+  return Number(S.roomWins.get(playerId)||0);
+}
+
+function applyRoomScore(result){
+  if(!result||!result.matchId||S.countedRoomMatches.has(result.matchId)) return;
+  S.countedRoomMatches.add(result.matchId);
+
+  const winnerIds=Array.isArray(result.winnerIds)?result.winnerIds:[];
+  if(winnerIds.length===1){
+    const winnerId=winnerIds[0];
+    S.roomWins.set(winnerId,getRoomWinsFor(winnerId)+1);
+  }
+  renderOpponents();
+}
+
 function renderOpponents(){
   const container=$("opponentsList");
   if(!container) return;
@@ -4727,7 +4800,11 @@ function renderOpponents(){
     }
     progress.append(number,bars);
 
-    card.append(player,progress);
+    const roomWins=document.createElement("div");
+    roomWins.className="opponent-room-wins";
+    roomWins.innerHTML=`CÂȘTIGURI ÎN CAMERĂ <strong>${getRoomWinsFor(id)}</strong>`;
+
+    card.append(player,progress,roomWins);
     container.appendChild(card);
   }
   renderTurnOrder();
