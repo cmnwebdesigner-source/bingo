@@ -1773,6 +1773,237 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       .prominent-stat .side-number{font-size:20px}
     }
 
+  
+
+    /* ================================================================
+       BLACK × 14K GOLD — interfață refăcută fără schimbarea conturilor
+       sau a regulilor jocului
+       ================================================================ */
+    :root{
+      --gold:#dcae31;
+      --gold2:#ffdc67;
+      --gold-dark:#8d6612;
+      --gold-soft:#241b08;
+      --black:#030303;
+      --ink:#fff4c8;
+      --muted:#a9986a;
+      --paper:#14120d;
+      --paper2:#1b170d;
+      --green:#ffcf45;
+    }
+
+    .login,.home,.lobby,.game{background:#030303;color:#fff}
+    .login-panel,.home-right,.preview{
+      color:#fff;
+      background:
+        radial-gradient(circle at 100% 0,rgba(255,220,103,.12),transparent 31%),
+        linear-gradient(155deg,#11100d,#050505 64%);
+    }
+    .login-panel,.home-right{border-left:1px solid rgba(255,220,103,.2)}
+    .login-panel h2,.home-right h2,.preview-top h3{color:var(--gold2)}
+    .login-panel>p,.home-right>p,.preview .sub{color:rgba(255,244,200,.55)}
+    .profile-choice{
+      color:#fff4c8;
+      background:linear-gradient(145deg,#17140c,#0d0d0c);
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.2),0 10px 28px rgba(0,0,0,.2);
+    }
+    .profile-choice:active{background:#29200b}
+    .profile-email{color:#9f936e}
+    .home-right .or{color:#8c7c51}
+    .home-right .or::before,.home-right .or::after{background:rgba(255,220,103,.18)}
+    .code-input{
+      color:var(--gold2);
+      background:#0b0b0a;
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.28);
+    }
+    .code-input::placeholder{color:#736540}
+    .logout-link{color:#a89359}
+    .btn-white,.btn-soft{
+      color:var(--gold2);
+      background:#11100c;
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.28);
+    }
+    .btn-black{
+      color:#080704;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+    }
+    .btn-red{color:#ffd665;background:#211708;box-shadow:inset 0 0 0 1px #7a5710}
+    .black-header{background:#020202;border-bottom:1px solid rgba(255,220,103,.18)}
+
+    .lobby-body,.lobby-controls,.preview{background:#050505}
+    .lobby-controls{
+      background:
+        radial-gradient(circle at 0 100%,rgba(255,220,103,.16),transparent 40%),
+        linear-gradient(150deg,#15120a,#050505 62%);
+      border-right:1px solid rgba(255,220,103,.17);
+    }
+    .mode{color:#cbbd91;background:#12110d;box-shadow:inset 0 0 0 1px rgba(255,220,103,.12)}
+    .mode.active{color:#080704;background:linear-gradient(135deg,var(--gold2),var(--gold))}
+    .room-area{border-color:rgba(255,220,103,.18)}
+    .room-code{color:var(--gold2);text-shadow:0 0 22px rgba(255,220,103,.16)}
+    .preview-cell{
+      color:#f8d96f;
+      background:linear-gradient(145deg,#17150f,#0d0d0b);
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.14);
+    }
+    .pill{box-shadow:0 8px 24px rgba(220,174,49,.16)}
+
+    .game-grid{background:#030303}
+    .side,.side.right{
+      color:#fff;
+      background:
+        radial-gradient(circle at 50% 0,rgba(255,220,103,.08),transparent 34%),
+        #050505;
+      border-color:rgba(255,220,103,.17);
+    }
+    .side{border-right:1px solid rgba(255,220,103,.14)}
+    .side.right{border-left:1px solid rgba(255,220,103,.14);border-right:0}
+    .avatar{border:1px solid rgba(255,220,103,.62);box-shadow:0 0 0 3px rgba(255,220,103,.06)}
+    .player-name{color:#fff4c8}
+    .player-state{color:#9a8959}
+    .side-block{border-color:rgba(255,220,103,.18)}
+    .side-label{color:#bca65f}
+    .side-number{color:var(--gold2);text-shadow:0 0 16px rgba(255,220,103,.13)}
+    .side-help{color:#88794e}
+    .bar{background:#242015}.bar.done{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+    .opponent-card{border-color:rgba(255,220,103,.14)}
+    .opponent-progress-number{color:var(--gold2)}
+    .burger-button{
+      color:#090804;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      box-shadow:0 10px 25px rgba(220,174,49,.17);
+    }
+    .burger-menu{border-color:rgba(255,220,103,.32);background:rgba(7,7,6,.98)}
+    .burger-item{color:#f8e8ad}.burger-item:active{background:#211a09}
+    .burger-item.danger{color:#ffd15d}
+    .about-copy{color:#b5a574;background:#15120b}
+
+    .center{
+      background:
+        radial-gradient(circle at 50% 8%,rgba(255,220,103,.09),transparent 28%),
+        radial-gradient(circle at 50% 100%,rgba(220,174,49,.06),transparent 38%),
+        #030303;
+    }
+    .game-caption{color:#8f8058}
+    .bingo-letter{
+      color:#e7cb6a;
+      background:#15130e;
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.16);
+    }
+    .bingo-letter.done{color:#080704;background:linear-gradient(145deg,var(--gold2),var(--gold))}
+    .turn{
+      color:#ead47f;
+      background:rgba(22,19,11,.98);
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.19),0 12px 35px rgba(0,0,0,.28);
+    }
+    .turn.mine{color:#080704;background:linear-gradient(120deg,var(--gold2),var(--gold))}
+    .turn.received{color:#090804;background:linear-gradient(120deg,#ffec9b,#dcae31)}
+    .number-pill{color:#080704;background:var(--gold2)}
+    .cell{
+      color:#f4d776;
+      background:linear-gradient(145deg,#17150f,#0e0e0c);
+      box-shadow:inset 0 0 0 1px rgba(255,220,103,.12);
+    }
+    .cell.pending{
+      color:#080704;
+      background:linear-gradient(145deg,var(--gold2),var(--gold));
+      box-shadow:inset 0 0 0 2px #8d6612,0 0 18px rgba(255,220,103,.27);
+    }
+    .cell.target{color:#080704;background:#ffdf70;box-shadow:inset 0 0 0 3px #8d6612}
+    .cell.marked{color:#806f39;background:#171207}
+    .cell.marked::before,.cell.marked::after{
+      background:linear-gradient(90deg,#c28f13,var(--gold2));
+      box-shadow:0 0 9px rgba(255,220,103,.32);
+    }
+    .strike-gold{stroke:var(--gold2)}.strike-black{stroke:#5a4108}
+
+    .overlay{background:rgba(0,0,0,.88)}
+    .modal,.profile-view-modal{
+      color:#fff;
+      background:linear-gradient(155deg,#17140d,#070706 70%);
+      border:1px solid rgba(255,220,103,.24);
+    }
+    .modal h2,.countdown,.profile-view-modal h2{color:var(--gold2)}
+    .modal p,.profile-view-modal p{color:#ae9e70}
+    .profile-view-close{color:var(--gold2);background:#18150d}
+    .score-rules{color:#eadba4;background:#15120c;box-shadow:inset 0 0 0 1px rgba(255,220,103,.16)}
+
+    /* Telefon: numele are prioritate; MUTAREA stă în dreapta, fără suprapunere. */
+    @media(max-aspect-ratio:4/5){
+      .game-grid{grid-template-rows:auto minmax(0,1fr) auto;background:#030303}
+      .side{
+        min-height:82px;
+        padding:var(--safe-top) calc(var(--safe-right) + 12px) 10px calc(var(--safe-left) + 12px);
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 76px 44px;
+        align-items:center;
+        gap:10px;
+        border-right:0;
+        border-bottom:1px solid rgba(255,220,103,.16);
+        overflow:visible;
+      }
+      .side>.player{min-width:0;max-width:none;flex:unset}
+      .side>.player>div:last-child{min-width:0}
+      .side>.player .player-name{
+        max-width:none;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:15px;
+      }
+      .side>.player .player-state{font-size:9px}
+      .side>.side-block{
+        width:76px;
+        min-width:76px;
+        padding:5px 0 5px 12px;
+        border:0;
+        border-left:1px solid rgba(255,220,103,.22);
+      }
+      .prominent-stat{padding-top:5px;padding-bottom:5px}
+      .prominent-stat .side-label{font-size:7px;letter-spacing:.17em}
+      .prominent-stat .side-number{margin-top:4px;font-size:23px;line-height:1}
+      .burger-button{width:44px;min-width:44px;min-height:44px;margin:0;border-radius:14px}
+
+      .side.right{
+        min-height:82px;
+        grid-row:3;
+        padding:10px calc(var(--safe-right) + 12px) var(--safe-bottom) calc(var(--safe-left) + 12px);
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 92px;
+        align-items:center;
+        gap:12px;
+        border:0;
+        border-top:1px solid rgba(255,220,103,.16);
+      }
+      .opponents-list{
+        min-width:0;
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        gap:12px;
+        overflow:hidden;
+      }
+      .opponent-card{min-width:0;flex:1;padding:0;border:0}
+      .opponent-card .player{min-width:0;min-height:42px}
+      .opponent-card .player-name{max-width:none;font-size:13px}
+      .opponent-card .player-state,.opponent-progress-line{display:none}
+      .side.right>.side-block{
+        width:92px;
+        min-width:92px;
+        padding-left:14px;
+      }
+      .side.right>.side-help,.side>.grow{display:none}
+
+      .center{padding:8px calc(var(--safe-right) + 9px) 8px calc(var(--safe-left) + 9px)}
+      .game-top{min-height:42px}
+      .board-zone{padding-top:48px;place-items:center}
+      .turn{top:10px;width:min(96%,650px);height:38px;font-size:10px}
+      .board-holder{
+        width:min(100%,calc(100vw - var(--safe-left) - var(--safe-right) - 18px));
+        height:auto;
+      }
+    }
+
   </style>
 </head>
 
@@ -1864,8 +2095,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     </div>
 
     <div class="home-right">
-      <h2>Începeți jocul</h2>
-      <p>Creează o cameră sau introdu codul primit.</p>
+      <h2>Intră în duel</h2>
+      <p>Creează o cameră privată sau intră instant cu un cod.</p>
 
       <div class="stack">
         <button class="btn btn-gold" onclick="createRoom()">CREEAZĂ INVITAȚIE</button>
@@ -2114,7 +2345,7 @@ const SUPABASE_KEY="sb_publishable_B0LqurILNouyf3zBqlOBxw_TjuFAU_7";
 
 const supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
-  realtime:{params:{eventsPerSecond:20}}
+  realtime:{params:{eventsPerSecond:50}}
 });
 
 const $=id=>document.getElementById(id);
@@ -2155,6 +2386,9 @@ const S={
   realtimeOnline:false,
   lastEventId:0,
   networkBusy:false,
+  playersRefreshBusy:false,
+  eventsPollBusy:false,
+  persistedEventIds:new Set(),
   networkTimers:{heartbeat:null,players:null,events:null,reconnect:null},
   lastBackendError:"",
   roomExpiresAt:null,
@@ -2493,6 +2727,9 @@ function clearEverything(){
   S.seen.clear();
   S.lastWinnerProfileId=null;
   S.lastEventId=0;
+  S.persistedEventIds=new Set();
+  S.playersRefreshBusy=false;
+  S.eventsPollBusy=false;
   S.lastBackendError="";
   $("joinCode").value="";
 }
@@ -2577,8 +2814,11 @@ async function connect(){
   setLobbyConnection(false,"Se conectează");
   setHomeConnection(false,"Se conectează");
 
-  const backendOk=await initializeRoomBackend();
+  /* Deschidem WebSocket-ul în paralel cu verificarea tabelelor. Astfel,
+     al doilea sau al treilea jucător este anunțat imediat, nu după REST. */
+  const backendPromise=initializeRoomBackend();
   setupRealtimeChannel();
+  const backendOk=await backendPromise;
 
   S.connecting=false;
 
@@ -2674,7 +2914,7 @@ function setupRealtimeChannel(){
 
   const generation=++S.connectionGeneration;
   S.channel=supa.channel(`bingo-duel:${S.room}`,{
-    config:{broadcast:{self:false,ack:true},private:false}
+    config:{broadcast:{self:false,ack:false},private:false}
   });
 
   S.channel
@@ -2732,9 +2972,11 @@ function setupRealtimeChannel(){
 
 function startNetworkLoops(){
   stopNetworkLoops();
-  S.networkTimers.heartbeat=setInterval(heartbeatBackend,750);
-  S.networkTimers.players=setInterval(refreshPlayersFromBackend,220);
-  S.networkTimers.events=setInterval(pollEventsFromBackend,180);
+  /* WebSocket-ul livrează instant. Interogările REST sunt doar rezervă și
+     sunt limitate ca să nu blocheze telefonul cu cereri suprapuse. */
+  S.networkTimers.heartbeat=setInterval(heartbeatBackend,2500);
+  S.networkTimers.players=setInterval(refreshPlayersFromBackend,550);
+  S.networkTimers.events=setInterval(pollEventsFromBackend,450);
 }
 
 function stopNetworkLoops(){
@@ -2838,7 +3080,8 @@ async function heartbeatBackend(){
 }
 
 async function refreshPlayersFromBackend(){
-  if(!S.room||!S.backendOnline) return;
+  if(!S.room||!S.backendOnline||S.playersRefreshBusy) return;
+  S.playersRefreshBusy=true;
   try{
     const cutoff=new Date(Date.now()-8000).toISOString();
     const {data,error}=await supa.from("bingo_room_players")
@@ -2915,11 +3158,14 @@ async function refreshPlayersFromBackend(){
   }catch(error){
     console.warn("Players refresh:",error);
     S.lastBackendError=String(error?.message||error||"");
+  }finally{
+    S.playersRefreshBusy=false;
   }
 }
 
 async function pollEventsFromBackend(){
-  if(!S.room||!S.backendOnline) return;
+  if(!S.room||!S.backendOnline||S.eventsPollBusy) return;
+  S.eventsPollBusy=true;
   try{
     const {data,error}=await supa.from("bingo_room_events")
       .select("id,event_id,sender_id,event_type,payload,created_at")
@@ -2933,6 +3179,8 @@ async function pollEventsFromBackend(){
   }catch(error){
     console.warn("Events poll:",error);
     S.lastBackendError=String(error?.message||error||"");
+  }finally{
+    S.eventsPollBusy=false;
   }
 }
 
@@ -3005,6 +3253,31 @@ function sortPresence(players){
 }
 
 /* EVENTS */
+async function persistEventOnce(message){
+  if(!S.backendOnline||!message?.eventId) return false;
+  if(S.persistedEventIds.has(message.eventId)) return true;
+
+  S.persistedEventIds.add(message.eventId);
+  try{
+    const {error}=await supa.from("bingo_room_events").insert({
+      event_id:message.eventId,
+      room_code:S.room,
+      sender_id:S.clientId,
+      event_type:message.type,
+      payload:message.data,
+      created_at:new Date(message.sentAt).toISOString()
+    });
+
+    if(!error||error.code==="23505") return true;
+    throw error;
+  }catch(error){
+    S.persistedEventIds.delete(message.eventId);
+    S.lastBackendError=String(error?.message||error||"");
+    console.warn("Event persist:",error);
+    return false;
+  }
+}
+
 async function emit(type,data={}){
   if(!S.room) return false;
 
@@ -3020,55 +3293,49 @@ async function emit(type,data={}){
     sentAt:Date.now()
   };
 
-  let websocketOk=false;
-  let databaseOk=false;
+  let websocketQueued=false;
 
   if(S.channel&&S.realtimeOnline){
     try{
-      const status=await S.channel.send({
+      websocketQueued=true;
+      /* Nu așteptăm răspunsul serverului înainte ca interfața să continue. */
+      Promise.resolve(S.channel.send({
         type:"broadcast",
         event:"duel",
         payload:message
+      })).then(status=>{
+        if(status!=="ok"){
+          S.realtimeOnline=false;
+          scheduleNetworkReconnect();
+        }
+      }).catch(error=>{
+        console.warn("Broadcast send:",error);
+        S.realtimeOnline=false;
+        scheduleNetworkReconnect();
       });
-      websocketOk=status==="ok";
     }catch(error){
-      console.warn("Broadcast send:",error);
+      console.warn("Broadcast queue:",error);
       S.realtimeOnline=false;
+      websocketQueued=false;
     }
+  }
+
+  /* Fiecare eveniment este scris o singură dată în tabel. Retrimiterile
+     rapide merg numai prin WebSocket și nu mai sufocă rețeaua telefonului. */
+  if(websocketQueued){
+    if(S.backendOnline) void persistEventOnce(message);
+    return true;
   }
 
   if(S.backendOnline){
-    for(let attempt=1;attempt<=2;attempt++){
-      try{
-        const {error}=await supa.from("bingo_room_events").insert({
-          event_id:eventId,
-          room_code:S.room,
-          sender_id:S.clientId,
-          event_type:type,
-          payload:data,
-          created_at:new Date().toISOString()
-        });
-
-        if(!error||error.code==="23505"){
-          databaseOk=true;
-          break;
-        }
-        throw error;
-      }catch(error){
-        console.warn("Event insert:",error);
-        if(attempt<2) await sleep(55);
-      }
-    }
+    const databaseOk=await persistEventOnce(message);
+    if(databaseOk) return true;
   }
 
-  if(websocketOk||databaseOk) return true;
-
-  /* O ultimă încercare de refacere a backendului, fără blocarea interfeței. */
-  if(!S.backendOnline) scheduleNetworkReconnect();
+  scheduleNetworkReconnect();
   toast("Acțiunea nu a fost trimisă. Se reconectează...");
   return false;
 }
-
 
 function stableEventKey(type,data){
   const match=data?.matchId||"";
@@ -3254,8 +3521,8 @@ async function toggleReady(){
   S.ready=!S.ready;
   S.readyById.set(S.clientId,S.ready);
   updateReadyButton();
-  await emit("ready",{ready:S.ready});
-  await trackPresence();
+  void emit("ready",{ready:S.ready});
+  void trackPresence();
   updateLobbyMessage();
 }
 
@@ -3360,9 +3627,9 @@ async function startMatch(){
   /* Startul este scris durabil în bingo_room_events și transmis simultan
      prin WebSocket. Gazda intră imediat, invitații îl primesc instant sau
      prin fallback-ul de 260 ms dacă WebSocket-ul telefonului a căzut. */
-  setLobbyMessage("Jocul începe...");
+  setLobbyMessage("A început jocul.");
   S.matchId=startData.matchId;
-  await emit("game_start",startData);
+  void emit("game_start",startData);
   beginGameFromCommit(startData);
   sendGameStartBurst(startData);
 }
@@ -3504,9 +3771,9 @@ async function callNumber(number){
   recordRecentMove(number,S.clientId,S.outgoing.actionId,false);
   renderCells();
   updateGameUI();
-  await sendOutgoingCall();
+  void sendOutgoingCall();
   clearTimer("call");
-  S.timers.call=setInterval(sendOutgoingCall,380);
+  S.timers.call=setInterval(sendOutgoingCall,220);
 }
 
 async function sendOutgoingCall(){
@@ -3548,9 +3815,9 @@ async function confirmIncoming(){
   updateLines();
   renderCells();
   updateGameUI();
-  await sendConfirmation();
+  void sendConfirmation();
   clearTimer("confirm");
-  S.timers.confirm=setInterval(sendConfirmation,380);
+  S.timers.confirm=setInterval(sendConfirmation,220);
 }
 
 async function sendConfirmation(){
@@ -3589,9 +3856,9 @@ async function callerReceivesConfirmation(data,senderId){
   if(result){
     S.resultPending={...result,acks:[]};
     showResult(result);
-    await sendResult();
+    void sendResult();
     clearTimer("result");
-    S.timers.result=setInterval(sendResult,420);
+    S.timers.result=setInterval(sendResult,260);
     return;
   }
 
@@ -3610,9 +3877,9 @@ async function callerReceivesConfirmation(data,senderId){
   renderProgress();
   renderCells();
   updateGameUI();
-  await sendAdvance();
+  void sendAdvance();
   clearTimer("advance");
-  S.timers.advance=setInterval(sendAdvance,380);
+  S.timers.advance=setInterval(sendAdvance,220);
 }
 
 function nextPlayerAfter(clientId){
@@ -3630,7 +3897,7 @@ async function receiverAdvancesTurn(data,senderId){
   if(!validMatch(data)||S.ended||senderId!==S.turn) return;
 
   if(S.lastAdvancedAction===data.actionId){
-    await emit("turn_ack",{matchId:S.matchId,actionId:data.actionId});
+    void emit("turn_ack",{matchId:S.matchId,actionId:data.actionId});
     return;
   }
   if(!S.confirmedWaiting||data.actionId!==S.confirmedWaiting.actionId) return;
@@ -3647,7 +3914,7 @@ async function receiverAdvancesTurn(data,senderId){
   renderProgress();
   renderCells();
   updateGameUI();
-  await emit("turn_ack",{matchId:S.matchId,actionId:data.actionId});
+  void emit("turn_ack",{matchId:S.matchId,actionId:data.actionId});
 }
 
 function callerReceivesTurnAck(data,senderId){
@@ -3685,7 +3952,7 @@ async function receiveResult(data,senderId){
   if(!validMatch(data)) return;
   S.playerLines=new Map(Object.entries(data.lineCounts||{}).map(([id,count])=>[id,Number(count)||0]));
   showResult(data);
-  await emit("result_ack",{matchId:S.matchId});
+  void emit("result_ack",{matchId:S.matchId});
 }
 
 function receiveResultAck(data,senderId){
@@ -3884,7 +4151,7 @@ async function endGameFromMenu(){
   showResult(result);
   await sendResult();
   clearTimer("result");
-  S.timers.result=setInterval(sendResult,420);
+  S.timers.result=setInterval(sendResult,260);
 }
 
 /* SOUND — doar atingere */
@@ -3974,10 +4241,10 @@ function closePause(){
 
 /* SYNC */
 function restartCriticalTimers(){
-  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,380)}
-  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,380)}
-  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,380)}
-  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,420)}
+  if(S.outgoing){clearTimer("call");S.timers.call=setInterval(sendOutgoingCall,220)}
+  if(S.confirmedWaiting){clearTimer("confirm");S.timers.confirm=setInterval(sendConfirmation,220)}
+  if(S.advancePending){clearTimer("advance");S.timers.advance=setInterval(sendAdvance,220)}
+  if(S.resultPending){clearTimer("result");S.timers.result=setInterval(sendResult,260)}
 }
 
 function requestSync(){
