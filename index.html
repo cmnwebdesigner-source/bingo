@@ -1676,6 +1676,103 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       .opponent-progress-line{margin-top:2px}
     }
 
+  
+    /* Profil rapid și statistici principale */
+    .profile-trigger{
+      cursor:pointer;
+      touch-action:manipulation;
+      transition:transform .14s ease,box-shadow .14s ease;
+    }
+    .profile-trigger:active{transform:scale(.94)}
+    .profile-trigger:focus-visible{
+      outline:2px solid var(--gold2);
+      outline-offset:3px;
+    }
+    .prominent-stat{padding-top:18px;padding-bottom:18px}
+    .prominent-stat .side-label{font-size:clamp(9px,.9vw,11px)}
+    .prominent-stat .side-number{
+      margin-top:7px;
+      font-size:clamp(24px,3vw,36px);
+      line-height:1;
+    }
+    .profile-view-modal{
+      position:relative;
+      width:min(350px,calc(100% - 28px));
+      padding:30px 24px 25px;
+      text-align:center;
+    }
+    .profile-view-close{
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:34px;
+      height:34px;
+      border-radius:11px;
+      display:grid;
+      place-items:center;
+      color:#555;
+      background:var(--paper);
+      font-size:22px;
+      font-weight:900;
+      line-height:1;
+    }
+    .profile-view-avatar{
+      width:96px;
+      height:96px;
+      margin:0 auto 14px;
+      border-radius:28px;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold2),var(--gold));
+      box-shadow:0 16px 38px rgba(0,0,0,.16);
+      font-size:28px;
+      font-weight:1000;
+    }
+    .profile-view-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:50% 32%;
+    }
+    .profile-view-modal h2{
+      margin:0;
+      text-align:center;
+      font-size:24px;
+    }
+    .profile-view-wins{
+      margin-top:18px;
+      padding:16px;
+      border-radius:17px;
+      display:grid;
+      gap:5px;
+      color:#111;
+      background:var(--paper);
+      box-shadow:inset 0 0 0 1px #e8e4da;
+    }
+    .profile-view-wins span{
+      color:#777;
+      font-size:9px;
+      font-weight:1000;
+      letter-spacing:.15em;
+    }
+    .profile-view-wins strong{
+      color:var(--gold-dark);
+      font-size:30px;
+      line-height:1;
+    }
+    @media(max-aspect-ratio:4/5){
+      .side>.prominent-stat{flex:0 0 72px;padding-left:8px}
+      .side>.prominent-stat .side-label{font-size:7px}
+      .side>.prominent-stat .side-number{font-size:19px}
+    }
+    @media(max-height:500px) and (min-aspect-ratio:4/5){
+      .prominent-stat{padding-top:9px;padding-bottom:9px}
+      .prominent-stat .side-label{font-size:8px}
+      .prominent-stat .side-number{font-size:20px}
+    }
+
   </style>
 </head>
 
@@ -1850,24 +1947,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     <div class="game-grid">
       <aside id="leftSide" class="side">
         <div class="player">
-          <div id="myAvatar" class="avatar">I</div>
+          <div id="myAvatar" class="avatar profile-trigger" role="button" tabindex="0" aria-label="Vezi profilul" onclick="openOwnPlayerInfo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openOwnPlayerInfo()}">I</div>
           <div>
             <div id="myPlayerName" class="player-name">Jucător</div>
             <div id="myRole" class="player-state">Jucător</div>
           </div>
         </div>
 
-        <div class="moves-panel">
-          <div class="info-panel-head">
-            <span>ULTIMELE MUTĂRI</span>
-            <span id="recentMovesCount" class="info-panel-count">0</span>
-          </div>
-          <div id="recentMoves" class="moves-list">
-            <span class="moves-empty">Nicio mutare încă</span>
-          </div>
-        </div>
-
-        <div class="side-block">
+        <div class="side-block prominent-stat">
           <div class="side-label">MUTAREA</div>
           <div id="moveText" class="side-number">1</div>
           <div id="moveHelp" class="side-help">Așteaptă începerea jocului.</div>
@@ -1914,13 +2001,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       <aside id="rightSide" class="side right">
         <div id="opponentsList" class="opponents-list"></div>
 
-        <div class="turn-order-panel">
-          <div class="info-panel-head"><span>ORDINEA JUCĂTORILOR</span></div>
-          <div id="turnOrderList" class="turn-order-list"></div>
-        </div>
-
-
-        <div class="side-block">
+        <div class="side-block prominent-stat">
           <div class="side-label">NUMĂR PRIMIT</div>
           <div id="receivedNumber" class="side-number">—</div>
           <div class="side-help">Același număr este trimis tuturor adversarilor.</div>
@@ -1979,6 +2060,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     <div class="modal-actions">
       <button class="btn btn-soft" onclick="closeProfileEditor()">ANULEAZĂ</button>
       <button class="btn btn-gold" onclick="saveProfileChanges()">SALVEAZĂ</button>
+    </div>
+  </div>
+</div>
+
+<div id="playerInfoOverlay" class="overlay hidden" onclick="if(event.target===this) closePlayerInfo()">
+  <div class="modal profile-view-modal">
+    <button class="profile-view-close" type="button" aria-label="Închide" onclick="closePlayerInfo()">×</button>
+    <div id="playerInfoAvatar" class="profile-view-avatar">J</div>
+    <h2 id="playerInfoName">Jucător</h2>
+    <div class="profile-view-wins">
+      <span>CÂȘTIGURI ÎN TOTAL</span>
+      <strong id="playerInfoWins">0</strong>
     </div>
   </div>
 </div>
@@ -2146,6 +2239,10 @@ window.addEventListener("online",async()=>{
   toast("Internetul a revenit.");
   if(S.room&&!S.subscribed) await reconnect();
   else if(S.started){restartCriticalTimers();requestSync()}
+});
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&!$("playerInfoOverlay").classList.contains("hidden")) closePlayerInfo();
 });
 
 document.addEventListener("visibilitychange",async()=>{
@@ -4037,7 +4134,17 @@ function renderOpponents(){
     const player=document.createElement("div");
     player.className="player";
     const avatar=document.createElement("div");
-    avatar.className="avatar";
+    avatar.className="avatar profile-trigger";
+    avatar.setAttribute("role","button");
+    avatar.setAttribute("tabindex","0");
+    avatar.setAttribute("aria-label",`Vezi profilul lui ${participant.profile.name}`);
+    avatar.addEventListener("click",()=>openPlayerInfo(participant.profile));
+    avatar.addEventListener("keydown",event=>{
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();
+        openPlayerInfo(participant.profile);
+      }
+    });
     applyAvatar(avatar,participant.profile);
     const text=document.createElement("div");
     text.innerHTML=`<div class="player-name">${escapeHtml(participant.profile.name)}</div><div class="player-state">${S.started?"În joc":"Conectat"}</div>`;
@@ -4102,6 +4209,69 @@ function updateGameUI(){
 
   renderCells();
   renderTurnOrder();
+}
+
+/* PROFIL RAPID JUCĂTOR */
+let playerInfoRequestToken=0;
+
+function openOwnPlayerInfo(){
+  if(S.profile) openPlayerInfo(S.profile);
+}
+
+function openPlayerInfoByClientId(clientId){
+  const profile=clientId===S.clientId
+    ? S.profile
+    : S.participants.get(clientId)?.profile;
+  if(profile) openPlayerInfo(profile);
+}
+
+function countLocalProfileWins(profile){
+  if(!profile?.email) return {wins:0,matchIds:new Set()};
+  const matchIds=new Set();
+  let anonymousWins=0;
+  for(const record of getLocalHistory(profile.email)){
+    if(record.result!=="Victorie") continue;
+    if(record.matchId) matchIds.add(String(record.matchId));
+    else anonymousWins++;
+  }
+  return {wins:matchIds.size+anonymousWins,matchIds};
+}
+
+async function openPlayerInfo(profile){
+  if(!profile) return;
+  const requestToken=++playerInfoRequestToken;
+  const overlay=$("playerInfoOverlay");
+  const local=countLocalProfileWins(profile);
+
+  applyAvatar($("playerInfoAvatar"),profile);
+  $("playerInfoName").textContent=profile.name||"Jucător";
+  $("playerInfoWins").textContent=String(local.wins);
+  overlay.classList.remove("hidden");
+
+  try{
+    const {data,error}=await supa.from("bingo_history")
+      .select("match_id,profile_id,user_email,result")
+      .eq("result","Victorie");
+    if(error||!Array.isArray(data)) return;
+
+    const matchIds=new Set(local.matchIds);
+    let anonymousWins=local.wins-local.matchIds.size;
+    for(const row of data){
+      const sameProfile=(profile.id&&row.profile_id===profile.id)||
+        (profile.email&&row.user_email===profile.email);
+      if(!sameProfile) continue;
+      if(row.match_id) matchIds.add(String(row.match_id));
+      else anonymousWins++;
+    }
+
+    if(requestToken!==playerInfoRequestToken||overlay.classList.contains("hidden")) return;
+    $("playerInfoWins").textContent=String(matchIds.size+anonymousWins);
+  }catch{}
+}
+
+function closePlayerInfo(){
+  playerInfoRequestToken++;
+  $("playerInfoOverlay").classList.add("hidden");
 }
 
 /* HISTORY */
