@@ -2004,7 +2004,280 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
     }
 
-  </style>
+  
+    /* ================================================================
+       PREGĂTIRE COMPACTĂ + JOC ALB/NEGRU
+       ================================================================ */
+    .lobby-message{display:none!important}
+    .lobby-body{
+      grid-template-columns:minmax(320px,410px) minmax(0,1fr);
+      background:#f5f4f0;
+    }
+    .lobby-controls{
+      justify-content:flex-start;
+      gap:12px;
+      padding:clamp(18px,2.4vw,28px);
+      background:
+        radial-gradient(circle at 0 0,rgba(255,220,103,.13),transparent 34%),
+        linear-gradient(155deg,#15120a,#050505 66%);
+    }
+    .lobby-heading{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .lobby-heading h2{
+      margin:4px 0 0;
+      font-size:clamp(24px,2.8vw,34px);
+    }
+    .lobby-description{margin-top:-4px}
+    .players-count{
+      min-width:58px;
+      height:42px;
+      margin:0;
+      padding:0 12px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      color:#090804;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      box-shadow:0 10px 25px rgba(220,174,49,.17);
+      font-size:15px;
+      font-weight:1000;
+    }
+    .lobby-room-card{
+      margin:0;
+      padding:13px 14px;
+      border:1px solid rgba(255,220,103,.18);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background:rgba(255,255,255,.035);
+    }
+    .lobby-room-card .room-code{margin-top:2px;font-size:25px}
+    .room-tip{
+      padding:7px 9px;
+      border-radius:10px;
+      color:#bca65f;
+      background:#12100b;
+      font-size:8px;
+      font-weight:1000;
+      letter-spacing:.1em;
+      white-space:nowrap;
+    }
+    .lobby-controls .modes{
+      margin:0;
+      gap:6px;
+    }
+    .lobby-controls .mode{
+      height:39px;
+      border-radius:11px;
+      font-size:11px;
+    }
+    .lobby-actions{
+      grid-template-columns:1.15fr 1fr 1fr;
+      gap:7px;
+    }
+    .lobby-actions .btn{
+      min-height:42px;
+      padding:0 9px;
+      border-radius:12px;
+      font-size:9px;
+    }
+    .lobby-generate{letter-spacing:.02em}
+    .preview{
+      color:#111;
+      background:#fff;
+    }
+    .preview-top h3{color:#111}
+    .preview .sub{color:#888}
+    .preview-cell{
+      color:#111;
+      background:#f2f0ec;
+      box-shadow:none;
+    }
+
+    /* Jocul revine la interfața alb-negru. */
+    .game,.game-grid{color:#111;background:#fff}
+    .game-grid{background:#fff}
+    .side,.side.right{
+      color:#fff;
+      background:#080808;
+      border-color:#242424;
+    }
+    .side.right{background:#111}
+    .side{border-right:0}
+    .side.right{border-left:0}
+    .avatar{
+      border:0;
+      box-shadow:none;
+      background:linear-gradient(145deg,var(--gold2),var(--gold));
+    }
+    .player-name{color:#fff}
+    .player-state{color:#777}
+    .side-block{border-color:#292929}
+    .side-label{color:#777}
+    .side-number{color:#fff;text-shadow:none}
+    .side-help{color:#777}
+    .bar{background:#292929}.bar.done{background:var(--gold2)}
+    .opponent-card{border-color:#292929}
+    .opponent-progress-number{color:#fff}
+    .burger-button{
+      color:#111;
+      background:#fff;
+      box-shadow:none;
+    }
+    .burger-icon span{background:#111}
+    .burger-menu{border-color:#2b2b2b;background:rgba(12,12,12,.97)}
+    .burger-item{color:#fff}.burger-item:active{background:#222}
+    .burger-item.danger{color:#ff8097}
+    .about-copy{color:#aaa;background:#181818}
+
+    .center{
+      background:
+        radial-gradient(circle at 50% -15%,rgba(232,183,47,.08),transparent 35%),
+        #fff;
+    }
+    .game-caption{color:#777}
+    .bingo-letter{
+      color:#111;
+      background:#f1efeb;
+      box-shadow:none;
+    }
+    .bingo-letter.done{
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold2),var(--gold));
+    }
+    .turn{
+      color:#111;
+      background:#f2f0ec;
+      box-shadow:none;
+    }
+    .turn.mine{
+      color:#080808;
+      background:linear-gradient(120deg,var(--gold2),var(--gold));
+    }
+    .turn.received{color:#111;background:#f5e7bd}
+    .number-pill{color:#fff;background:#111}
+    .cell{
+      color:#111;
+      background:#f2f0ec;
+      box-shadow:none;
+    }
+    .cell.pending{
+      color:#080808;
+      background:linear-gradient(145deg,var(--gold2),var(--gold));
+      box-shadow:inset 0 0 0 2px var(--gold-dark),0 0 0 3px rgba(232,183,47,.1);
+    }
+    .cell.target{
+      color:#111;
+      background:#f5e7bd;
+      box-shadow:inset 0 0 0 3px var(--gold-dark);
+    }
+    .cell.marked{color:#4a4a4a;background:var(--red-soft)}
+    .cell.marked::before,.cell.marked::after{
+      background:var(--red);
+      box-shadow:0 0 8px rgba(237,47,80,.35);
+    }
+    .strike-gold{stroke:var(--gold2)}
+    .strike-black{stroke:#111}
+
+    @media(max-aspect-ratio:4/5){
+      .lobby-body{
+        grid-template-columns:1fr;
+        grid-template-rows:auto minmax(0,1fr);
+      }
+      .lobby-controls{
+        gap:8px;
+        padding:11px calc(var(--safe-right) + 12px) 10px calc(var(--safe-left) + 12px);
+      }
+      .lobby-heading h2{font-size:20px}
+      .lobby-description{font-size:9px;line-height:1.35}
+      .players-count{min-width:51px;height:37px;border-radius:12px;font-size:13px}
+      .lobby-room-card{padding:9px 11px;border-radius:13px}
+      .lobby-room-card .room-code{font-size:20px}
+      .room-tip{padding:6px 7px;font-size:7px}
+      .lobby-controls .mode{height:34px;font-size:10px}
+      .lobby-actions .btn{min-height:36px;font-size:8px;border-radius:10px}
+      .preview{padding:8px calc(var(--safe-right) + 9px) var(--safe-bottom) calc(var(--safe-left) + 9px)}
+      .preview-top h3{font-size:16px}
+      .preview-top .sub{font-size:9px}
+      .preview-board{width:min(100%,45dvh)}
+
+      .game-grid{background:#fff}
+      .side{
+        background:#080808;
+        border-bottom:0;
+      }
+      .side.right{
+        background:#111;
+        border-top:0;
+      }
+      .center{background:#fff}
+      .side>.side-block{border-left-color:#2a2a2a}
+      .side.right>.side-block{border-left-color:#2a2a2a}
+    }
+
+    @media(max-height:500px) and (min-aspect-ratio:4/5){
+      .lobby-controls{gap:6px;padding:9px 13px}
+      .lobby-heading h2{font-size:18px}
+      .lobby-description{display:none}
+      .players-count{height:34px;min-width:48px;font-size:12px}
+      .lobby-room-card{padding:7px 9px}
+      .lobby-room-card .room-code{font-size:18px}
+      .lobby-controls .mode{height:31px}
+      .lobby-actions .btn{min-height:32px}
+    }
+
+
+
+    /* ================================================================
+       FIX MODALE: text lizibil pe cardurile deschise
+       Nu modifică Realtime-ul sau regulile jocului.
+       ================================================================ */
+    .profile-editor .field-label{
+      color:#d7c687;
+    }
+    .profile-editor .text-input{
+      color:#111;
+      background:#fff;
+      caret-color:#111;
+      box-shadow:inset 0 0 0 1px #d9d5ca;
+      font-weight:800;
+    }
+    .profile-editor .text-input::placeholder{color:#777}
+
+    .history-item{
+      color:#111;
+      background:#faf9f6;
+    }
+    .history-title,.history-mode{color:#111}
+    .history-meta{color:#747474}
+
+    .leader-row{
+      color:#111;
+      background:#faf9f6;
+    }
+    .leader-name{color:#111}
+    .leader-detail{color:#747474}
+    .leader-points{
+      color:#090804;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      box-shadow:inset 0 0 0 1px rgba(141,102,18,.28);
+    }
+
+    @media(max-width:520px){
+      .history-item{grid-template-columns:44px minmax(0,1fr) auto;gap:10px}
+      .history-title{line-height:1.25}
+      .history-mode{white-space:nowrap}
+      .leader-row{grid-template-columns:30px 42px minmax(0,1fr) auto;gap:9px}
+      .leader-points{min-width:62px;text-align:center}
+    }
+
+</style>
 </head>
 
 <body>
@@ -2134,8 +2407,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     <div class="lobby-body">
       <div class="lobby-controls">
-        <h2 id="lobbyTitle">Invită un jucător</h2>
-        <div id="lobbyDescription" class="sub">Alege dimensiunea și trimite codul adversarului.</div>
+        <div class="lobby-heading">
+          <div>
+            <div class="room-label">PREGĂTIRE RAPIDĂ</div>
+            <h2 id="lobbyTitle">Invită un jucător</h2>
+          </div>
+          <div id="lobbyPlayersCount" class="players-count">1/3</div>
+        </div>
+
+        <div id="lobbyDescription" class="sub lobby-description">Alege tabla, generează numerele și apasă GATA.</div>
+
+        <div class="room-area lobby-room-card">
+          <div>
+            <div class="room-label">CODUL CAMEREI</div>
+            <div id="roomCodeText" class="room-code">------</div>
+          </div>
+          <div class="room-tip">2–3 JUCĂTORI</div>
+        </div>
 
         <div class="modes">
           <button class="mode active" data-size="5" onclick="setSize(5)">5×5</button>
@@ -2143,21 +2431,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           <button class="mode" data-size="10" onclick="setSize(10)">10×10</button>
         </div>
 
-        <button class="btn btn-white" onclick="shuffleBoard()">GENEREAZĂ NUMERE</button>
-
-        <div class="room-area">
-          <div class="room-label">CODUL CAMEREI</div>
-          <div id="roomCodeText" class="room-code">------</div>
-          <div class="sub">Fiecare își generează tabla de câte ori dorește, apoi apasă GATA.</div>
-        </div>
-
-        <div id="lobbyMessage" class="lobby-message">Se creează camera...</div>
-        <div id="lobbyPlayersCount" class="players-count">1/3 jucători</div>
-
         <div class="lobby-actions">
+          <button class="btn btn-white lobby-generate" onclick="shuffleBoard()">GENEREAZĂ</button>
           <button id="readyButton" class="btn btn-white" onclick="toggleReady()">SUNT GATA</button>
           <button id="startButton" class="btn btn-gold" onclick="startMatch()">START</button>
         </div>
+
+        <div id="lobbyMessage" class="lobby-message" aria-hidden="true"></div>
       </div>
 
       <div class="preview">
@@ -2914,7 +3194,7 @@ function setupRealtimeChannel(){
 
   const generation=++S.connectionGeneration;
   S.channel=supa.channel(`bingo-duel:${S.room}`,{
-    config:{broadcast:{self:false,ack:false},private:false}
+    config:{broadcast:{self:false,ack:true},private:false}
   });
 
   S.channel
@@ -2975,8 +3255,8 @@ function startNetworkLoops(){
   /* WebSocket-ul livrează instant. Interogările REST sunt doar rezervă și
      sunt limitate ca să nu blocheze telefonul cu cereri suprapuse. */
   S.networkTimers.heartbeat=setInterval(heartbeatBackend,2500);
-  S.networkTimers.players=setInterval(refreshPlayersFromBackend,550);
-  S.networkTimers.events=setInterval(pollEventsFromBackend,450);
+  S.networkTimers.players=setInterval(refreshPlayersFromBackend,650);
+  S.networkTimers.events=setInterval(pollEventsFromBackend,300);
 }
 
 function stopNetworkLoops(){
@@ -3278,27 +3558,27 @@ async function persistEventOnce(message){
   }
 }
 
-async function emit(type,data={}){
-  if(!S.room) return false;
+function isCriticalRealtimeType(type){
+  return [
+    "game_start","start_offer","start_commit",
+    "number_called","number_confirmed","turn_advanced","turn_ack",
+    "match_finished","result_ack","sync_request","sync_response"
+  ].includes(type);
+}
 
-  const stableKey=stableEventKey(type,data);
-  const eventId=stableKey
-    ? `${S.clientId}:${stableKey}`
-    : `${S.clientId}-${Date.now()}-${++S.counter}`;
-  const message={
-    type,
-    data,
-    eventId,
-    senderId:S.clientId,
-    sentAt:Date.now()
-  };
+function queueRealtimeDelivery(baseMessage,delay=0){
+  const deliver=()=>{
+    if(!S.channel||!S.realtimeOnline) return;
+    const message={
+      ...baseMessage,
+      /* Fiecare livrare are ID propriu. Dacă prima ajunge înainte ca
+         telefonul advers să fie pregătit, următoarea nu este blocată
+         de filtrul de duplicate. */
+      eventId:`${baseMessage.eventId}:delivery:${Date.now()}:${++S.counter}`,
+      sentAt:Date.now()
+    };
 
-  let websocketQueued=false;
-
-  if(S.channel&&S.realtimeOnline){
     try{
-      websocketQueued=true;
-      /* Nu așteptăm răspunsul serverului înainte ca interfața să continue. */
       Promise.resolve(S.channel.send({
         type:"broadcast",
         event:"duel",
@@ -3316,21 +3596,53 @@ async function emit(type,data={}){
     }catch(error){
       console.warn("Broadcast queue:",error);
       S.realtimeOnline=false;
-      websocketQueued=false;
+      scheduleNetworkReconnect();
+    }
+  };
+
+  if(delay>0) setTimeout(deliver,delay);
+  else deliver();
+}
+
+async function emit(type,data={}){
+  if(!S.room) return false;
+
+  const stableKey=stableEventKey(type,data);
+  const persistentEventId=stableKey
+    ? `${S.clientId}:${stableKey}`
+    : `${S.clientId}-${Date.now()}-${++S.counter}`;
+
+  const persistentMessage={
+    type,
+    data,
+    eventId:persistentEventId,
+    senderId:S.clientId,
+    sentAt:Date.now()
+  };
+
+  let realtimeQueued=false;
+
+  if(S.channel&&S.realtimeOnline){
+    realtimeQueued=true;
+    queueRealtimeDelivery(persistentMessage,0);
+
+    /* Comenzile de joc pleacă în rafală scurtă prin WebSocket.
+       Nu așteptăm polling-ul și nu scriem rânduri duplicate în Supabase. */
+    if(isCriticalRealtimeType(type)){
+      queueRealtimeDelivery(persistentMessage,70);
+      queueRealtimeDelivery(persistentMessage,170);
     }
   }
 
-  /* Fiecare eveniment este scris o singură dată în tabel. Retrimiterile
-     rapide merg numai prin WebSocket și nu mai sufocă rețeaua telefonului. */
-  if(websocketQueued){
-    if(S.backendOnline) void persistEventOnce(message);
-    return true;
+  /* Salvarea în tabel rulează în paralel și este doar plasă de siguranță. */
+  let databasePromise=null;
+  if(S.backendOnline){
+    databasePromise=persistEventOnce(persistentMessage);
+    if(realtimeQueued) void databasePromise;
   }
 
-  if(S.backendOnline){
-    const databaseOk=await persistEventOnce(message);
-    if(databaseOk) return true;
-  }
+  if(realtimeQueued) return true;
+  if(databasePromise&&await databasePromise) return true;
 
   scheduleNetworkReconnect();
   toast("Acțiunea nu a fost trimisă. Se reconectează...");
@@ -3365,12 +3677,18 @@ function stableEventKey(type,data){
 }
 
 function receive(message){
-  if(!message||message.senderId===S.clientId) return;
-  if(!message.eventId||S.seen.has(message.eventId)) return;
-  S.seen.add(message.eventId);
-  if(S.seen.size>700) S.seen=new Set(Array.from(S.seen).slice(-350));
+  if(!message||message.senderId===S.clientId||!message.eventId) return;
 
   const {type,data,senderId}=message;
+  const critical=isCriticalRealtimeType(type);
+
+  /* Pentru comenzile critice nu blocăm retransmiterea. Handler-ele verifică
+     actionId/matchId și răspund din nou cu ACK când este necesar. */
+  if(!critical){
+    if(S.seen.has(message.eventId)) return;
+    S.seen.add(message.eventId);
+    if(S.seen.size>700) S.seen=new Set(Array.from(S.seen).slice(-350));
+  }
 
   switch(type){
     case "player_joined":
@@ -3542,41 +3860,19 @@ function getLobbyPlayers(){
 }
 
 function updateLobbyMessage(){
-  const players=getLobbyPlayers();
-  const count=players.length;
-
-  if($("lobbyPlayersCount")){
-    $("lobbyPlayersCount").classList.add("hidden");
+  const count=Math.max(1,Math.min(3,getLobbyPlayers().length));
+  const counter=$("lobbyPlayersCount");
+  if(counter){
+    counter.classList.remove("hidden");
+    counter.textContent=`${count}/3`;
   }
-
-  if(count<=1){
-    setLobbyMessage("1/3 jucători · Se așteaptă jucători noi.");
-    return;
-  }
-
-  const allReady=players.every(player=>
-    player.clientId===S.clientId
-      ? S.ready
-      : Boolean(S.readyById.get(player.clientId))
-  );
-
-  if(count===2){
-    setLobbyMessage(
-      allReady
-        ? "2/3 jucători · Camera are destui jucători pentru a începe jocul!"
-        : "2/3 jucători · Camera are destui jucători. Apăsați GATA."
-    );
-    return;
-  }
-
-  setLobbyMessage(
-    allReady
-      ? "3/3 jucători · Camera este completă și poate începe jocul!"
-      : "3/3 jucători · Camera este completă. Apăsați GATA."
-  );
 }
 
-function setLobbyMessage(text){$("lobbyMessage").textContent=text}
+/* Mesajele lungi din lobby au fost eliminate intenționat.
+   Funcția rămâne pentru compatibilitate cu restul fluxului. */
+function setLobbyMessage(){
+  updateLobbyMessage();
+}
 
 /* START — pornire imediată, fără așteptarea confirmărilor în lanț */
 async function startMatch(){
@@ -3773,7 +4069,7 @@ async function callNumber(number){
   updateGameUI();
   void sendOutgoingCall();
   clearTimer("call");
-  S.timers.call=setInterval(sendOutgoingCall,220);
+  S.timers.call=setInterval(sendOutgoingCall,420);
 }
 
 async function sendOutgoingCall(){
@@ -3817,7 +4113,7 @@ async function confirmIncoming(){
   updateGameUI();
   void sendConfirmation();
   clearTimer("confirm");
-  S.timers.confirm=setInterval(sendConfirmation,220);
+  S.timers.confirm=setInterval(sendConfirmation,420);
 }
 
 async function sendConfirmation(){
@@ -3879,7 +4175,7 @@ async function callerReceivesConfirmation(data,senderId){
   updateGameUI();
   void sendAdvance();
   clearTimer("advance");
-  S.timers.advance=setInterval(sendAdvance,220);
+  S.timers.advance=setInterval(sendAdvance,420);
 }
 
 function nextPlayerAfter(clientId){
@@ -4606,6 +4902,7 @@ function closeHistory(){$("historyOverlay").classList.add("hidden")}
 
 function renderHistory(records){
   const container=$("historyList");container.innerHTML="";
+  records=(Array.isArray(records)?records:[]).filter(record=>Number(record.boardSize)!==4);
   if(!records.length){container.innerHTML='<div class="empty">Nu există încă jocuri salvate.</div>';return}
   records.forEach(record=>{
     const resultClass=record.result==="Înfrângere"?"loss":record.result==="Remiză"?"draw":"";
@@ -4633,6 +4930,7 @@ async function openLeaderboard(){
   const unique=new Set();
 
   for(const record of records){
+    if(Number(record.boardSize)===4) continue;
     const key=`${record.matchId}-${record.userEmail}`;
     if(unique.has(key)) continue;
     unique.add(key);
